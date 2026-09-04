@@ -1,0 +1,79 @@
+Sampled "05_waiting" at t=[0, 0.6, 1.2, 1.8, 2.4, 3, 3.6]s (cells 150x150). Image 1 = filmstrip (time flows left→right), image 2 = onion skin (motion trails).
+MOTION REPORT (net displacement per animation — verify each direction matches the artwork's facing):
+animation "06_blocked_enter":
+  - FaceTransform: moves in place (-2, 0)px
+  - EyeLeft: moves in place (0, -2)px, scales ±0.28
+  - EyeRight: moves in place (0, 2)px, scales ±0.22
+METRICS {
+ "vector": {
+  "bezierPaths": 5,
+  "cubicVertices": 33,
+  "straightVertices": 0,
+  "primitives": 0,
+  "pathRatio": 1
+ },
+ "color": {
+  "distinctFills": 2,
+  "palette": [
+   "#f8fafc",
+   "#1b1d22"
+  ],
+  "gradientFills": 0,
+  "solidFills": 4,
+  "oversaturated": [],
+  "pureBlackOrWhite": []
+ },
+ "motion": {
+  "keyframes": 649,
+  "animations": 10,
+  "easingDistribution": {
+   "hold": 26,
+   "linear": 140,
+   "cubic": 483
+  },
+  "elasticInterpolators": 0
+ },
+ "structure": {
+  "bones": 0,
+  "constraints": 0,
+  "stateMachines": 1,
+  "listeners": 0,
+  "nestedArtboards": 0
+ },
+ "lint": [
+  {
+   "severity": "info",
+   "rule": "motion-lopsided-scale",
+   "message": "animation \"03_thinking\": object#2 は scaleX のみアニメしています。等倍ポップなら scaleX/scaleY 両方、スカッシュ&ストレッチなら逆位相で両方動かすのが定石です"
+  },
+  {
+   "severity": "info",
+   "rule": "motion-lopsided-scale",
+   "message": "animation \"03_thinking\": object#3 は scaleX のみアニメしています。等倍ポップなら scaleX/scaleY 両方、スカッシュ&ストレッチなら逆位相で両方動かすのが定石です"
+  },
+  {
+   "severity": "info",
+   "rule": "motion-lopsided-scale",
+   "message": "animation \"04_working\": object#2 は scaleX のみアニメしています。等倍ポップなら scaleX/scaleY 両方、スカッシュ&ストレッチなら逆位相で両方動かすのが定石です"
+  },
+  {
+   "severity": "info",
+   "rule": "motion-lopsided-scale",
+   "message": "animation \"04_working\": object#3 は scaleX のみアニメしています。等倍ポップなら scaleX/scaleY 両方、スカッシュ&ストレッチなら逆位相で両方動かすのが定石です"
+  },
+  {
+   "severity": "info",
+   "rule": "motion-lopsided-scale",
+   "message": "animation \"08_done\": object#3 は scaleX のみアニメしています。等倍ポップなら scaleX/scaleY 両方、スカッシュ&ストレッチなら逆位相で両方動かすのが定石です"
+  }
+ ]
+}
+
+Score each axis 1-5 by LOOKING at the attached images (3=acceptable, 4=professional). The FILMSTRIP reads left→right in time; the ONION SKIN overlays all frames so trajectories appear as ghost trails. If any axis < 4, fix and re-run riv_critique. Iterate at least twice before delivering.
+1. Silhouette & composition — clear focal point, balanced negative space, aligned elements
+2. Color — harmonious palette (see metrics.color: oversaturated/pureBlackOrWhite should be empty; prefer gradients on hero shapes)
+3. Depth & polish — gradients/overlap/scale variation create depth; no flat "placeholder" look
+4. Motion physicality — eased arrivals/departures (metrics.motion.easingDistribution.linear should be small for transforms), overshoot/spring where playful
+5. Timing — staggered entrances, varied durations, nothing teleports (check lint motion-* findings)
+6. Shape quality — organic forms use bezier paths (metrics.vector.pathRatio near 1 for illustrations; primitives only for genuinely geometric UI)
+7. Spatial & directional coherence — the scene's viewpoint must be ONE consistent perspective: artwork drawn isometric/three-quarter must not sit on a flat side-view ground (and vice versa). Every mover's travel direction (see MOTION REPORT vectors + onion-skin trails) must match the direction the artwork visually faces — a vehicle/character/rocket must move toward its own front, never sideways or backwards. Shadows and ground contact must agree with the same viewpoint.

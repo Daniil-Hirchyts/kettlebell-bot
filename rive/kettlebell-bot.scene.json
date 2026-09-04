@@ -1,0 +1,4901 @@
+{
+  "artboard": {
+    "name": "KettlebellBot",
+    "width": 512,
+    "height": 512
+  },
+  "groups": [
+    {
+      "id": "KettlebellBotRoot",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "CharacterTransform",
+      "x": 256,
+      "y": 304,
+      "parent": "KettlebellBotRoot"
+    },
+    {
+      "id": "Handle",
+      "x": 0,
+      "y": 0,
+      "parent": "CharacterTransform"
+    },
+    {
+      "id": "Body",
+      "x": 0,
+      "y": 0,
+      "parent": "CharacterTransform"
+    },
+    {
+      "id": "FaceTransform",
+      "x": 0,
+      "y": 0,
+      "parent": "CharacterTransform"
+    },
+    {
+      "id": "EyeLeft",
+      "x": -36,
+      "y": -35,
+      "parent": "FaceTransform"
+    },
+    {
+      "id": "EyeRight",
+      "x": 36,
+      "y": -35,
+      "parent": "FaceTransform"
+    }
+  ],
+  "shapes": [
+    {
+      "id": "handle-shape",
+      "type": "polygon",
+      "x": 0,
+      "y": -170,
+      "subpaths": [
+        {
+          "closed": true,
+          "points": [
+            {
+              "x": 0,
+              "y": -76,
+              "cubic": {
+                "rotation": 0,
+                "inRotation": 180,
+                "inDistance": 70,
+                "outDistance": 70
+              }
+            },
+            {
+              "x": 122,
+              "y": -26,
+              "cubic": {
+                "rotation": 67.61986494804043,
+                "inRotation": -112.61986494804043,
+                "inDistance": 39,
+                "outDistance": 36.76955262170048
+              }
+            },
+            {
+              "x": 104,
+              "y": 76,
+              "cubic": {
+                "rotation": 180,
+                "inRotation": -53.9726266148964,
+                "inDistance": 40.80441152620633,
+                "outDistance": 69.33333333333331
+              }
+            },
+            {
+              "x": -104,
+              "y": 76,
+              "cubic": {
+                "rotation": -126.02737338510362,
+                "inRotation": 0,
+                "inDistance": 69.33333333333334,
+                "outDistance": 40.80441152620633
+              }
+            },
+            {
+              "x": -122,
+              "y": -26,
+              "cubic": {
+                "rotation": -67.38013505195958,
+                "inRotation": 112.38013505195958,
+                "inDistance": 36.76955262170048,
+                "outDistance": 39
+              }
+            }
+          ]
+        },
+        {
+          "closed": true,
+          "points": [
+            {
+              "x": 0,
+              "y": -30,
+              "cubic": {
+                "rotation": 180,
+                "inRotation": 0,
+                "inDistance": 44,
+                "outDistance": 44
+              }
+            },
+            {
+              "x": -71,
+              "y": -6,
+              "cubic": {
+                "rotation": 113.96248897457818,
+                "inRotation": -64.79887635452492,
+                "inDistance": 18.788294228055936,
+                "outDistance": 19.697715603592208
+              }
+            },
+            {
+              "x": -59,
+              "y": 54,
+              "cubic": {
+                "rotation": 0,
+                "inRotation": -124.28687697720896,
+                "inDistance": 26.627053911388693,
+                "outDistance": 39.33333333333334
+              }
+            },
+            {
+              "x": 59,
+              "y": 54,
+              "cubic": {
+                "rotation": -55.71312302279104,
+                "inRotation": 180,
+                "inDistance": 39.333333333333314,
+                "outDistance": 26.627053911388693
+              }
+            },
+            {
+              "x": 71,
+              "y": -6,
+              "cubic": {
+                "rotation": -115.20112364547509,
+                "inRotation": 66.03751102542182,
+                "inDistance": 19.697715603592208,
+                "outDistance": 18.788294228055936
+              }
+            }
+          ]
+        }
+      ],
+      "fill": {
+        "color": "#1B1D22"
+      },
+      "parent": "Handle",
+      "z": 0
+    },
+    {
+      "id": "body-shape",
+      "type": "polygon",
+      "x": 0,
+      "y": -0.5,
+      "subpaths": [
+        {
+          "closed": true,
+          "points": [
+            {
+              "x": 0,
+              "y": -137.5,
+              "cubic": {
+                "rotation": 0,
+                "inRotation": 180,
+                "inDistance": 87,
+                "outDistance": 87
+              }
+            },
+            {
+              "x": 157,
+              "y": -59.5,
+              "cubic": {
+                "rotation": 70.76932762433873,
+                "inRotation": -109.59228189105153,
+                "inDistance": 62.6258732474047,
+                "outDistance": 45.541190146942796
+              }
+            },
+            {
+              "x": 150,
+              "y": 86.5,
+              "cubic": {
+                "rotation": 116.56505117707799,
+                "inRotation": -63.99665415548856,
+                "inDistance": 45.617978911828175,
+                "outDistance": 40.24922359499622
+              }
+            },
+            {
+              "x": 48,
+              "y": 137.5,
+              "cubic": {
+                "rotation": 175.03025927188972,
+                "inRotation": -3.8140748342903548,
+                "inDistance": 45.09988913511873,
+                "outDistance": 23.086792761230395
+              }
+            },
+            {
+              "x": -48,
+              "y": 137.5,
+              "cubic": {
+                "rotation": -176.18592516570965,
+                "inRotation": 4.969740728110304,
+                "inDistance": 23.086792761230395,
+                "outDistance": 45.09988913511873
+              }
+            },
+            {
+              "x": -150,
+              "y": 86.5,
+              "cubic": {
+                "rotation": -116.00334584451144,
+                "inRotation": 63.43494882292201,
+                "inDistance": 40.24922359499622,
+                "outDistance": 45.617978911828175
+              }
+            },
+            {
+              "x": -157,
+              "y": -59.5,
+              "cubic": {
+                "rotation": -70.40771810894847,
+                "inRotation": 109.23067237566129,
+                "inDistance": 45.541190146942796,
+                "outDistance": 62.6258732474047
+              }
+            }
+          ]
+        }
+      ],
+      "fill": {
+        "color": "#1B1D22"
+      },
+      "parent": "Body",
+      "z": 1
+    },
+    {
+      "id": "eye-left",
+      "type": "polygon",
+      "x": 0,
+      "y": 0,
+      "subpaths": [
+        {
+          "closed": true,
+          "points": [
+            {
+              "x": 0,
+              "y": -31,
+              "cubic": {
+                "rotation": 0,
+                "inRotation": 180,
+                "inDistance": 6.627416997969533,
+                "outDistance": 0
+              }
+            },
+            {
+              "x": 0,
+              "y": -31,
+              "cubic": {
+                "rotation": 0,
+                "inRotation": 0,
+                "inDistance": 0,
+                "outDistance": 6.627416997969533
+              }
+            },
+            {
+              "x": 12,
+              "y": -19,
+              "cubic": {
+                "rotation": 90,
+                "inRotation": -90,
+                "inDistance": 6.627416997969533,
+                "outDistance": 12.666666666666686
+              }
+            },
+            {
+              "x": 12,
+              "y": 19,
+              "cubic": {
+                "rotation": 90,
+                "inRotation": -90,
+                "inDistance": 12.666666666666686,
+                "outDistance": 6.627416997969533
+              }
+            },
+            {
+              "x": 0,
+              "y": 31,
+              "cubic": {
+                "rotation": 0,
+                "inRotation": 0,
+                "inDistance": 6.627416997969533,
+                "outDistance": 0
+              }
+            },
+            {
+              "x": 0,
+              "y": 31,
+              "cubic": {
+                "rotation": 180,
+                "inRotation": 0,
+                "inDistance": 0,
+                "outDistance": 6.627416997969533
+              }
+            },
+            {
+              "x": -12,
+              "y": 19,
+              "cubic": {
+                "rotation": -90,
+                "inRotation": 90,
+                "inDistance": 6.627416997969533,
+                "outDistance": 12.666666666666686
+              }
+            },
+            {
+              "x": -12,
+              "y": -19,
+              "cubic": {
+                "rotation": -90,
+                "inRotation": 90,
+                "inDistance": 12.666666666666686,
+                "outDistance": 6.627416997969533
+              }
+            }
+          ]
+        }
+      ],
+      "fill": {
+        "color": "#F8FAFC"
+      },
+      "parent": "EyeLeft",
+      "z": 2
+    },
+    {
+      "id": "eye-right",
+      "type": "polygon",
+      "x": 0,
+      "y": 0,
+      "subpaths": [
+        {
+          "closed": true,
+          "points": [
+            {
+              "x": 0,
+              "y": -31,
+              "cubic": {
+                "rotation": 0,
+                "inRotation": 180,
+                "inDistance": 6.627416997969533,
+                "outDistance": 0
+              }
+            },
+            {
+              "x": 0,
+              "y": -31,
+              "cubic": {
+                "rotation": 0,
+                "inRotation": 0,
+                "inDistance": 0,
+                "outDistance": 6.627416997969533
+              }
+            },
+            {
+              "x": 12,
+              "y": -19,
+              "cubic": {
+                "rotation": 90,
+                "inRotation": -90,
+                "inDistance": 6.627416997969533,
+                "outDistance": 12.666666666666686
+              }
+            },
+            {
+              "x": 12,
+              "y": 19,
+              "cubic": {
+                "rotation": 90,
+                "inRotation": -90,
+                "inDistance": 12.666666666666686,
+                "outDistance": 6.627416997969533
+              }
+            },
+            {
+              "x": 0,
+              "y": 31,
+              "cubic": {
+                "rotation": 0,
+                "inRotation": 0,
+                "inDistance": 6.627416997969533,
+                "outDistance": 0
+              }
+            },
+            {
+              "x": 0,
+              "y": 31,
+              "cubic": {
+                "rotation": 180,
+                "inRotation": 0,
+                "inDistance": 0,
+                "outDistance": 6.627416997969533
+              }
+            },
+            {
+              "x": -12,
+              "y": 19,
+              "cubic": {
+                "rotation": -90,
+                "inRotation": 90,
+                "inDistance": 6.627416997969533,
+                "outDistance": 12.666666666666686
+              }
+            },
+            {
+              "x": -12,
+              "y": -19,
+              "cubic": {
+                "rotation": -90,
+                "inRotation": 90,
+                "inDistance": 12.666666666666686,
+                "outDistance": 6.627416997969533
+              }
+            }
+          ]
+        }
+      ],
+      "fill": {
+        "color": "#F8FAFC"
+      },
+      "parent": "EyeRight",
+      "z": 3
+    }
+  ],
+  "animations": [
+    {
+      "name": "00_face_neutral",
+      "fps": 60,
+      "duration": 1,
+      "loop": "loop",
+      "tracks": []
+    },
+    {
+      "name": "01_idle",
+      "fps": 60,
+      "duration": 288,
+      "loop": "loop",
+      "tracks": [
+        {
+          "target": "CharacterTransform",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 256
+            },
+            {
+              "frame": 72,
+              "value": 258,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 144,
+              "value": 256,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 253.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 288,
+              "value": 256,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 304
+            },
+            {
+              "frame": 92,
+              "value": 301.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 160,
+              "value": 303,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 238,
+              "value": 300.8,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 288,
+              "value": 304,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 72,
+              "value": 0.75,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 144,
+              "value": -0.25,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": -0.62,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 288,
+              "value": 0,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 72,
+              "value": 0.985,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 144,
+              "value": 1.006,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 0.98,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 288,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 92,
+              "value": 1.008,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 160,
+              "value": 0.998,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 238,
+              "value": 1.009,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 288,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 72,
+              "value": -1.8,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 144,
+              "value": 0.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 2,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 288,
+              "value": 0,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 72,
+              "value": -0.45,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 144,
+              "value": 0.18,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 0.38,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 288,
+              "value": 0,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 72,
+              "value": 0.982,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 144,
+              "value": 1.004,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 0.978,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 288,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "FaceTransform",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 38,
+              "value": -4,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 94,
+              "value": -4,
+              "easing": "hold"
+            },
+            {
+              "frame": 116,
+              "value": 5.5,
+              "easing": "snap"
+            },
+            {
+              "frame": 190,
+              "value": 5.5,
+              "easing": "hold"
+            },
+            {
+              "frame": 242,
+              "value": 0,
+              "easing": "smooth"
+            },
+            {
+              "frame": 288,
+              "value": 0,
+              "easing": "hold"
+            }
+          ]
+        },
+        {
+          "target": "FaceTransform",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 38,
+              "value": -2,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 94,
+              "value": -2,
+              "easing": "hold"
+            },
+            {
+              "frame": 116,
+              "value": 0.8,
+              "easing": "snap"
+            },
+            {
+              "frame": 190,
+              "value": 0.8,
+              "easing": "hold"
+            },
+            {
+              "frame": 242,
+              "value": 0,
+              "easing": "smooth"
+            },
+            {
+              "frame": 288,
+              "value": 0,
+              "easing": "hold"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": -36
+            },
+            {
+              "frame": 38,
+              "value": -37.5,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 116,
+              "value": -34,
+              "easing": "snap"
+            },
+            {
+              "frame": 242,
+              "value": -36,
+              "easing": "smooth"
+            },
+            {
+              "frame": 288,
+              "value": -36,
+              "easing": "hold"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 36
+            },
+            {
+              "frame": 38,
+              "value": 34,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 116,
+              "value": 37.5,
+              "easing": "snap"
+            },
+            {
+              "frame": 242,
+              "value": 36,
+              "easing": "smooth"
+            },
+            {
+              "frame": 288,
+              "value": 36,
+              "easing": "hold"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 38,
+              "value": 1.08,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 116,
+              "value": 0.9,
+              "easing": "snap"
+            },
+            {
+              "frame": 242,
+              "value": 1,
+              "easing": "smooth"
+            },
+            {
+              "frame": 288,
+              "value": 1,
+              "easing": "hold"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 38,
+              "value": 0.9,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 116,
+              "value": 1.08,
+              "easing": "snap"
+            },
+            {
+              "frame": 242,
+              "value": 1,
+              "easing": "smooth"
+            },
+            {
+              "frame": 288,
+              "value": 1,
+              "easing": "hold"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 38,
+              "value": 1.025,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 116,
+              "value": 0.97,
+              "easing": "snap"
+            },
+            {
+              "frame": 242,
+              "value": 1,
+              "easing": "smooth"
+            },
+            {
+              "frame": 288,
+              "value": 1,
+              "easing": "hold"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 38,
+              "value": 0.97,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 116,
+              "value": 1.025,
+              "easing": "snap"
+            },
+            {
+              "frame": 242,
+              "value": 1,
+              "easing": "smooth"
+            },
+            {
+              "frame": 288,
+              "value": 1,
+              "easing": "hold"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02_acknowledge",
+      "fps": 60,
+      "duration": 30,
+      "loop": "oneShot",
+      "tracks": [
+        {
+          "target": "CharacterTransform",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 304
+            },
+            {
+              "frame": 5,
+              "value": 308,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 14,
+              "value": 296,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 22,
+              "value": 303,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 30,
+              "value": 304,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 5,
+              "value": -1.1,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 14,
+              "value": 0.75,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 22,
+              "value": -0.2,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 30,
+              "value": 0,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 5,
+              "value": 1.035,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 14,
+              "value": 0.972,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 22,
+              "value": 1.008,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 30,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 5,
+              "value": 0.965,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 14,
+              "value": 1.026,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 22,
+              "value": 0.994,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 30,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 7,
+              "value": 3.5,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 16,
+              "value": -2,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 23,
+              "value": 0.8,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 30,
+              "value": 0,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 7,
+              "value": 0.8,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 16,
+              "value": -0.45,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 23,
+              "value": 0.15,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 30,
+              "value": 0,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "FaceTransform",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 5,
+              "value": 4,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 14,
+              "value": -4,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 22,
+              "value": 1,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 30,
+              "value": 0,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 5,
+              "value": 0.84,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 14,
+              "value": 1.12,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 22,
+              "value": 0.98,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 30,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 5,
+              "value": 0.84,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 14,
+              "value": 1.12,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 22,
+              "value": 0.98,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 30,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 5,
+              "value": 1.06,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 14,
+              "value": 0.96,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 22,
+              "value": 1.01,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 30,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 5,
+              "value": 1.06,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 14,
+              "value": 0.96,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 22,
+              "value": 1.01,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 30,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": -36
+            },
+            {
+              "frame": 14,
+              "value": -38,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 30,
+              "value": -36,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 36
+            },
+            {
+              "frame": 14,
+              "value": 38,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 30,
+              "value": 36,
+              "easing": "smooth"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03_thinking",
+      "fps": 60,
+      "duration": 144,
+      "loop": "loop",
+      "tracks": [
+        {
+          "target": "CharacterTransform",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 256
+            },
+            {
+              "frame": 34,
+              "value": 252.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 82,
+              "value": 259,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 118,
+              "value": 254.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 144,
+              "value": 256,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 304
+            },
+            {
+              "frame": 34,
+              "value": 301.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 82,
+              "value": 303,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 118,
+              "value": 300.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 144,
+              "value": 304,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 34,
+              "value": -1.65,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 82,
+              "value": 1.45,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 118,
+              "value": -0.8,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 144,
+              "value": 0,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 34,
+              "value": 0.965,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 82,
+              "value": 1.018,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 118,
+              "value": 0.978,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 144,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 34,
+              "value": 1.008,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 82,
+              "value": 0.995,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 118,
+              "value": 1.006,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 144,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 34,
+              "value": 2.8,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 82,
+              "value": -3,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 118,
+              "value": 1.8,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 144,
+              "value": 0,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 34,
+              "value": 1.1,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 82,
+              "value": -0.95,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 118,
+              "value": 0.55,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 144,
+              "value": 0,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 34,
+              "value": 0.955,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 82,
+              "value": 1.012,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 118,
+              "value": 0.97,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 144,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 34,
+              "value": 1.018,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 82,
+              "value": 0.996,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 118,
+              "value": 1.012,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 144,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Body",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 34,
+              "value": -1.2,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 82,
+              "value": 1.2,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 144,
+              "value": 0,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Body",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 34,
+              "value": 1.012,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 82,
+              "value": 0.992,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 118,
+              "value": 1.008,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 144,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Body",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 34,
+              "value": 0.996,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 82,
+              "value": 1.004,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 118,
+              "value": 0.997,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 144,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "FaceTransform",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 30,
+              "value": -9,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 66,
+              "value": -2,
+              "easing": "smooth"
+            },
+            {
+              "frame": 78,
+              "value": 8,
+              "easing": "snap"
+            },
+            {
+              "frame": 112,
+              "value": 4,
+              "easing": "smooth"
+            },
+            {
+              "frame": 144,
+              "value": 0,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "FaceTransform",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 30,
+              "value": -5,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 66,
+              "value": 1,
+              "easing": "smooth"
+            },
+            {
+              "frame": 78,
+              "value": -2.5,
+              "easing": "snap"
+            },
+            {
+              "frame": 112,
+              "value": 2,
+              "easing": "smooth"
+            },
+            {
+              "frame": 144,
+              "value": 0,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "FaceTransform",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 30,
+              "value": -1.8,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 78,
+              "value": 1.4,
+              "easing": "snap"
+            },
+            {
+              "frame": 112,
+              "value": -0.4,
+              "easing": "smooth"
+            },
+            {
+              "frame": 144,
+              "value": 0,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 30,
+              "value": 1.2,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 78,
+              "value": 0.76,
+              "easing": "snap"
+            },
+            {
+              "frame": 112,
+              "value": 0.92,
+              "easing": "smooth"
+            },
+            {
+              "frame": 144,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 30,
+              "value": 0.76,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 78,
+              "value": 1.2,
+              "easing": "snap"
+            },
+            {
+              "frame": 112,
+              "value": 1.08,
+              "easing": "smooth"
+            },
+            {
+              "frame": 144,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 30,
+              "value": 1.04,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 78,
+              "value": 0.92,
+              "easing": "snap"
+            },
+            {
+              "frame": 144,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 30,
+              "value": 0.92,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 78,
+              "value": 1.04,
+              "easing": "snap"
+            },
+            {
+              "frame": 144,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 30,
+              "value": -3.5,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 78,
+              "value": 2.5,
+              "easing": "snap"
+            },
+            {
+              "frame": 144,
+              "value": 0,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 30,
+              "value": -1.5,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 78,
+              "value": 4,
+              "easing": "snap"
+            },
+            {
+              "frame": 144,
+              "value": 0,
+              "easing": "smooth"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04_working",
+      "fps": 60,
+      "duration": 84,
+      "loop": "loop",
+      "tracks": [
+        {
+          "target": "CharacterTransform",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 256
+            },
+            {
+              "frame": 21,
+              "value": 261,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 256,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": 251,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 256,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 304
+            },
+            {
+              "frame": 21,
+              "value": 300,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 296.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": 301.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 304,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 21,
+              "value": 1.8,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 0,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": -1.8,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 0,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 21,
+              "value": 0.962,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 1.018,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": 0.968,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 21,
+              "value": 1.01,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 0.992,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": 1.008,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 21,
+              "value": -3,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 0,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": 3,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 0,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 21,
+              "value": 1,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": -2,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": 1,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 0,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 21,
+              "value": -1.25,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 0,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": 1.25,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 0,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 21,
+              "value": 0.94,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 1.015,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": 0.94,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 21,
+              "value": 1.02,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 0.995,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": 1.02,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Body",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 21,
+              "value": 1.1,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 0,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": -1.1,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 0,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Body",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 21,
+              "value": 1.01,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 0.993,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": 1.01,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Body",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 21,
+              "value": 0.997,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 1.004,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": 0.997,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "FaceTransform",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 21,
+              "value": 9,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 0,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": -9,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 0,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "FaceTransform",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 21,
+              "value": -3,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": -5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": -2,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 0,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "FaceTransform",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 21,
+              "value": 1.2,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 0,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": -1.2,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 0,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": -36
+            },
+            {
+              "frame": 21,
+              "value": -33,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": -36,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": -39,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": -36,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 36
+            },
+            {
+              "frame": 21,
+              "value": 39,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 36,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": 33,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 36,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": -35
+            },
+            {
+              "frame": 21,
+              "value": -36.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": -35,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": -33.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": -35,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": -35
+            },
+            {
+              "frame": 21,
+              "value": -33.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": -35,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": -36.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": -35,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 21,
+              "value": 0.74,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 1.08,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": 1.24,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 21,
+              "value": 1.24,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 1.08,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": 0.74,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 21,
+              "value": 0.9,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 1.08,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": 1.02,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 21,
+              "value": 1.02,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 42,
+              "value": 1.08,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 63,
+              "value": 0.9,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 84,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05_waiting",
+      "fps": 60,
+      "duration": 216,
+      "loop": "loop",
+      "tracks": [
+        {
+          "target": "CharacterTransform",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 256
+            },
+            {
+              "frame": 48,
+              "value": 253.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 156,
+              "value": 253.5,
+              "easing": "hold"
+            },
+            {
+              "frame": 216,
+              "value": 256,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 304
+            },
+            {
+              "frame": 48,
+              "value": 306.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 156,
+              "value": 306,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 304,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 48,
+              "value": -1.25,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 156,
+              "value": -0.8,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 0,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 48,
+              "value": 1.012,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 156,
+              "value": 1.006,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 48,
+              "value": 0.992,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 156,
+              "value": 0.996,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 1,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 48,
+              "value": 2.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 156,
+              "value": 1.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 0,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 48,
+              "value": 0.8,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 156,
+              "value": 0.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 0,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "FaceTransform",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 42,
+              "value": 8,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 118,
+              "value": 8,
+              "easing": "hold"
+            },
+            {
+              "frame": 136,
+              "value": -2,
+              "easing": "snap"
+            },
+            {
+              "frame": 166,
+              "value": -2,
+              "easing": "hold"
+            },
+            {
+              "frame": 216,
+              "value": 0,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "FaceTransform",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 42,
+              "value": 4,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 166,
+              "value": 4,
+              "easing": "hold"
+            },
+            {
+              "frame": 216,
+              "value": 0,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 42,
+              "value": 0.84,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 118,
+              "value": 0.84,
+              "easing": "hold"
+            },
+            {
+              "frame": 126,
+              "value": 0.66,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 136,
+              "value": 0.82,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 166,
+              "value": 0.82,
+              "easing": "hold"
+            },
+            {
+              "frame": 216,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 42,
+              "value": 0.78,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 118,
+              "value": 0.78,
+              "easing": "hold"
+            },
+            {
+              "frame": 126,
+              "value": 0.62,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 136,
+              "value": 0.8,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 166,
+              "value": 0.8,
+              "easing": "hold"
+            },
+            {
+              "frame": 216,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 42,
+              "value": 0.84,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 136,
+              "value": 1.1,
+              "easing": "snap"
+            },
+            {
+              "frame": 216,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 42,
+              "value": 1.12,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 136,
+              "value": 0.82,
+              "easing": "snap"
+            },
+            {
+              "frame": 216,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06_blocked_enter",
+      "fps": 60,
+      "duration": 30,
+      "loop": "oneShot",
+      "tracks": [
+        {
+          "target": "CharacterTransform",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 256
+            },
+            {
+              "frame": 4,
+              "value": 249,
+              "easing": "snap"
+            },
+            {
+              "frame": 8,
+              "value": 264,
+              "easing": "smooth"
+            },
+            {
+              "frame": 12,
+              "value": 251.5,
+              "easing": "smooth"
+            },
+            {
+              "frame": 17,
+              "value": 260.5,
+              "easing": "smooth"
+            },
+            {
+              "frame": 23,
+              "value": 254,
+              "easing": "smooth"
+            },
+            {
+              "frame": 30,
+              "value": 256,
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 304
+            },
+            {
+              "frame": 4,
+              "value": 307,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 12,
+              "value": 302,
+              "easing": "smooth"
+            },
+            {
+              "frame": 30,
+              "value": 304,
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 4,
+              "value": -2.5,
+              "easing": "snap"
+            },
+            {
+              "frame": 8,
+              "value": 2.2,
+              "easing": "smooth"
+            },
+            {
+              "frame": 12,
+              "value": -1.7,
+              "easing": "smooth"
+            },
+            {
+              "frame": 17,
+              "value": 1.2,
+              "easing": "smooth"
+            },
+            {
+              "frame": 30,
+              "value": -0.8,
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 4,
+              "value": 1.035,
+              "easing": "snap"
+            },
+            {
+              "frame": 8,
+              "value": 0.958,
+              "easing": "smooth"
+            },
+            {
+              "frame": 17,
+              "value": 1.018,
+              "easing": "smooth"
+            },
+            {
+              "frame": 30,
+              "value": 1.01,
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 4,
+              "value": 0.97,
+              "easing": "snap"
+            },
+            {
+              "frame": 8,
+              "value": 1.025,
+              "easing": "smooth"
+            },
+            {
+              "frame": 30,
+              "value": 0.992,
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 6,
+              "value": 5,
+              "easing": "snap"
+            },
+            {
+              "frame": 11,
+              "value": -4,
+              "easing": "smooth"
+            },
+            {
+              "frame": 18,
+              "value": 2.5,
+              "easing": "smooth"
+            },
+            {
+              "frame": 30,
+              "value": 1.5,
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 6,
+              "value": 2.1,
+              "easing": "snap"
+            },
+            {
+              "frame": 11,
+              "value": -1.5,
+              "easing": "smooth"
+            },
+            {
+              "frame": 30,
+              "value": 0.6,
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "target": "FaceTransform",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 5,
+              "value": -5,
+              "easing": "snap"
+            },
+            {
+              "frame": 10,
+              "value": 5,
+              "easing": "smooth"
+            },
+            {
+              "frame": 16,
+              "value": -3,
+              "easing": "smooth"
+            },
+            {
+              "frame": 30,
+              "value": -2,
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 6,
+              "value": 0.58,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 15,
+              "value": 0.76,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 30,
+              "value": 0.72,
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 6,
+              "value": 0.68,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 15,
+              "value": 0.82,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 30,
+              "value": 0.78,
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 6,
+              "value": 1.2,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 30,
+              "value": 1.08,
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 6,
+              "value": 1.08,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 30,
+              "value": 0.94,
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": -35
+            },
+            {
+              "frame": 6,
+              "value": -38,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 30,
+              "value": -37,
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": -35
+            },
+            {
+              "frame": 6,
+              "value": -32,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 30,
+              "value": -33,
+              "easing": "ease-out"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "07_blocked_idle",
+      "fps": 60,
+      "duration": 216,
+      "loop": "loop",
+      "tracks": [
+        {
+          "target": "CharacterTransform",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 254
+            },
+            {
+              "frame": 108,
+              "value": 258,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 254,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 306
+            },
+            {
+              "frame": 108,
+              "value": 304.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 306,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": -0.8
+            },
+            {
+              "frame": 108,
+              "value": 0.9,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": -0.8,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1.01
+            },
+            {
+              "frame": 108,
+              "value": 0.985,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 1.01,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0.992
+            },
+            {
+              "frame": 108,
+              "value": 1.002,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 0.992,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1.5
+            },
+            {
+              "frame": 108,
+              "value": -2,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 1.5,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0.6
+            },
+            {
+              "frame": 108,
+              "value": -0.7,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 0.6,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "FaceTransform",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": -2
+            },
+            {
+              "frame": 82,
+              "value": -2,
+              "easing": "hold"
+            },
+            {
+              "frame": 96,
+              "value": 3,
+              "easing": "snap"
+            },
+            {
+              "frame": 164,
+              "value": 3,
+              "easing": "hold"
+            },
+            {
+              "frame": 216,
+              "value": -2,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "FaceTransform",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 2
+            },
+            {
+              "frame": 108,
+              "value": 0.5,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 2,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0.72
+            },
+            {
+              "frame": 108,
+              "value": 0.8,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 0.72,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0.78
+            },
+            {
+              "frame": 108,
+              "value": 0.7,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 0.78,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1.08
+            },
+            {
+              "frame": 108,
+              "value": 0.92,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 1.08,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0.94
+            },
+            {
+              "frame": 108,
+              "value": 1.1,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": 0.94,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": -37
+            },
+            {
+              "frame": 108,
+              "value": -33,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": -37,
+              "easing": "ease-in-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": -33
+            },
+            {
+              "frame": 108,
+              "value": -37,
+              "easing": "ease-in-out"
+            },
+            {
+              "frame": 216,
+              "value": -33,
+              "easing": "ease-in-out"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "08_done",
+      "fps": 60,
+      "duration": 48,
+      "loop": "oneShot",
+      "tracks": [
+        {
+          "target": "CharacterTransform",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 256
+            },
+            {
+              "frame": 5,
+              "value": 256,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 16,
+              "value": 262,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 28,
+              "value": 252.5,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 39,
+              "value": 257,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 48,
+              "value": 256,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 304
+            },
+            {
+              "frame": 5,
+              "value": 309,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 16,
+              "value": 286,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 28,
+              "value": 297,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 39,
+              "value": 301.5,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 48,
+              "value": 304,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 5,
+              "value": -0.7,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 16,
+              "value": 2.7,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 28,
+              "value": -1.2,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 39,
+              "value": 0.45,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 48,
+              "value": 0,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 5,
+              "value": 1.04,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 16,
+              "value": 0.935,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 28,
+              "value": 1.024,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 39,
+              "value": 0.992,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 48,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "CharacterTransform",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 5,
+              "value": 0.958,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 16,
+              "value": 1.045,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 28,
+              "value": 0.985,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 39,
+              "value": 1.006,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 48,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 7,
+              "value": 2,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 18,
+              "value": -5,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 30,
+              "value": 3,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 48,
+              "value": 0,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 7,
+              "value": 4,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 18,
+              "value": -4,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 30,
+              "value": 2,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 48,
+              "value": 0,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "rotation",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 7,
+              "value": 0.9,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 18,
+              "value": -2.2,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 30,
+              "value": 1.1,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 48,
+              "value": 0,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 7,
+              "value": 1.035,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 18,
+              "value": 0.9,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 30,
+              "value": 1.03,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 48,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "Handle",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 7,
+              "value": 0.988,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 18,
+              "value": 1.035,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 30,
+              "value": 0.99,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 48,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "FaceTransform",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 5,
+              "value": 0,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 16,
+              "value": 9,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 28,
+              "value": -5,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 48,
+              "value": 0,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "FaceTransform",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 5,
+              "value": 4,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 16,
+              "value": -8,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 28,
+              "value": -2,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 48,
+              "value": 0,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": -36
+            },
+            {
+              "frame": 16,
+              "value": -41,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 28,
+              "value": -38,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 48,
+              "value": -36,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "x",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 36
+            },
+            {
+              "frame": 16,
+              "value": 41,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 28,
+              "value": 38,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 48,
+              "value": 36,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": -35
+            },
+            {
+              "frame": 16,
+              "value": -39,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 48,
+              "value": -35,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "y",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": -35
+            },
+            {
+              "frame": 16,
+              "value": -37,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 48,
+              "value": -35,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 5,
+              "value": 0.92,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 16,
+              "value": 1.26,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 28,
+              "value": 1.08,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 48,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 5,
+              "value": 0.92,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 16,
+              "value": 0.78,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 28,
+              "value": 1.08,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 48,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 5,
+              "value": 0.82,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 16,
+              "value": 1.18,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 28,
+              "value": 1.04,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 48,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 5,
+              "value": 0.82,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 16,
+              "value": 1.18,
+              "easing": "emphasized-decel"
+            },
+            {
+              "frame": 28,
+              "value": 1.04,
+              "easing": "ease-out"
+            },
+            {
+              "frame": 48,
+              "value": 1,
+              "easing": "smooth"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "09_blink",
+      "fps": 60,
+      "duration": 10,
+      "loop": "oneShot",
+      "tracks": [
+        {
+          "target": "EyeLeft",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 3,
+              "value": 0.08,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 5,
+              "value": 0.08,
+              "easing": "hold"
+            },
+            {
+              "frame": 10,
+              "value": 1,
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "scaleY",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 3,
+              "value": 0.08,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 5,
+              "value": 0.08,
+              "easing": "hold"
+            },
+            {
+              "frame": 10,
+              "value": 1,
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeLeft",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 3,
+              "value": 1.1,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 5,
+              "value": 1.1,
+              "easing": "hold"
+            },
+            {
+              "frame": 10,
+              "value": 1,
+              "easing": "ease-out"
+            }
+          ]
+        },
+        {
+          "target": "EyeRight",
+          "property": "scaleX",
+          "keyframes": [
+            {
+              "frame": 0,
+              "value": 1
+            },
+            {
+              "frame": 3,
+              "value": 1.1,
+              "easing": "ease-in"
+            },
+            {
+              "frame": 5,
+              "value": 1.1,
+              "easing": "hold"
+            },
+            {
+              "frame": 10,
+              "value": 1,
+              "easing": "ease-out"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "stateMachine": {
+    "name": "KettlebellBotMachine",
+    "inputs": [
+      {
+        "name": "status",
+        "type": "number",
+        "initial": 0
+      },
+      {
+        "name": "acknowledge",
+        "type": "trigger"
+      },
+      {
+        "name": "complete",
+        "type": "trigger"
+      },
+      {
+        "name": "blink",
+        "type": "trigger"
+      }
+    ],
+    "layers": [
+      {
+        "name": "Semantic State",
+        "states": [
+          {
+            "name": "Idle",
+            "animation": "01_idle"
+          },
+          {
+            "name": "Acknowledge",
+            "animation": "02_acknowledge"
+          },
+          {
+            "name": "Thinking",
+            "animation": "03_thinking"
+          },
+          {
+            "name": "Working",
+            "animation": "04_working"
+          },
+          {
+            "name": "Waiting",
+            "animation": "05_waiting"
+          },
+          {
+            "name": "BlockedEnter",
+            "animation": "06_blocked_enter"
+          },
+          {
+            "name": "BlockedIdle",
+            "animation": "07_blocked_idle"
+          },
+          {
+            "name": "Done",
+            "animation": "08_done"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "entry",
+            "to": "Idle",
+            "durationMs": 0
+          },
+          {
+            "from": "Idle",
+            "to": "Thinking",
+            "durationMs": 90,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 1
+            }
+          },
+          {
+            "from": "Idle",
+            "to": "Working",
+            "durationMs": 90,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 2
+            }
+          },
+          {
+            "from": "Idle",
+            "to": "Waiting",
+            "durationMs": 90,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 3
+            }
+          },
+          {
+            "from": "Idle",
+            "to": "BlockedEnter",
+            "durationMs": 55,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 4
+            }
+          },
+          {
+            "from": "Thinking",
+            "to": "Idle",
+            "durationMs": 90,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 0
+            }
+          },
+          {
+            "from": "Thinking",
+            "to": "Working",
+            "durationMs": 90,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 2
+            }
+          },
+          {
+            "from": "Thinking",
+            "to": "Waiting",
+            "durationMs": 90,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 3
+            }
+          },
+          {
+            "from": "Thinking",
+            "to": "BlockedEnter",
+            "durationMs": 55,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 4
+            }
+          },
+          {
+            "from": "Working",
+            "to": "Idle",
+            "durationMs": 90,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 0
+            }
+          },
+          {
+            "from": "Working",
+            "to": "Thinking",
+            "durationMs": 90,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 1
+            }
+          },
+          {
+            "from": "Working",
+            "to": "Waiting",
+            "durationMs": 90,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 3
+            }
+          },
+          {
+            "from": "Working",
+            "to": "BlockedEnter",
+            "durationMs": 55,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 4
+            }
+          },
+          {
+            "from": "Waiting",
+            "to": "Idle",
+            "durationMs": 90,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 0
+            }
+          },
+          {
+            "from": "Waiting",
+            "to": "Thinking",
+            "durationMs": 90,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 1
+            }
+          },
+          {
+            "from": "Waiting",
+            "to": "Working",
+            "durationMs": 90,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 2
+            }
+          },
+          {
+            "from": "Waiting",
+            "to": "BlockedEnter",
+            "durationMs": 55,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 4
+            }
+          },
+          {
+            "from": "BlockedIdle",
+            "to": "Idle",
+            "durationMs": 90,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 0
+            }
+          },
+          {
+            "from": "BlockedIdle",
+            "to": "Thinking",
+            "durationMs": 90,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 1
+            }
+          },
+          {
+            "from": "BlockedIdle",
+            "to": "Working",
+            "durationMs": 90,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 2
+            }
+          },
+          {
+            "from": "BlockedIdle",
+            "to": "Waiting",
+            "durationMs": 90,
+            "condition": {
+              "input": "status",
+              "op": "==",
+              "value": 3
+            }
+          },
+          {
+            "from": "Idle",
+            "to": "Acknowledge",
+            "durationMs": 45,
+            "condition": {
+              "input": "acknowledge"
+            }
+          },
+          {
+            "from": "Idle",
+            "to": "Done",
+            "durationMs": 45,
+            "condition": {
+              "input": "complete"
+            }
+          },
+          {
+            "from": "Thinking",
+            "to": "Acknowledge",
+            "durationMs": 45,
+            "condition": {
+              "input": "acknowledge"
+            }
+          },
+          {
+            "from": "Thinking",
+            "to": "Done",
+            "durationMs": 45,
+            "condition": {
+              "input": "complete"
+            }
+          },
+          {
+            "from": "Working",
+            "to": "Acknowledge",
+            "durationMs": 45,
+            "condition": {
+              "input": "acknowledge"
+            }
+          },
+          {
+            "from": "Working",
+            "to": "Done",
+            "durationMs": 45,
+            "condition": {
+              "input": "complete"
+            }
+          },
+          {
+            "from": "Waiting",
+            "to": "Acknowledge",
+            "durationMs": 45,
+            "condition": {
+              "input": "acknowledge"
+            }
+          },
+          {
+            "from": "Waiting",
+            "to": "Done",
+            "durationMs": 45,
+            "condition": {
+              "input": "complete"
+            }
+          },
+          {
+            "from": "BlockedEnter",
+            "to": "Acknowledge",
+            "durationMs": 45,
+            "condition": {
+              "input": "acknowledge"
+            }
+          },
+          {
+            "from": "BlockedEnter",
+            "to": "Done",
+            "durationMs": 45,
+            "condition": {
+              "input": "complete"
+            }
+          },
+          {
+            "from": "BlockedIdle",
+            "to": "Acknowledge",
+            "durationMs": 45,
+            "condition": {
+              "input": "acknowledge"
+            }
+          },
+          {
+            "from": "BlockedIdle",
+            "to": "Done",
+            "durationMs": 45,
+            "condition": {
+              "input": "complete"
+            }
+          },
+          {
+            "from": "Acknowledge",
+            "to": "Idle",
+            "durationMs": 80,
+            "exitTimeMs": 500
+          },
+          {
+            "from": "BlockedEnter",
+            "to": "BlockedIdle",
+            "durationMs": 85,
+            "exitTimeMs": 500
+          },
+          {
+            "from": "Done",
+            "to": "Idle",
+            "durationMs": 100,
+            "exitTimeMs": 800
+          }
+        ]
+      },
+      {
+        "name": "Blink Layer",
+        "states": [
+          {
+            "name": "EyesOpen",
+            "animation": "00_face_neutral"
+          },
+          {
+            "name": "Blink",
+            "animation": "09_blink"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "entry",
+            "to": "EyesOpen",
+            "durationMs": 0
+          },
+          {
+            "from": "any",
+            "to": "Blink",
+            "durationMs": 0,
+            "condition": {
+              "input": "blink"
+            }
+          },
+          {
+            "from": "Blink",
+            "to": "EyesOpen",
+            "durationMs": 0,
+            "exitTimeMs": 167
+          }
+        ]
+      }
+    ]
+  }
+}

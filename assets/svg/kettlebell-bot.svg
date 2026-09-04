@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="512"
+  height="512"
+  viewBox="0 0 512 512"
+  fill="none"
+  role="img"
+  aria-labelledby="title description"
+>
+  <title id="title">Kettlebell Bot</title>
+  <desc id="description">A compact charcoal kettlebell-shaped assistant with two vertical white eyes.</desc>
+
+  <g id="kettlebell-bot">
+    <g id="handle" fill="#1B1D22">
+      <path
+        id="handle-shape"
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M256 58C326 58 363 72 378 108C392 142 384 177 360 210H152C128 177 120 142 134 108C149 72 186 58 256 58ZM256 104C212 104 193 111 185 128C177 146 182 166 197 188H315C330 166 335 146 327 128C319 111 300 104 256 104Z"
+      />
+    </g>
+
+    <g id="body" fill="#1B1D22">
+      <path
+        id="body-shape"
+        d="M256 166C343 166 392 185 413 244C428 287 426 349 406 390C388 426 349 438 304 441C281 443 231 443 208 441C163 438 124 426 106 390C86 349 84 287 99 244C120 185 169 166 256 166Z"
+      />
+    </g>
+
+    <g id="face" fill="#F8FAFC">
+      <rect id="eye-left" x="208" y="238" width="24" height="62" rx="12" />
+      <rect id="eye-right" x="280" y="238" width="24" height="62" rx="12" />
+    </g>
+  </g>
+</svg>
