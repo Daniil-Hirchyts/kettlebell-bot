@@ -95,6 +95,20 @@ npm run studio     # local Rive Studio at http://localhost:8787
 npm run all        # build, test, previews, sheets
 ```
 
+## Interaction playground
+
+The Vite + React playground in [`playground/`](playground/) gives the avatar a
+live control surface for all of its Rive inputs. From the project root, run:
+
+```sh
+npm run playground
+```
+
+Drag the avatar to turn it, move across it to steer its gaze, tap it for touch
+feedback, and use the controls to test moods, energy, facial direction, turns,
+reactions, and blinks. The current `.riv` asset is synchronized automatically
+before every playground run.
+
 If you open the asset in Rive Studio or any editor that can save back to
 `rive/kettlebell-bot.{riv,scene.json}`, run `npm run verify` afterwards. The
 build is byte-deterministic, so it can tell you exactly which shape or property

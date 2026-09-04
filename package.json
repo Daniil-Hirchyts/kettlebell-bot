@@ -18,6 +18,8 @@
     "lint:riv": "node scripts/rive-mcp-client.mjs call riv_lint '{\"path\":\"rive/kettlebell-bot.riv\"}'",
     "inspect:riv": "node scripts/rive-mcp-client.mjs call riv_inspect '{\"path\":\"rive/kettlebell-bot.riv\"}'",
     "studio": "node scripts/start-studio.mjs",
+    "playground": "npm --prefix playground run dev",
+    "playground:build": "npm --prefix playground run build",
     "all": "npm run build && npm run test && npm run previews && npm run sheets"
   }
 }
