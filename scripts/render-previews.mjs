@@ -1,108 +1,151 @@
 #!/usr/bin/env node
+//
+// Render a transparent APNG for every animation in the system, plus the static
+// size/surface checks.
+//
+//   node scripts/render-previews.mjs [--only <substring>]
+//
+// Output:
+//   previews/animations/<name>.apng   one per animation (moods, reactions,
+//                                     blinks, head turns, spins, showcases)
+//   previews/static/                  512/256/128/64 px and light/dark surfaces
 
+import { mkdirSync, renameSync } from "node:fs";
 import { resolve } from "node:path";
 import { Client, StdioClientTransport } from "./rive-mcp-sdk.mjs";
+import { buildScene } from "./lib/scene.mjs";
 
 const projectRoot = resolve(import.meta.dirname, "..");
 const rivPath = resolve(projectRoot, "rive/kettlebell-bot.riv");
 const animationDir = resolve(projectRoot, "previews/animations");
+const strayGif = resolve(projectRoot, "rive/kettlebell-bot.preview.gif");
 const staticDir = resolve(projectRoot, "previews/static");
+mkdirSync(animationDir, { recursive: true });
+mkdirSync(staticDir, { recursive: true });
 
-const animations = [
-  ["idle", "01_idle", 4.8, 30],
-  ["acknowledge", "02_acknowledge", 0.5, 60],
-  ["thinking", "03_thinking", 2.4, 30],
-  ["working", "04_working", 1.4, 30],
-  ["waiting", "05_waiting", 3.6, 30],
-  ["blocked", "06_blocked_enter", 0.5, 60],
-  ["blocked-idle", "07_blocked_idle", 3.6, 30],
-  ["done", "08_done", 0.8, 60],
-  ["blink", "09_blink", 10 / 60, 60],
-];
+const onlyIndex = process.argv.indexOf("--only");
+const only = onlyIndex >= 0 ? process.argv[onlyIndex + 1] : null;
 
-const client = new Client({ name: "kettlebell-bot-renderer", version: "1.0.0" });
-const transport = new StdioClientTransport({ command: "rive-mcp", args: [] });
-await client.connect(transport);
+const { meta } = buildScene();
 
+const clips = [
+  ...meta.moods.map((m) => m.anim),
+  ...meta.reactions.map((r) => r.anim),
+  ...meta.blinks.map((b) => b.anim),
+  ...meta.yawLoops.map((y) => y.anim),
+  ...meta.turnShots.map((t) => t.anim),
+  meta.touch.hover,
+  meta.touch.press,
+  meta.energy[0].anim,
+  meta.energy[2].anim,
+  meta.showcaseTurn,
+  meta.showcaseEmotions,
+]
+  .map((anim) => {
+    const seconds = anim.duration / 60;
+    const showcase = anim.name.startsWith("showcase_") || anim.name === "turn_showcase_360";
+    // Transparent APNG does not compress gradients well, so the frame rate and
+    // size are traded against duration: short one-shots keep their snap, long
+    // ambient loops drop frames the eye does not miss, and the three hero reels
+    // stay large because they are the ones people actually watch.
+    const fps = showcase ? 20 : seconds > 4 ? 14 : seconds > 2 ? 18 : 24;
+    const size = showcase ? 240 : 180;
+    return { name: anim.name, duration: Number(seconds.toFixed(3)), fps, size, showcase };
+  })
+  .filter((c) => !only || c.name.includes(only));
+
+const client = new Client({ name: "kettlebell-bot-renderer", version: "2.0.0" });
+await client.connect(new StdioClientTransport({ command: "rive-mcp", args: [] }));
+
+let failures = 0;
 try {
-  for (const [fileName, animation, duration, fps] of animations) {
-    const result = await client.callTool({
-      name: "riv_render_apng",
-      arguments: {
-        path: rivPath,
-        artboard: "KettlebellBot",
-        animation,
-        duration,
-        fps,
-        width: 384,
-        height: 384,
-        transparent: true,
-        loops: 0,
-        out: resolve(animationDir, `${fileName}.apng`),
-      },
-    });
-    const text = result.content?.find((item) => item.type === "text");
-    if (text) process.stdout.write(`${text.text}\n`);
-    if (result.isError) process.exitCode = 1;
+  for (const clip of clips) {
+    // The long reels ship as GIF: transparent APNG of a 10-13 second gradient
+    // character is several megabytes, and these are the files people open.
+    const result = clip.showcase
+      ? await client.callTool({
+          name: "riv_render_gif",
+          arguments: {
+            path: rivPath,
+            artboard: "KettlebellBot",
+            animation: clip.name,
+            duration: clip.duration,
+            fps: clip.fps,
+            width: clip.size,
+            height: clip.size,
+            background: "#F4F5F7",
+          },
+        })
+      : await client.callTool({
+          name: "riv_render_apng",
+          arguments: {
+            path: rivPath,
+            artboard: "KettlebellBot",
+            animation: clip.name,
+            duration: clip.duration,
+            fps: clip.fps,
+            width: clip.size,
+            height: clip.size,
+            transparent: true,
+            loops: 0,
+            out: resolve(animationDir, `${clip.name}.apng`),
+          },
+        });
+    if (result.isError) {
+      failures += 1;
+      console.error(`FAIL ${clip.name}`);
+      continue;
+    }
+    if (clip.showcase) {
+      // riv_render_gif ignores `out` and writes <riv>.preview.gif; move it.
+      renameSync(strayGif, resolve(animationDir, `${clip.name}.gif`));
+    }
+    console.log(`${clip.name.padEnd(24)} ${clip.duration}s @ ${clip.fps}fps ${clip.size}px${clip.showcase ? " gif" : ""}`);
   }
 
-  for (const size of [512, 128, 64, 32, 24]) {
-    const result = await client.callTool({
-      name: "riv_render_frame",
-      arguments: {
-        path: rivPath,
-        artboard: "KettlebellBot",
-        animation: "01_idle",
-        time: 0,
-        width: size,
-        height: size,
-        outPath: resolve(staticDir, `kettlebell-bot-rive-${size}.png`),
-      },
-    });
-    if (result.isError) process.exitCode = 1;
-  }
+  if (!only) {
+    for (const size of [512, 256, 128, 64]) {
+      const result = await client.callTool({
+        name: "riv_render_frame",
+        arguments: {
+          path: rivPath,
+          artboard: "KettlebellBot",
+          animation: "face_000",
+          time: 0,
+          width: size,
+          height: size,
+          outPath: resolve(staticDir, `kettlebell-bot-${size}.png`),
+        },
+      });
+      if (result.isError) failures += 1;
+    }
 
-  for (const [name, background] of [
-    ["light", "#F4F5F7"],
-    ["dark", "#0F1115"],
-  ]) {
-    const result = await client.callTool({
-      name: "riv_render_frame",
-      arguments: {
-        path: rivPath,
-        artboard: "KettlebellBot",
-        animation: "01_idle",
-        time: 0,
-        width: 256,
-        height: 256,
-        background,
-        outPath: resolve(staticDir, `kettlebell-bot-on-${name}.png`),
-      },
-    });
-    if (result.isError) process.exitCode = 1;
-  }
-
-  for (const [name, animation] of [
-    ["thinking", "03_thinking"],
-    ["working", "04_working"],
-  ]) {
-    const result = await client.callTool({
-      name: "riv_render_apng",
-      arguments: {
-        path: rivPath,
-        artboard: "KettlebellBot",
-        animation,
-        duration: name === "thinking" ? 2.4 : 1.4,
-        fps: 30,
-        width: 32,
-        height: 32,
-        transparent: true,
-        loops: 0,
-        out: resolve(animationDir, `${name}-32.apng`),
-      },
-    });
-    if (result.isError) process.exitCode = 1;
+    for (const [name, background] of [
+      ["light", "#F4F5F7"],
+      ["dark", "#0F1115"],
+    ]) {
+      const result = await client.callTool({
+        name: "riv_render_frame",
+        arguments: {
+          path: rivPath,
+          artboard: "KettlebellBot",
+          animation: "face_000",
+          time: 0,
+          width: 256,
+          height: 256,
+          background,
+          outPath: resolve(staticDir, `kettlebell-bot-on-${name}.png`),
+        },
+      });
+      if (result.isError) failures += 1;
+    }
   }
 } finally {
   await client.close();
+}
+
+console.log(`\n${clips.length} animation previews written to ${animationDir}`);
+if (failures) {
+  console.error(`${failures} render failure(s)`);
+  process.exitCode = 1;
 }
