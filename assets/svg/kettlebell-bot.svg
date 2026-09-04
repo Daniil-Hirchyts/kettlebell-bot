@@ -1,36 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg
-  xmlns="http://www.w3.org/2000/svg"
-  width="512"
-  height="512"
-  viewBox="0 0 512 512"
-  fill="none"
-  role="img"
-  aria-labelledby="title description"
->
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" role="img" aria-labelledby="title description">
   <title id="title">Kettlebell Bot</title>
-  <desc id="description">A compact charcoal kettlebell-shaped assistant with two vertical white eyes.</desc>
+  <desc id="description">A charcoal kettlebell-shaped assistant with a real handle opening, soft form shading and two vertical off-white eyes.</desc>
 
-  <g id="kettlebell-bot">
-    <g id="handle" fill="#1B1D22">
-      <path
-        id="handle-shape"
-        fill-rule="evenodd"
-        clip-rule="evenodd"
-        d="M256 58C326 58 363 72 378 108C392 142 384 177 360 210H152C128 177 120 142 134 108C149 72 186 58 256 58ZM256 104C212 104 193 111 185 128C177 146 182 166 197 188H315C330 166 335 146 327 128C319 111 300 104 256 104Z"
-      />
+  <defs>
+    <linearGradient id="bodyFill" x1="0" y1="-140" x2="0" y2="140" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#22252C" />
+      <stop offset="1" stop-color="#15171B" />
+    </linearGradient>
+    <linearGradient id="handleFill" x1="0" y1="-78" x2="0" y2="78" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#252932" />
+      <stop offset="1" stop-color="#171A20" />
+    </linearGradient>
+    <radialGradient id="frontField" cx="0" cy="-14" r="112" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.125" />
+      <stop offset="0.55" stop-color="#E8ECF4" stop-opacity="0.071" />
+      <stop offset="1" stop-color="#E8ECF4" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="backField" cx="0" cy="-6" r="118" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#05070B" stop-opacity="0.69" />
+      <stop offset="0.6" stop-color="#05070B" stop-opacity="0.455" />
+      <stop offset="1" stop-color="#05070B" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="topShade" cx="0" cy="6" r="74" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0C0E12" stop-opacity="0.722" />
+      <stop offset="0.5" stop-color="#0C0E12" stop-opacity="0.369" />
+      <stop offset="1" stop-color="#0C0E12" stop-opacity="0" />
+    </radialGradient>
+    <clipPath id="bodyMask">
+      <path d="M 0 -137.5 C 87 -137.5 136 -118.5 157 -59.5 C 172.04 -16.51 170 45.5 150 86.5 C 132 122.5 93 134.5 48 137.5 C 25 139.5 -25 139.5 -48 137.5 C -93 134.5 -132 122.5 -150 86.5 C -170 45.5 -172 -16.5 -157 -59.5 C -136 -118.5 -87 -137.5 0 -137.5 Z" />
+    </clipPath>
+  </defs>
+
+  <!-- Group and shape ids mirror the Rive rig in rive/kettlebell-bot.scene.json. -->
+  <g id="kettlebell-bot" transform="translate(256 302) scale(0.92)">
+    <g id="handle" transform="translate(0 -169.5)">
+      <path id="handle-shape" fill-rule="evenodd" clip-rule="evenodd" d="M 0 -76 C 70 -76 107 -62 122 -26 C 136 8 128 43 104 76 C 34.67 76 -34.67 76 -104 76 C -128 43 -136 8 -122 -26 C -107 -62 -70 -76 0 -76 Z M 0 -32 C -46 -32 -71 -22 -71 10 C -71 42 -50 56 0 56 C 50 56 71 42 71 10 C 71 -22 46 -32 0 -32 Z" fill="url(#handleFill)" />
     </g>
 
-    <g id="body" fill="#1B1D22">
-      <path
-        id="body-shape"
-        d="M256 166C343 166 392 185 413 244C428 287 426 349 406 390C388 426 349 438 304 441C281 443 231 443 208 441C163 438 124 426 106 390C86 349 84 287 99 244C120 185 169 166 256 166Z"
-      />
+    <g id="body">
+      <path id="body-core" d="M 0 -137.5 C 87 -137.5 136 -118.5 157 -59.5 C 172.04 -16.51 170 45.5 150 86.5 C 132 122.5 93 134.5 48 137.5 C 25 139.5 -25 139.5 -48 137.5 C -93 134.5 -132 122.5 -150 86.5 C -170 45.5 -172 -16.5 -157 -59.5 C -136 -118.5 -87 -137.5 0 -137.5 Z" fill="url(#bodyFill)" />
+
+      <g id="depth" clip-path="url(#bodyMask)">
+        <ellipse id="top-shade" cx="0" cy="-168" rx="160" ry="75" fill="url(#topShade)" />
+        <g id="turn-front" transform="translate(0 0) scale(1 1)" opacity="1">
+          <ellipse cx="0" cy="-28" rx="125" ry="107" fill="url(#frontField)" />
+        </g>
+        <g id="turn-back" transform="translate(0 0) scale(1 1)" opacity="0">
+          <ellipse cx="0" cy="-18" rx="125" ry="112" fill="url(#backField)" />
+          <rect x="-7" y="-96" width="14" height="124" rx="7" fill="#2E323C" opacity="0.85" />
+          <rect x="-46" y="50.5" width="92" height="15" rx="7.5" fill="#2E323C" opacity="0.72" />
+          <rect x="-33" y="78.5" width="66" height="15" rx="7.5" fill="#2E323C" opacity="0.5" />
+        </g>
+        <path id="rim-light" d="M -157 -59.5 C -142.3 -100.8 -113.88 -122.5 -68.31 -131.8" fill="none" stroke="#9C9EA5" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" opacity="0.24" />
+      </g>
     </g>
 
-    <g id="face" fill="#F8FAFC">
-      <rect id="eye-left" x="208" y="238" width="24" height="62" rx="12" />
-      <rect id="eye-right" x="280" y="238" width="24" height="62" rx="12" />
+    <g id="face" transform="translate(0 -35)">
+        <g id="eye-left" transform="translate(-36 0)">
+          <rect x="-12" y="-31" width="24" height="62" rx="12" fill="#F8FAFC" />
+        </g>
+        <g id="eye-right" transform="translate(36 0)">
+          <rect x="-12" y="-31" width="24" height="62" rx="12" fill="#F8FAFC" />
+        </g>
     </g>
   </g>
 </svg>

@@ -1,463 +1,118 @@
 {
-  "stateMachine": "KettlebellBotMachine",
-  "report": [
+  "generatedAt": "2026-09-04T21:30:35.717Z",
+  "summary": [
     {
-      "step": "init",
-      "statesChanged": [
-        "01_idle",
-        "00_face_neutral"
+      "pass": "moods",
+      "steps": 17,
+      "captures": 17,
+      "statesEntered": [
+        "mood_00_calm",
+        "mood_01_curious",
+        "mood_02_thinking",
+        "mood_03_working",
+        "mood_04_bored",
+        "mood_05_blocked",
+        "mood_06_sleepy",
+        "mood_07_focused",
+        "mood_08_excited",
+        "mood_09_happy",
+        "mood_10_proud",
+        "mood_11_confused",
+        "mood_12_skeptical",
+        "mood_13_nervous",
+        "mood_14_playful",
+        "mood_15_listening",
+        "neutral",
+        "touch_rest",
+        "unknown",
+        "yaw_bored",
+        "yaw_confused",
+        "yaw_curious",
+        "yaw_playful",
+        "yaw_thinking",
+        "yaw_working"
       ],
-      "inputs": [
-        {
-          "name": "status",
-          "type": "number",
-          "value": 0
-        },
-        {
-          "name": "acknowledge",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "complete",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "blink",
-          "type": "trigger",
-          "value": null
-        }
-      ]
+      "missing": []
     },
     {
-      "step": 0,
-      "advancedSeconds": 0.1,
-      "statesChanged": [],
-      "inputs": [
-        {
-          "name": "status",
-          "type": "number",
-          "value": 0
-        },
-        {
-          "name": "acknowledge",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "complete",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "blink",
-          "type": "trigger",
-          "value": null
-        }
+      "pass": "reactions",
+      "steps": 31,
+      "captures": 10,
+      "statesEntered": [
+        "mood_00_calm",
+        "mood_01_curious",
+        "mood_03_working",
+        "mood_05_blocked",
+        "mood_06_sleepy",
+        "mood_07_focused",
+        "mood_08_excited",
+        "mood_09_happy",
+        "mood_12_skeptical",
+        "mood_14_playful",
+        "neutral",
+        "react_acknowledge",
+        "react_celebrate",
+        "react_frustrated",
+        "react_gearup",
+        "react_laugh",
+        "react_recoil",
+        "react_relieved",
+        "react_surprise",
+        "react_tapped",
+        "react_wobble",
+        "touch_rest",
+        "unknown",
+        "yaw_curious",
+        "yaw_playful",
+        "yaw_working"
       ],
-      "frameIndex": 0
+      "missing": []
     },
     {
-      "step": 1,
-      "applied": {
-        "name": "status",
-        "type": "number",
-        "value": 1
-      },
-      "advancedSeconds": 0.4,
-      "statesChanged": [
-        "03_thinking"
+      "pass": "turn",
+      "steps": 25,
+      "captures": 20,
+      "statesEntered": [
+        "mood_00_calm",
+        "mood_01_curious",
+        "mood_02_thinking",
+        "mood_03_working",
+        "mood_04_bored",
+        "mood_11_confused",
+        "mood_14_playful",
+        "neutral",
+        "touch_rest",
+        "turn_peek_back",
+        "turn_showcase_360",
+        "turn_spin_left",
+        "turn_spin_right",
+        "unknown",
+        "yaw_bored",
+        "yaw_confused",
+        "yaw_curious",
+        "yaw_playful",
+        "yaw_thinking",
+        "yaw_working"
       ],
-      "inputs": [
-        {
-          "name": "status",
-          "type": "number",
-          "value": 1
-        },
-        {
-          "name": "acknowledge",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "complete",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "blink",
-          "type": "trigger",
-          "value": null
-        }
-      ],
-      "frameIndex": 1
+      "missing": []
     },
     {
-      "step": 2,
-      "applied": {
-        "name": "status",
-        "type": "number",
-        "value": 2
-      },
-      "advancedSeconds": 0.3,
-      "statesChanged": [
-        "04_working"
+      "pass": "interaction",
+      "steps": 22,
+      "captures": 16,
+      "statesEntered": [
+        "blink_double",
+        "blink_single",
+        "blink_wink",
+        "mood_00_calm",
+        "neutral",
+        "react_tapped",
+        "touch_hover",
+        "touch_press",
+        "touch_rest",
+        "unknown"
       ],
-      "inputs": [
-        {
-          "name": "status",
-          "type": "number",
-          "value": 2
-        },
-        {
-          "name": "acknowledge",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "complete",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "blink",
-          "type": "trigger",
-          "value": null
-        }
-      ],
-      "frameIndex": 2
-    },
-    {
-      "step": 3,
-      "applied": {
-        "name": "status",
-        "type": "number",
-        "value": 3
-      },
-      "advancedSeconds": 0.4,
-      "statesChanged": [
-        "05_waiting"
-      ],
-      "inputs": [
-        {
-          "name": "status",
-          "type": "number",
-          "value": 3
-        },
-        {
-          "name": "acknowledge",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "complete",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "blink",
-          "type": "trigger",
-          "value": null
-        }
-      ],
-      "frameIndex": 3
-    },
-    {
-      "step": 4,
-      "applied": {
-        "name": "status",
-        "type": "number",
-        "value": 4
-      },
-      "advancedSeconds": 0.2,
-      "statesChanged": [
-        "06_blocked_enter"
-      ],
-      "inputs": [
-        {
-          "name": "status",
-          "type": "number",
-          "value": 4
-        },
-        {
-          "name": "acknowledge",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "complete",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "blink",
-          "type": "trigger",
-          "value": null
-        }
-      ],
-      "frameIndex": 4
-    },
-    {
-      "step": 5,
-      "advancedSeconds": 0.35,
-      "statesChanged": [
-        "07_blocked_idle"
-      ],
-      "inputs": [
-        {
-          "name": "status",
-          "type": "number",
-          "value": 4
-        },
-        {
-          "name": "acknowledge",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "complete",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "blink",
-          "type": "trigger",
-          "value": null
-        }
-      ],
-      "frameIndex": 5
-    },
-    {
-      "step": 6,
-      "applied": {
-        "name": "status",
-        "type": "number",
-        "value": 2
-      },
-      "advancedSeconds": 0.3,
-      "statesChanged": [
-        "04_working"
-      ],
-      "inputs": [
-        {
-          "name": "status",
-          "type": "number",
-          "value": 2
-        },
-        {
-          "name": "acknowledge",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "complete",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "blink",
-          "type": "trigger",
-          "value": null
-        }
-      ],
-      "frameIndex": 6
-    },
-    {
-      "step": 7,
-      "applied": {
-        "name": "blink",
-        "type": "trigger",
-        "value": null
-      },
-      "advancedSeconds": 0.06,
-      "statesChanged": [
-        "09_blink"
-      ],
-      "inputs": [
-        {
-          "name": "status",
-          "type": "number",
-          "value": 2
-        },
-        {
-          "name": "acknowledge",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "complete",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "blink",
-          "type": "trigger",
-          "value": null
-        }
-      ],
-      "frameIndex": 7
-    },
-    {
-      "step": 8,
-      "advancedSeconds": 0.12,
-      "statesChanged": [],
-      "inputs": [
-        {
-          "name": "status",
-          "type": "number",
-          "value": 2
-        },
-        {
-          "name": "acknowledge",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "complete",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "blink",
-          "type": "trigger",
-          "value": null
-        }
-      ],
-      "frameIndex": 8
-    },
-    {
-      "step": 9,
-      "applied": {
-        "name": "complete",
-        "type": "trigger",
-        "value": null
-      },
-      "advancedSeconds": 0.22,
-      "statesChanged": [
-        "08_done",
-        "00_face_neutral"
-      ],
-      "inputs": [
-        {
-          "name": "status",
-          "type": "number",
-          "value": 2
-        },
-        {
-          "name": "acknowledge",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "complete",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "blink",
-          "type": "trigger",
-          "value": null
-        }
-      ],
-      "frameIndex": 9
-    },
-    {
-      "step": 10,
-      "advancedSeconds": 0.8,
-      "statesChanged": [
-        "01_idle",
-        "04_working"
-      ],
-      "inputs": [
-        {
-          "name": "status",
-          "type": "number",
-          "value": 2
-        },
-        {
-          "name": "acknowledge",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "complete",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "blink",
-          "type": "trigger",
-          "value": null
-        }
-      ],
-      "frameIndex": 10
-    },
-    {
-      "step": 11,
-      "applied": {
-        "name": "acknowledge",
-        "type": "trigger",
-        "value": null
-      },
-      "advancedSeconds": 0.16,
-      "statesChanged": [
-        "02_acknowledge"
-      ],
-      "inputs": [
-        {
-          "name": "status",
-          "type": "number",
-          "value": 2
-        },
-        {
-          "name": "acknowledge",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "complete",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "blink",
-          "type": "trigger",
-          "value": null
-        }
-      ],
-      "frameIndex": 11
-    },
-    {
-      "step": 12,
-      "advancedSeconds": 0.45,
-      "statesChanged": [
-        "01_idle",
-        "04_working"
-      ],
-      "inputs": [
-        {
-          "name": "status",
-          "type": "number",
-          "value": 2
-        },
-        {
-          "name": "acknowledge",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "complete",
-          "type": "trigger",
-          "value": null
-        },
-        {
-          "name": "blink",
-          "type": "trigger",
-          "value": null
-        }
-      ],
-      "frameIndex": 12
+      "missing": []
     }
   ]
 }

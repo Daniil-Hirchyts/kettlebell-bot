@@ -1,90 +1,140 @@
 # Kettlebell Bot
 
-Kettlebell Bot is an original, minimal Rive avatar for AI and productivity interfaces. The deliverable is a transparent, editable vector character with semantic runtime states, not a raster image embedded in a `.riv` file.
+A vector Rive avatar for mobile apps. It is a charcoal kettlebell that turns a
+full 360 degrees, holds sixteen distinct emotional states, and reacts, blinks,
+looks around and responds to touch — all composable, all driven by one state
+machine.
 
 ![Kettlebell Bot on a light surface](previews/static/kettlebell-bot-on-light.png)
 
-## Primary deliverables
+| | |
+|---|---|
+| Turnaround, all 13 facings | ![](previews/sheets/turnaround.png) |
+| All 16 emotional states | ![](previews/sheets/emotions.png) |
 
-- `assets/svg/kettlebell-bot.svg` — editable 512×512 SVG source
-- `rive/kettlebell-bot.riv` — runtime asset, Rive format 7.0
-- `rive/kettlebell-bot.scene.json` — reproducible scene/animation source used by rive-mcp
-- `previews/static/` — SVG and Rive renders at 512, 128, 64, 32, and 24 px, plus light/dark surface checks
-- `previews/animations/` — transparent APNG previews for every required animation
-- `previews/states/` — captured state-machine checkpoints
-- `previews/comparisons/` — critique filmstrips, onion skins, and A/B output
-- `specs/` — visual, motion, integration, and validation contracts
-- `examples/KettlebellBot.tsx` — semantic React wrapper example
+Animated: [`previews/animations/showcase_turnaround.gif`](previews/animations/showcase_turnaround.gif) ·
+[`previews/animations/showcase_emotions.gif`](previews/animations/showcase_emotions.gif)
 
-The reference PNG is preserved under `assets/reference/` for provenance only. It is not embedded in the SVG or Rive asset.
+## What is in the box
 
-## Rive contract
+- `rive/kettlebell-bot.riv` — the runtime asset. Rive format 7.0, 181 KB,
+  transparent, no embedded images.
+- `rive/kettlebell-bot.scene.json` — the full reproducible scene the `.riv` is
+  built from.
+- `assets/svg/kettlebell-bot.svg` — the editable vector source, layered and named
+  to match the Rive rig.
+- `assets/svg/kettlebell-bot-turnaround.svg` — seven facings drawn by the same
+  projection model the `.riv` animates.
+- `examples/KettlebellBot.tsx` — React wrapper with drag-to-turn, tap, hover and
+  pointer-tracked gaze.
+- `specs/` — avatar, animation, integration and validation specifications.
+- `previews/` — an animated preview per animation, contact sheets, state-machine
+  captures and critique filmstrips.
 
-- Artboard: `KettlebellBot` (512×512)
-- State machine: `KettlebellBotMachine`
-- Persistent input: `status` (`0` idle, `1` thinking, `2` working, `3` waiting, `4` blocked)
-- One-shot triggers: `acknowledge`, `complete`, `blink`
-- Animations: `01_idle` through `09_blink`, plus internal `00_face_neutral`
+## The rig, briefly
 
-See `specs/integration-contract.md` for exact behavior and the trigger timing note.
+A flat rotation cannot sell a turn for this character, so the yaw is a small
+projection model rather than a set of drawn poses. One angle drives everything:
 
-## Environment and MCP setup
+- **The handle is a flat plate.** Its projected width is `|cos a|` plus its own
+  depth times `|sin a|`, and its opening closes faster than the outer silhouette
+  because the near arm occludes the far one. The opening is gone by 64 degrees;
+  the arch bottoms out at 30% of its width at true profile.
+- **The eyes ride a cylinder.** They wrap around the form, foreshorten, stall at
+  the limb and pass out of sight, then reappear from the other side.
+- **A front light field and a back dark field counter-slide** across the bell,
+  giving it a near surface and a far one. Turned away, a seam and two vents make
+  the back readable as a back.
 
-Environment observed on 2026-09-04:
+The held facings, the scripted head turns and the full spins are the same maths
+sampled differently, so they can never disagree.
 
-- macOS 27.0, Apple silicon (`arm64`)
-- Node.js 26.8.1
-- npm/npx 11.19.0
-- Git 2.50.1 (Apple Git-155)
-- Codex CLI 0.149.1
-- Google Chrome installed at `/Applications/Google Chrome.app`
-- Rive Desktop installed at `/Applications/Rive.app`, version 0.8.5674 (build 5661)
+The state machine has eight layers, each owning a disjoint set of properties:
+Energy, Touch, Turn, Mood, Reaction, Gaze X, Gaze Y and Blink. That is what lets
+a mood, a facing, a gaze direction, a blink and a press all play at once instead
+of overriding one another — and it is checked at build time, so a violation fails
+the build rather than producing a subtly wrong file.
 
-The upstream [rive-mcp repository](https://github.com/ODU33104/rive-mcp) was inspected before installation. Its main branch reported 0.6.0; the documented npm package currently installed is `rive-mcp-server@0.5.0`, which exposes 30 tools including SVG import, creation, editing, inspection, rendering, state-machine playback, linting, critique, A/B comparison, and code generation.
+## Using it
 
-Codex registration performed:
+```tsx
+import { KettlebellBot, type KettlebellBotHandle } from "./KettlebellBot";
+
+const bot = useRef<KettlebellBotHandle>(null);
+
+<KettlebellBot ref={bot} mood="working" intensity={0.7} />;
+
+bot.current?.celebrate();   // finished
+bot.current?.turnaround();  // full 360
+bot.current?.lookAt(-0.6, 0.2);
+```
+
+Inputs: `status` (0–15), `facing` (0–360), `gazeX`/`gazeY` (-1–1),
+`intensity` (0–1), `hover`, `pressed`, and 17 triggers. Full table in
+[`specs/integration-contract.md`](specs/integration-contract.md).
+
+## Building
+
+Everything is generated from `scripts/lib/geometry.mjs` — the SVG source and the
+Rive scene are built from the same numbers, so they cannot drift apart.
+
+```sh
+npm run build      # SVG + .riv (validates first, refuses to write on error)
+npm run check      # validate and write the scene JSON only, no MCP round trip
+npm run verify     # is the committed .riv still what the source produces?
+npm run test       # drive every state-machine input and transition
+npm run previews   # one animated preview per animation, plus static renders
+npm run sheets     # contact sheets for turnaround, emotions, reactions, touch
+npm run critique   # filmstrips, onion skins and contact sheets; tag it: npm run critique -- pass3
+npm run lint:riv   # riv_lint
+npm run studio     # local Rive Studio at http://localhost:8787
+npm run all        # build, test, previews, sheets
+```
+
+If you open the asset in Rive Studio or any editor that can save back to
+`rive/kettlebell-bot.{riv,scene.json}`, run `npm run verify` afterwards. The
+build is byte-deterministic, so it can tell you exactly which shape or property
+drifted — an editor round-trip can quietly add things the source never had, such
+as a default fill on a stroke-only path.
+
+Source layout:
+
+```text
+scripts/lib/geometry.mjs    artwork: paths, eye variants, palette, depth layers
+scripts/lib/turn.mjs        the yaw projection model and its track generator
+scripts/lib/motion.mjs      channel helpers, easing tokens, volume compensation
+scripts/lib/moods.mjs       the 16 persistent mood loops
+scripts/lib/reactions.mjs   the 10 one-shots and the 3 blinks
+scripts/lib/turnanims.mjs   facing poses, head turns, spins, gaze, energy, touch
+scripts/lib/showcase.mjs    preview-only reels, sampled from the real animations
+scripts/lib/scene.mjs       rig, artwork and state-machine assembly
+scripts/lib/validate.mjs    the build-time guards
+scripts/verify-asset.mjs    drift check: committed asset vs. a clean rebuild
+scripts/lib/png.mjs         dependency-free PNG reader/writer for contact sheets
+scripts/lib/svg.mjs         geometry to SVG path data
+```
+
+## Environment
+
+- macOS 27.0 (Apple silicon), Node 26.8.1, npm 11.19.0
+- `rive-mcp-server@0.5.0`, registered as the `rive` MCP server:
 
 ```sh
 npm install -g rive-mcp-server
-codex mcp add rive -- rive-mcp
 ```
 
-The original Codex configuration was backed up to:
+The design guidelines the build follows are installed at
+`.claude/skills/rive-design-guidelines/`.
 
-`~/.codex/config.toml.backup-kettlebell-bot-20260904`
+Rive Desktop 0.8.5674 opens the file but shows a blank canvas; the same
+format-7.0 file validates and runs its state machine in the current official
+runtime. Use a current Rive editor, `npm run studio`, or the scene JSON to
+inspect. See [`specs/validation-report.md`](specs/validation-report.md).
 
-The project-scoped Rive design guidelines were installed by `riv_setup` under `.claude/skills/rive-design-guidelines/`.
+## Credits and constraints
 
-## Rebuild and inspect
-
-Run commands from this directory:
-
-```sh
-node scripts/rive-mcp-client.mjs call riv_import_svg '{"svgPath":"assets/svg/kettlebell-bot.svg","outSpec":"assets/svg/kettlebell-bot.scene.json","idPrefix":""}'
-node scripts/build-rive.mjs
-node scripts/render-previews.mjs
-node scripts/test-state-machine.mjs
-node scripts/start-studio.mjs
-node scripts/rive-mcp-client.mjs call riv_inspect '{"path":"rive/kettlebell-bot.riv"}'
-node scripts/rive-mcp-client.mjs call riv_lint '{"path":"rive/kettlebell-bot.riv"}'
-```
-
-`build-rive.mjs` imports the SVG-derived Bézier fragment, reconstructs the named transform hierarchy, writes the reproducible scene JSON, and creates the final `.riv` through rive-mcp. `render-previews.mjs` exports the animation and small-size checks.
-
-To watch a preview in Chrome:
-
-```sh
-open -a "Google Chrome" previews/animations/idle.apng
-open -a "Google Chrome" previews/animations/thinking.apng
-open -a "Google Chrome" previews/animations/working-32.apng
-```
-
-`test-state-machine.mjs` replays all semantic status changes plus blink, done, and acknowledge triggers and refreshes the PNG captures under `previews/states/`.
-
-`start-studio.mjs` keeps the local Rive Studio server alive at `http://localhost:8787/`; leave that process running while you inspect the artboard, timeline, hierarchy, and state-machine controls. Stop it with Ctrl-C.
-
-The asset loads and renders in rive-mcp's official `@rive-app/canvas` runtime. The installed Rive Desktop 0.8.5674 opens the file window but displays a blank canvas; because the same format-7.0 file validates, renders, and runs its state machine in the current official runtime, this is recorded as a local editor-version compatibility limitation rather than an asset/runtime failure. Use a current Rive editor/runtime or the generated scene source for inspection and editing.
-
-## Design notes
-
-The body uses `#1B1D22` and the eyes use `#F8FAFC`. Its updated motion creates 2.5D depth through perspective squash, handle lag, gaze parallax, and asymmetric near/far-eye acting; no shading or extra detail is needed to preserve the clean icon at 24–32 px. The asset itself has no background, outline, filter, raster, text, bones, or unnecessary decoration. On very dark application surfaces, place the avatar on a subtle contrasting container rather than adding a permanent outline to the mascot.
+Original artwork. The silhouette derives from the supplied kettlebell reference
+(kept in `assets/reference/` for provenance only — it is never embedded). Motion
+principles — expressive eyes, posture, readable agent states, motion as presence —
+were informed by xAI's published Grok Bot design process; no vectors, poses,
+timing or visual design were taken from it.
