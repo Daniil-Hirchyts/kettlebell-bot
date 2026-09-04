@@ -15,10 +15,10 @@ npm run build && npm run test && npm run previews && npm run sheets
 |---|---|
 | `riv_create` | Validated with the official Rive runtime |
 | Format version | 7.0 |
-| File size | 181 KB, 0 embedded image assets |
+| File size | 257 KB, 0 embedded image assets (the vector grain is ~76 KB of that) |
 | Artboards | 1 — `KettlebellBot`, 512 x 512, transparent |
-| Rig nodes | 22 named transforms, including 2 `Solo` groups |
-| Vector shapes | 24 — 11 Bézier contours (29 cubic + 28 straight vertices), 14 primitives, 5 gradient fills, 19 solid fills |
+| Rig nodes | 24 named transforms, including 2 `Solo` groups |
+| Vector shapes | 53 — 2070 Bézier contours (29 cubic + 4146 straight vertices, 2059 of the contours being grain specks), 14 primitives, 5 gradient fills, 48 solid fills |
 | Animations | 67 |
 | Tracks / keyframes | 1282 / 12304 |
 | State machine | `KettlebellBotMachine` — 24 inputs, 8 layers, 48 states, 80 transitions |

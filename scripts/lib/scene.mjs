@@ -9,6 +9,7 @@ import {
   FIELD,
   EYE_VARIANTS,
   EYE_Y,
+  GRAIN,
   HANDLE_CY,
   HANDLE_HOLE,
   HANDLE_OUTER,
@@ -31,6 +32,7 @@ import {
 } from "./turnanims.mjs";
 import { buildEmotionShowcase, buildTurnShowcase } from "./showcase.mjs";
 import { turnPose } from "./turn.mjs";
+import { bucketSpecks, scatterGrain } from "./grain.mjs";
 
 const REST = turnPose(0);
 
@@ -65,12 +67,14 @@ export function buildGroups() {
     { id: "BodyPlate", parent: "BodyPivot", x: 0, y: 0 },
     { id: "TurnFront", parent: "BodyPlate", x: 0, y: 0, opacity: 1 },
     { id: "TurnBack", parent: "BodyPlate", x: 0, y: 0, opacity: 0 },
+    { id: "BodyGrain", parent: "BodyPlate", x: 0, y: 0, clipBy: "body-mask" },
 
     // Rest offsets live on their own nodes: keyed x/y in Rive is absolute, so
     // any node an animation translates has to sit at the origin of its parent.
     { id: "HandleRoot", parent: "Yaw", x: 0, y: HANDLE_CY },
     { id: "HandlePivot", parent: "HandleRoot", x: 0, y: 0 },
     { id: "HandlePlate", parent: "HandlePivot", x: 0, y: 0 },
+    { id: "HandleGrain", parent: "HandlePlate", x: 0, y: 0, clipBy: "handle-shape" },
 
     { id: "FaceRoot", parent: "Yaw", x: 0, y: EYE_Y },
     { id: "Face", parent: "FaceRoot", x: 0, y: 0 },
@@ -253,6 +257,37 @@ export function buildShapes() {
       stroke: { color: COLOR.rim, thickness: 15, cap: "round", join: "round" },
     },
   ];
+
+  // Grain sits above the body's form shading but below the eyes, and on the
+  // handle it sits behind the bell so the overlap stays correct. Specks are
+  // grouped into a handful of stroked shapes rather than one shape each.
+  const grainShapes = (specks, parent, baseZ) =>
+    bucketSpecks(specks).map((bucket, index) => ({
+      id: `${parent}-${index}`,
+      type: "polygon",
+      parent,
+      x: 0,
+      y: 0,
+      z: baseZ,
+      closed: false,
+      subpaths: bucket.subpaths,
+      opacity: bucket.opacity,
+      stroke: {
+        color: bucket.light ? COLOR.grainLight : COLOR.grainDark,
+        thickness: bucket.thickness,
+        cap: "round",
+        join: "round",
+      },
+    }));
+
+  shapes.push(
+    ...grainShapes(scatterGrain({ include: [BODY_POINTS], ...GRAIN.body }), "BodyGrain", 20),
+    ...grainShapes(
+      scatterGrain({ include: [HANDLE_OUTER], exclude: [HANDLE_HOLE], ...GRAIN.handle }),
+      "HandleGrain",
+      5,
+    ),
+  );
 
   for (const side of ["L", "R"]) {
     EYE_VARIANTS.forEach((variant, index) => {

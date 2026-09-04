@@ -16,6 +16,7 @@ import {
   DEPTH_SHAPES,
   EYE_VARIANTS,
   EYE_Y,
+  GRAIN,
   FIELD,
   HANDLE_CY,
   HANDLE_HOLE,
@@ -27,6 +28,7 @@ import {
 } from "./lib/geometry.mjs";
 import { compoundPathData, pathData, round as r, splitColor } from "./lib/svg.mjs";
 import { turnPose } from "./lib/turn.mjs";
+import { bucketSpecks, scatterGrain } from "./lib/grain.mjs";
 import {
   HOLE_BOTTOM_HANDLE,
   HOLE_SIDE_X,
@@ -83,7 +85,23 @@ ${FIELD.topShade.map((s) => {
     <clipPath id="bodyMask">
       <path d="${bodyPath}" />
     </clipPath>
+    <clipPath id="handleMask" clip-rule="evenodd">
+      <path d="${handlePath}" clip-rule="evenodd" />
+    </clipPath>
   </defs>`;
+
+// Grain: one stroked path per bucket, each holding many two-point subpaths.
+// Generated from the same seeds as the Rive scene, so the two stay identical.
+const grainMarkup = (specks, indent) =>
+  bucketSpecks(specks)
+    .map((bucket) => {
+      const d = bucket.subpaths
+        .map((sp) => `M ${r(sp.points[0].x)} ${r(sp.points[0].y)} L ${r(sp.points[1].x)} ${r(sp.points[1].y)}`)
+        .join(" ");
+      const color = bucket.light ? COLOR.grainLight : COLOR.grainDark;
+      return `${indent}<path fill="none" stroke="${color}" stroke-width="${bucket.thickness}" stroke-linecap="round" opacity="${bucket.opacity}" d="${d}" />`;
+    })
+    .join("\n");
 
 const eyeMarkup = (side, sign) => {
   const variant = EYE_VARIANTS[0];
@@ -117,11 +135,17 @@ ${gradients}
   <g id="kettlebell-bot" transform="translate(${ROOT_X} ${ROOT_Y}) scale(${ROOT_SCALE})">
     <g id="handle" transform="translate(0 ${HANDLE_CY})">
       <path id="handle-shape" fill-rule="evenodd" clip-rule="evenodd" d="${handlePath}" fill="url(#handleFill)" />
+      <g id="handle-grain" clip-path="url(#handleMask)">
+${grainMarkup(scatterGrain({ include: [HANDLE_OUTER], exclude: [HANDLE_HOLE], ...GRAIN.handle }), "        ")}
+      </g>
     </g>
 
     <g id="body">
       <path id="body-core" d="${bodyPath}" fill="url(#bodyFill)" />
 ${depthLayers()}
+      <g id="body-grain" clip-path="url(#bodyMask)">
+${grainMarkup(scatterGrain({ include: [BODY_POINTS], ...GRAIN.body }), "        ")}
+      </g>
     </g>
 
     <g id="face" transform="translate(0 ${EYE_Y})">
@@ -136,6 +160,8 @@ writeFileSync(resolve(projectRoot, "assets/svg/kettlebell-bot.svg"), front);
 
 // ---------------------------------------------------------------------------
 // Turnaround sheet — the same projection model, drawn as static vector poses.
+// Grain is left out here on purpose: this sheet is a reference diagram for the
+// facing model, and seven copies of the speck field would bury it.
 // ---------------------------------------------------------------------------
 const FACINGS = [0, 60, 120, 180, 240, 300, 360];
 const CELL = 380;

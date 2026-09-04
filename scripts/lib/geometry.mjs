@@ -33,6 +33,8 @@ export const COLOR = {
   backDetail: "#2E323C",
   topShade: "#0C0E12",
   rim: "#9C9EA5",
+  grainLight: "#FFFFFF",
+  grainDark: "#05070B",
   eye: "#F8FAFC",
   invisible: "#00000000",
 };
@@ -227,6 +229,33 @@ function truncateSegment(from, to, t) {
 }
 
 export const RIM_POINTS = truncateSegment(BODY_POINTS[6], BODY_POINTS[0], 0.7);
+
+// Film grain. Vector specks, not a texture — see scripts/lib/grain.mjs for why.
+// Seeds are fixed so the build stays byte-deterministic.
+export const GRAIN = {
+  // Density is specks per 1000 square px of covered area. Roughly:
+  //   12 = whisper · 20 = default · 32 = pronounced
+  // Raising it is linear in file size, which is why it is one number here.
+  body: {
+    seed: 20260904,
+    density: 20,
+    length: [0.7, 2.2],
+    thickness: [0.9, 1.7],
+    opacityLight: [0.03, 0.075],
+    opacityDark: [0.1, 0.22],
+    lightRatio: 0.72,
+  },
+  handle: {
+    seed: 77010203,
+    density: 20,
+    length: [0.7, 2.0],
+    thickness: [0.9, 1.6],
+    opacityLight: [0.03, 0.07],
+    opacityDark: [0.1, 0.2],
+    lightRatio: 0.72,
+  },
+};
+
 
 export const DEPTH_SHAPES = {
   topShade: { width: 320, height: 150, x: 0, y: -168 },

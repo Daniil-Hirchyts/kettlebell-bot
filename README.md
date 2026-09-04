@@ -17,7 +17,7 @@ Animated: [`previews/animations/showcase_turnaround.gif`](previews/animations/sh
 
 ## What is in the box
 
-- `rive/kettlebell-bot.riv` — the runtime asset. Rive format 7.0, 181 KB,
+- `rive/kettlebell-bot.riv` — the runtime asset. Rive format 7.0, 257 KB,
   transparent, no embedded images.
 - `rive/kettlebell-bot.scene.json` — the full reproducible scene the `.riv` is
   built from.
@@ -45,6 +45,10 @@ projection model rather than a set of drawn poses. One angle drives everything:
 - **A front light field and a back dark field counter-slide** across the bell,
   giving it a near surface and a far one. Turned away, a seam and two vents make
   the back readable as a back.
+- **The grain is 2059 vector specks**, not a texture — no tile, so nothing
+  repeats. Placed on a jittered grid, drawn as tiny stroked dashes, parented
+  inside the form so it turns with it. Density is one dial in `GRAIN`
+  (`scripts/lib/geometry.mjs`); see `specs/avatar-spec.md`.
 
 The held facings, the scripted head turns and the full spins are the same maths
 sampled differently, so they can never disagree.

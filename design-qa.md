@@ -75,6 +75,25 @@ Re-shot the changed animations.
 
 Full-set confirmation pass. No regressions.
 
+### Iteration 4 — film grain
+
+Added a grain texture for surface character. Three passes, because the first two
+were wrong in instructive ways.
+
+| Attempt | Result | Fix |
+|---|---|---|
+| 939 ellipse specks, density 9, 1.5–3.4 px, balanced light/dark | Read as scattered dust, not grain: specks individually distinguishable and too far apart. The dark specks did nothing at all — the body is already at ~13% luminance, so darkening it 8% is invisible | Raised density, shrank the specks, split the alpha ranges so light and dark specks carry different weight, and shifted the mix to 72% light |
+| 2300 ellipse specks, density 24 | Read correctly, but the file went 185 KB → 348 KB (+87%) and `riv_optimize` recovered nothing | Switched the primitive |
+| 2059 dash specks, density 20, bucketed into 29 shapes | Shipped. Finer and more grain-like — real grain is directional, not round — and 263 KB | — |
+
+A degenerate two-point path (both points identical) draws nothing in this
+runtime, so every dash carries a real length; that was verified with a probe
+scene before committing to the approach.
+
+The grain is checked through the full turnaround: it stays clipped to the form,
+turns with it, and does not interfere with the handle squash, the opening
+closing, the eye wrap or the back detail.
+
 ## Two defects the build guards caught
 
 Both were invisible in a single-animation preview and would have shipped:
@@ -103,6 +122,7 @@ Both were invisible in a single-animation preview and would have shipped:
 - [x] Every looping animation verified seam-free at build time
 - [x] Every state-machine input and transition exercised
 - [x] Three motion critique passes with filmstrips and onion skins
+- [x] Vector-only film grain: no tile, no raster, clipped to the form
 - [x] `riv_lint`: 0 errors, 0 warnings
 
 final result: passed
