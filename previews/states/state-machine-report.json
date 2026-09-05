@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-04T21:46:05.644Z",
+  "generatedAt": "2026-09-05T07:54:10.808Z",
   "summary": [
     {
       "pass": "moods",
@@ -110,6 +110,22 @@
         "touch_hover",
         "touch_press",
         "touch_rest",
+        "unknown"
+      ],
+      "missing": []
+    },
+    {
+      "pass": "shots",
+      "steps": 13,
+      "captures": 5,
+      "statesEntered": [
+        "mood_00_calm",
+        "neutral",
+        "touch_rest",
+        "turn_peek_back",
+        "turn_showcase_360",
+        "turn_spin_left",
+        "turn_spin_right",
         "unknown"
       ],
       "missing": []

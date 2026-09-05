@@ -4,7 +4,7 @@
 
 - File: `rive/kettlebell-bot.riv` (Rive format 7.0, 181 KB, no embedded assets)
 - Artboard: `KettlebellBot` (512 x 512, transparent)
-- State machine: `KettlebellBotMachine` — 24 inputs, 8 layers, 48 states, 80 transitions
+- State machine: `KettlebellBotMachine` — 24 inputs, 9 layers, 49 states, 81 transitions
 
 Apps drive semantic inputs only. They never need to name an animation or
 coordinate timelines: the layers compose on their own.

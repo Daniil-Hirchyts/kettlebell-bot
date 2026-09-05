@@ -1,9 +1,12 @@
 // Kettlebell Bot — build-time guards.
 //
-// The whole rig depends on one rule: each state-machine layer owns a disjoint
-// set of (object, property) channels. If two layers ever key the same channel
-// the later layer silently wins and the composition breaks in ways that are
-// very hard to see in a filmstrip — so it is checked here instead.
+// The rig depends on a rule about who may key what: a state-machine layer keys
+// only the (object, property) channels it owns. Most layers own their channels
+// outright. Two pairs share on purpose — reactions override moods, turn shots
+// override the held facing — and there the LATER layer wins, which is only safe
+// if it can also get out of the way. Rule 8 enforces that half of the bargain.
+// Both halves are checked here because a broken composition is very hard to see
+// in a filmstrip.
 
 import { TURN_CHANNELS } from "./turn.mjs";
 
@@ -18,11 +21,9 @@ export function ownershipFor(meta) {
 
   add("Mood", meta.moods.map((m) => m.anim), moodAllowed);
   add("Reaction", meta.reactions.map((r) => r.anim), moodAllowed);
-  add(
-    "Turn",
-    [...meta.facingPoses.map((p) => p.anim), ...meta.yawLoops.map((y) => y.anim), ...meta.turnShots.map((t) => t.anim)],
-    (track) => turn.has(`${track.target}|${track.property}`),
-  );
+  const turnOwned = (track) => turn.has(`${track.target}|${track.property}`);
+  add("Turn", [...meta.facingPoses.map((p) => p.anim), ...meta.yawLoops.map((y) => y.anim)], turnOwned);
+  add("Turn Shot", meta.turnShots.map((t) => t.anim), turnOwned);
   add("Gaze X", meta.gaze.x.map((g) => g.anim), (t) => t.target === "GazeX");
   add("Gaze Y", meta.gaze.y.map((g) => g.anim), (t) => t.target === "GazeY");
   add("Energy", meta.energy.map((e) => e.anim), (t) => t.target === "Energy");
@@ -170,6 +171,44 @@ export function validateScene(scene, meta) {
       if (track.keyframes.length > 1 && eased.length === 0) {
         warnings.push(`${anim.name}: ${track.target}.${track.property} has no easing (reads robotic)`);
       }
+    }
+  }
+
+  // 8 · a layer that overrides an earlier one must be able to yield
+  //
+  // Two layers may key the same channel deliberately — the later one wins, which
+  // is how a reaction plays over a mood and a turn shot plays over the held
+  // facing. That only works if the overriding layer can step back out of the
+  // way, and the only way it can is for its entry state to run an animation with
+  // no tracks at all. Give it anything else and it pins those channels forever:
+  // the layer underneath is authored, blended and then never seen again.
+  const animTracks = new Map(scene.animations.map((a) => [a.name, a.tracks]));
+  const layerChannels = (layer) => {
+    const channels = new Set();
+    for (const state of layer.states) {
+      const names = state.blend1d ? state.blend1d.animations.map((a) => a.animation) : [state.animation];
+      for (const name of names) {
+        for (const track of animTracks.get(name) ?? []) channels.add(`${track.target}|${track.property}`);
+      }
+    }
+    return channels;
+  };
+  const layers = scene.stateMachine.layers;
+  const sets = layers.map(layerChannels);
+  for (let j = 0; j < layers.length; j += 1) {
+    const overrides = [];
+    for (let i = 0; i < j; i += 1) {
+      if ([...sets[j]].some((c) => sets[i].has(c))) overrides.push(layers[i].name);
+    }
+    if (!overrides.length) continue;
+    const entry = layers[j].transitions.find((t) => t.from === "entry");
+    const idle = layers[j].states.find((st) => st.name === entry?.to);
+    const tracks = idle && !idle.blend1d ? animTracks.get(idle.animation) : undefined;
+    if (!idle || idle.blend1d || !tracks || tracks.length > 0) {
+      errors.push(
+        `layer ${layers[j].name} shares channels with ${overrides.join(", ")} but its entry state ` +
+          `${entry?.to ?? "(none)"} is not a track-free idle — it can never yield those channels back`,
+      );
     }
   }
 

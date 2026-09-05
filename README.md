@@ -45,19 +45,30 @@ projection model rather than a set of drawn poses. One angle drives everything:
 - **A front light field and a back dark field counter-slide** across the bell,
   giving it a near surface and a far one. Turned away, a seam and two vents make
   the back readable as a back.
-- **The grain is 2059 vector specks**, not a texture — no tile, so nothing
+- **The grain is 14,432 vector specks**, not a texture — no tile, so nothing
   repeats. Placed on a jittered grid, drawn as tiny stroked dashes, parented
-  inside the form so it turns with it. Density is one dial in `GRAIN`
-  (`scripts/lib/geometry.mjs`); see `specs/avatar-spec.md`.
+  inside the form so it turns with it. Each speck is sized by the luminance
+  deviation it should produce rather than by an alpha, and the light/dark mix is
+  derived so the grain is mean-preserving — turning it up cannot brighten the
+  character. Strength follows the shading, so the highlight and the contact
+  shadow are themselves grainy instead of being covered in uniform noise. Two
+  dials in `GRAIN` (`scripts/lib/geometry.mjs`); see `specs/avatar-spec.md`.
 
 The held facings, the scripted head turns and the full spins are the same maths
 sampled differently, so they can never disagree.
 
-The state machine has eight layers, each owning a disjoint set of properties:
-Energy, Touch, Turn, Mood, Reaction, Gaze X, Gaze Y and Blink. That is what lets
-a mood, a facing, a gaze direction, a blink and a press all play at once instead
-of overriding one another — and it is checked at build time, so a violation fails
-the build rather than producing a subtly wrong file.
+The state machine has nine layers: Energy, Touch, Turn, Turn Shot, Mood,
+Reaction, Gaze X, Gaze Y and Blink. That is what lets a mood, a facing, a gaze
+direction, a blink and a press all play at once instead of overriding one
+another — and it is checked at build time, so a violation fails the build rather
+than producing a subtly wrong file.
+
+Most layers own their channels outright. Two pairs share deliberately — Reaction
+over Mood, Turn Shot over Turn — because a one-shot cannot live on the same layer
+as a level-triggered condition like `status == 0`, which is true on every frame
+and will drag the machine straight back out of the one-shot. An overriding layer
+must idle on a track-free animation so it can hand the channels back; that is
+checked at build time too.
 
 ## Using it
 

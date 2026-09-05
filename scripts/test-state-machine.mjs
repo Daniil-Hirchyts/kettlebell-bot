@@ -3,6 +3,12 @@
 // Drive every state-machine input and every transition, capture a frame per
 // checkpoint, and fail loudly if an expected state change never happened.
 //
+// Entering a state is necessary but not sufficient: a one-shot can be entered
+// and then immediately stolen back by a level-triggered transition on another
+// layer, which is exactly how a dead 360 tour once passed this suite. The
+// `shots` pass therefore samples each turn shot at its midpoint and asserts the
+// character actually moved, by comparing pixels against the front-facing frame.
+//
 //   node scripts/test-state-machine.mjs [passName ...]
 //
 // riv_play_state_machine accepts at most 50 steps per call, so the coverage is
@@ -12,6 +18,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { Client, StdioClientTransport } from "./rive-mcp-sdk.mjs";
 import { buildScene } from "./lib/scene.mjs";
+import { decodePng } from "./lib/png.mjs";
 
 const projectRoot = resolve(import.meta.dirname, "..");
 const rivPath = resolve(projectRoot, "rive/kettlebell-bot.riv");
@@ -85,7 +92,51 @@ const passes = {
     step("wink-settle", { advance: 0.4 }),
     step("tapped-touch", { input: "tapped", advance: 0.12, capture: true }),
   ],
+  // Each turn shot, sampled at the point where it should be furthest from the
+  // front. Proves the shot actually runs rather than merely being entered.
+  shots: [
+    step("front-baseline", { advance: 0.4, capture: true }),
+    step("tour-fired", { input: "turnaround", advance: 0.1 }),
+    step("tour-at-back", { advance: 3.3, capture: true }),
+    step("tour-finish", { advance: 4.0 }),
+    step("spin-right-fired", { input: "spinRight", advance: 0.1 }),
+    step("spin-right-mid", { advance: 0.7, capture: true }),
+    step("spin-right-finish", { advance: 1.2 }),
+    step("spin-left-fired", { input: "spinLeft", advance: 0.1 }),
+    step("spin-left-mid", { advance: 0.7, capture: true }),
+    step("spin-left-finish", { advance: 1.2 }),
+    step("peek-fired", { input: "peek", advance: 0.1 }),
+    step("peek-at-back", { advance: 0.85, capture: true }),
+    step("peek-finish", { advance: 1.2 }),
+  ],
 };
+
+// Count the character's eye pixels. The eyes are #F8FAFC and the body never
+// exceeds ~25% luminance, so on the black background this pass renders against
+// they are the only bright thing in the frame and a threshold isolates them
+// exactly. (The default light background is nearly the same colour as the eyes,
+// which is why this pass overrides it.)
+function eyePixels(png) {
+  const img = decodePng(png);
+  let count = 0;
+  for (let i = 0; i < img.data.length; i += 4) {
+    if (img.data[i + 3] < 128) continue;
+    const luma = (0.2126 * img.data[i] + 0.7152 * img.data[i + 1] + 0.0722 * img.data[i + 2]) / 255;
+    if (luma > 0.8) count += 1;
+  }
+  return count;
+}
+
+// Each of these samples a shot at the point where the character should be facing
+// away, so the eyes have wrapped out of sight and the count must collapse.
+//
+// This is asserted rather than a whole-frame pixel difference on purpose. A
+// stolen shot still drifts a little before it is dragged back, so "the frame
+// changed" separated a working 360 tour from a dead one by only 4.85% against
+// 3.40% — close enough that the test would have passed the bug it exists to
+// catch. "The eyes are gone" is the thing the animation actually promises, and
+// it separates them by two orders of magnitude.
+const FACING_AWAY = ["tour-at-back", "spin-right-mid", "spin-left-mid", "peek-at-back"];
 
 // What each pass must actually have entered, by animation name.
 const expected = {
@@ -93,7 +144,12 @@ const expected = {
   reactions: meta.reactions.map((r) => r.anim.name),
   turn: [...meta.turnShots.map((t) => t.anim.name), ...meta.yawLoops.map((y) => y.anim.name)],
   interaction: [...meta.blinks.map((b) => b.anim.name), "touch_hover", "touch_press", "touch_rest"],
+  shots: meta.turnShots.map((t) => t.anim.name),
 };
+
+// The shots pass needs the eyes to be the only bright pixels; every other pass
+// is rendered on the light surface the character normally sits on.
+const backgrounds = { shots: "#000000" };
 
 const requested = process.argv.slice(2);
 const names = requested.length ? requested : Object.keys(passes);
@@ -117,7 +173,7 @@ try {
         stateMachine: "KettlebellBotMachine",
         artboard: "KettlebellBot",
         width: 240,
-        background: "#F4F5F7",
+        background: backgrounds[name] ?? "#F4F5F7",
         steps: pass.map(({ label, ...s }) => s),
       },
     });
@@ -128,18 +184,35 @@ try {
     for (const entry of report.report ?? []) for (const s of entry.statesChanged ?? []) seen.add(s);
 
     const captured = pass.filter((s) => s.capture).map((s) => s.label);
+    const frames = new Map();
     let index = 0;
     for (const item of result.content ?? []) {
       if (item.type !== "image") continue;
       const label = captured[index] ?? `capture-${index}`;
-      writeFileSync(
-        resolve(captureDir, `${name}-${String(index + 1).padStart(2, "0")}-${label}.png`),
-        Buffer.from(item.data, "base64"),
-      );
+      const png = Buffer.from(item.data, "base64");
+      frames.set(label, png);
+      writeFileSync(resolve(captureDir, `${name}-${String(index + 1).padStart(2, "0")}-${label}.png`), png);
       index += 1;
     }
 
-    const missing = (expected[name] ?? []).filter((a) => !seen.has(a));
+    // A state that was entered but never got to play is still a broken shot.
+    const still = [];
+    if (name === "shots") {
+      const base = frames.get("front-baseline");
+      const front = base ? eyePixels(base) : 0;
+      if (front < 100) still.push(`front-baseline shows only ${front} eye px — the check itself is broken`);
+      const readings = [`front ${front}`];
+      for (const label of FACING_AWAY) {
+        const shot = frames.get(label);
+        if (!shot) { still.push(`${label} (no capture)`); continue; }
+        const count = eyePixels(shot);
+        readings.push(`${label} ${count}`);
+        if (count > front * 0.1) still.push(`${label} still shows ${count} eye px (front is ${front}) — the shot never turned away`);
+      }
+      console.log(`  eye pixels: ${readings.join("  ")}`);
+    }
+
+    const missing = [...(expected[name] ?? []).filter((a) => !seen.has(a)), ...still];
     summary.push({ pass: name, steps: pass.length, captures: index, statesEntered: [...seen].sort(), missing });
     const status = missing.length ? `MISSING ${missing.join(", ")}` : "ok";
     console.log(`${name.padEnd(12)} steps=${String(pass.length).padStart(2)} captures=${String(index).padStart(2)} states=${String(seen.size).padStart(2)} ${status}`);

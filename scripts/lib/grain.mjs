@@ -93,6 +93,7 @@ function polygonArea(polygon) {
 }
 
 const round = (v, p = 2) => Number(v.toFixed(p));
+const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 
 /**
  * Scatter grain specks across a region.
@@ -103,33 +104,66 @@ const round = (v, p = 2) => Number(v.toFixed(p));
  * set). A zero-length path draws nothing in this runtime, so every dash has a
  * real length.
  *
+ * Specks are specified as a target LUMINANCE DEVIATION, not as an alpha. That is
+ * the whole trick. On a surface at luminance L, a white speck at alpha a shifts
+ * the pixel by a*(1-L) and a near-black speck by a*(L-0.027); on this character
+ * L is around 0.13, so the same alpha buys eleven times more from a light speck
+ * than a dark one. Asking for a deviation and solving for the alpha it needs
+ * makes both directions land equally hard, at every brightness:
+ *
+ *   light speck   a = delta / (lightLuma - L)
+ *   dark speck    a = delta / (L - darkLuma)
+ *
+ * The direction is then chosen so the grain is MEAN-PRESERVING. Each side can
+ * only deliver so much before it hits its alpha cap; calling those headLight and
+ * headDark, picking light with probability headDark / (headLight + headDark)
+ * makes the expected shift exactly zero at every brightness and every strength:
+ *
+ *   p*headLight - (1-p)*headDark = 0   for   p = headDark / (headLight + headDark)
+ *
+ * That matters more than it sounds. The substrate is nearly black, so light
+ * specks outrun dark ones badly, and a fixed light/dark ratio turns the grain
+ * into a brightness dial -- turning it up washed the character out by 13%, which
+ * means the strength knob was quietly also a design knob. Deriving the ratio
+ * instead of tuning it keeps the character the colour it was drawn.
+ *
+ * The deviation itself is scaled by local brightness, so the grain follows the
+ * shading instead of flattening it: the lit shoulder and the rim get the
+ * coarsest grain, the contact shadow the finest. That is what makes the
+ * highlights and shadows read as grainy rather than as smooth fields with dust
+ * scattered over them.
+ *
  * @param {object}   options
- * @param {Array}    options.include  contours the speck must fall inside
- * @param {Array}    options.exclude  contours the speck must fall outside (the handle opening)
+ * @param {Array}    options.include   contours the speck must fall inside
+ * @param {Array}    options.exclude   contours the speck must fall outside
+ * @param {Function} options.luma      (x, y) => surface luminance at that point
  * @param {number}   options.seed
- * @param {number}   options.density  specks per 1000 square px
+ * @param {number}   options.density   specks per 1000 square px
+ * @param {[number,number]} options.lumaRange  surface luminance range to normalise over
+ * @param {number}   options.delta     target luminance deviation at mid brightness
+ * @param {[number,number]} options.deltaGain  deviation scale at the dark and light ends
+ * @param {[number,number]} options.deltaJitter per-speck random scale on the deviation
  * @param {[number,number]} options.length     dash length range
  * @param {[number,number]} options.thickness  dash thickness range
- * @param {[number,number]} options.opacityLight alpha range for lifting specks
- * @param {[number,number]} options.opacityDark  alpha range for darkening specks
- * @param {number}   options.lightRatio     share of specks that lift rather than darken
- *
- * The two alpha ranges differ on purpose. The body sits at roughly 13% luminance,
- * so a black speck at 8% alpha moves it by about 1% and is invisible, while a
- * white speck at the same alpha reads clearly. Grain on a near-black character
- * has to be mostly light specks, with the dark ones carrying more alpha to
- * register at all.
+ * @param {number}   options.maxAlphaLight  alpha ceiling for a lifting speck
+ * @param {number}   options.maxAlphaDark   alpha ceiling for a darkening speck
  */
 export function scatterGrain({
   include,
   exclude = [],
+  luma,
   seed = 1,
   density = 20,
+  lumaRange = [0.06, 0.26],
+  delta = 0.02,
+  deltaGain = [0.62, 1.5],
+  deltaJitter = [0.55, 1.45],
   length = [0.7, 2.2],
   thickness = [0.9, 1.7],
-  opacityLight = [0.03, 0.075],
-  opacityDark = [0.10, 0.22],
-  lightRatio = 0.72,
+  maxAlphaLight = 0.3,
+  maxAlphaDark = 0.55,
+  lightLuma = 1,
+  darkLuma = 0.027,
 }) {
   const shells = include.map((c) => flattenContour(c));
   const holes = exclude.map((c) => flattenContour(c));
@@ -153,15 +187,30 @@ export function scatterGrain({
     for (let col = 0; col < cols; col += 1) {
       const x = box.minX + (col + random()) * cellW;
       const y = box.minY + (row + random()) * cellH;
-      const light = random() < lightRatio;
+      const roll = random();
       const angle = random() * Math.PI;
       const len = length[0] + random() * (length[1] - length[0]);
       const thick = thickness[0] + random() * (thickness[1] - thickness[0]);
-      const range = light ? opacityLight : opacityDark;
-      const alpha = range[0] + random() * (range[1] - range[0]);
+      const jitter = deltaJitter[0] + random() * (deltaJitter[1] - deltaJitter[0]);
       const point = [x, y];
       if (!shells.some((s) => pointInPolygon(point, s))) continue;
       if (holes.some((h) => pointInPolygon(point, h))) continue;
+
+      const surface = luma(x, y);
+      const t = clamp01((surface - lumaRange[0]) / (lumaRange[1] - lumaRange[0]));
+      const want = delta * (deltaGain[0] + (deltaGain[1] - deltaGain[0]) * t) * jitter;
+
+      // How much deviation each direction can actually deliver here before it
+      // runs into its alpha cap.
+      const roomLight = Math.max(0.05, lightLuma - surface);
+      const roomDark = Math.max(0.02, surface - darkLuma);
+      const headLight = Math.min(want, maxAlphaLight * roomLight);
+      const headDark = Math.min(want, maxAlphaDark * roomDark);
+
+      const light = roll < headDark / (headLight + headDark);
+      const alpha = light ? headLight / roomLight : headDark / roomDark;
+      if (alpha < 0.01) continue;
+
       specks.push({
         x1: round(x - (Math.cos(angle) * len) / 2),
         y1: round(y - (Math.sin(angle) * len) / 2),
@@ -176,22 +225,40 @@ export function scatterGrain({
   return specks;
 }
 
-const quantize = (value, steps, [min, max]) =>
-  min + Math.round(((value - min) / (max - min)) * (steps - 1)) * ((max - min) / (steps - 1));
+const quantizeIn = (value, steps, min, max) =>
+  max - min < 1e-6 ? min : min + Math.round(((value - min) / (max - min)) * (steps - 1)) * ((max - min) / (steps - 1));
 
 /**
  * Group specks into as few shapes as possible.
  *
- * Stroke colour, thickness and opacity are per-shape, so those three are
+ * Stroke colour, thickness and opacity are per-shape in Rive, so those three are
  * quantised into buckets; position and length stay per-speck and carry the
- * variation the eye actually notices.
+ * variation the eye actually notices. Opacity is quantised against the range the
+ * scatter actually produced rather than a fixed one, because the brightness
+ * response means that range depends on the artwork; a fixed range would band the
+ * modulation into a handful of visible steps.
  */
-export function bucketSpecks(specks, { thicknessSteps = 3, opacitySteps = 4 } = {}) {
+export function bucketSpecks(specks, { thicknessSteps = 3, opacitySteps = 10 } = {}) {
+  const span = (list) => {
+    if (!list.length) return [0, 1];
+    let min = Infinity;
+    let max = -Infinity;
+    for (const s of list) {
+      if (s.opacity < min) min = s.opacity;
+      if (s.opacity > max) max = s.opacity;
+    }
+    return [min, max];
+  };
+  const ranges = {
+    l: span(specks.filter((s) => s.light)),
+    d: span(specks.filter((s) => !s.light)),
+  };
+
   const buckets = new Map();
   for (const speck of specks) {
-    const t = round(quantize(speck.thickness, thicknessSteps, [0.6, 2.0]), 2);
-    const range = speck.light ? [0.02, 0.09] : [0.08, 0.24];
-    const o = round(quantize(speck.opacity, opacitySteps, range), 3);
+    const t = round(quantizeIn(speck.thickness, thicknessSteps, 0.6, 2.0), 2);
+    const [min, max] = ranges[speck.light ? "l" : "d"];
+    const o = round(quantizeIn(speck.opacity, opacitySteps, min, max), 3);
     const key = `${speck.light ? "l" : "d"}-${t}-${o}`;
     if (!buckets.has(key)) buckets.set(key, { light: speck.light, thickness: t, opacity: o, subpaths: [] });
     buckets.get(key).subpaths.push({

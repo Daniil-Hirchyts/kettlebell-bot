@@ -1,7 +1,7 @@
 # Animation specification
 
-Everything runs at 60 fps. The system has 67 animations, 1282 tracks and 12304
-keyframes, driven by one state machine with eight layers.
+Everything runs at 60 fps. The system has 67 animations, 1282 tracks and 12943
+keyframes, driven by one state machine with nine layers.
 
 ## The idea
 
@@ -26,26 +26,45 @@ same maths sampled differently, so they can never disagree with each other.
 
 ## Layer ownership
 
-Each layer owns a disjoint set of (object, property) channels. This is what lets
-a mood, a facing, a gaze direction, a blink and a touch response all play at once
-without overriding one another, and it is checked at build time by
+Layers own their (object, property) channels. This is what lets a mood, a facing,
+a gaze direction, a blink and a touch response all play at once without
+overriding one another, and it is checked at build time by
 `scripts/lib/validate.mjs` — a violation fails the build.
 
 | Layer | Owns | Driven by |
 |---|---|---|
 | Energy | `Energy.*` | `intensity` (1D blend) |
 | Touch | `Touch.*` | `hover`, `pressed` |
-| Turn | `Yaw.*`, `BodyPlate.scaleX`, `HandlePlate.scaleX`, the four hole vertex tracks, `TurnFront.*`, `TurnBack.*`, `EyeL/R` `x` `scaleX` `opacity` | `facing` (1D blend), `status`, turn triggers |
+| Turn | `Yaw.*`, `BodyPlate.scaleX`, `HandlePlate.scaleX`, the four hole vertex tracks, `TurnFront.*`, `TurnBack.*`, `EyeL/R` `x` `scaleX` `opacity` | `facing` (1D blend), `status` |
+| Turn Shot | the Turn channels, temporarily | `spinRight`, `spinLeft`, `turnaround`, `peek` |
 | Mood | `Char.*`, `BodyPivot.*`, `HandlePivot.*`, `Face.*`, `EyeL/RSolo.*` | `status` |
 | Reaction | the Mood channels, temporarily | reaction triggers |
 | Gaze X | `GazeX.*` | `gazeX` (1D blend) |
 | Gaze Y | `GazeY.*` | `gazeY` (1D blend) |
 | Blink | `EyeL/RBlink.*` | `blink`, `blinkDouble`, `wink` |
 
-The Reaction layer sits above the Mood layer and only keys what it needs, so a
-reaction takes the wheel and then hands motion back to the mood underneath.
-Every reaction starts and ends on identity values, which is what makes the blend
-in and out invisible.
+### The two override pairs
+
+Two layers deliberately share channels with the layer below: Reaction over Mood,
+and Turn Shot over Turn. The later layer wins while it is playing and then hands
+the channels back.
+
+**A one-shot cannot share a layer with a level-triggered condition.** That is the
+rule these pairs exist to satisfy, and it is not obvious until it bites. The Turn
+layer holds its state through transitions like `status == 0`, which is true on
+*every frame*, not just at the moment status changes. When the turn shots lived
+on that layer, firing one entered the shot state and the still-true `status == 0`
+transition immediately fired again and dragged the machine back to the facing
+blend. The spins survived it because their first half-second moves a long way, so
+they looked roughly right; the 360 tour opens on a deliberate 24-frame hold at
+facing 0 and so was pulled back before it had moved at all, and looked completely
+dead.
+
+The half of the bargain that makes an override layer safe is that it must be able
+to *yield*: its entry state runs an animation with no tracks at all
+(`neutral`), so when nothing is playing the layer below shows through untouched.
+Give it anything else and it pins those channels forever. Validator rule 8
+enforces this on every layer that shares channels with an earlier one.
 
 ## Craft rules applied throughout
 

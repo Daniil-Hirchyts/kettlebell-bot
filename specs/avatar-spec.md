@@ -47,9 +47,9 @@ swing freely across the form without ever leaving it.
 ### Film grain
 
 The grain is not a texture. Embedded raster is out of scope for this project, and
-a tiled noise image would repeat, so the grain is 2059 individually placed vector
-specks — 1568 on the bell, 491 on the handle. There is no tile, therefore no
-pattern to notice.
+a tiled noise image would repeat, so the grain is 14,432 individually placed
+vector specks — 11,069 on the bell, 3,363 on the handle. There is no tile,
+therefore no pattern to notice.
 
 - **Placement** is a jittered grid, not uniform random. Random sampling clumps,
   and clumps read as dirt rather than grain; stratifying and then jittering
@@ -60,23 +60,81 @@ pattern to notice.
   (a path plus two vertices, rather than a shape, an ellipse, a fill and a
   colour). A zero-length path draws nothing in this runtime, so every dash has a
   real length.
-- **Specks are grouped into 29 shapes**, bucketed by colour, thickness and
+- **Specks are grouped into 80 shapes**, bucketed by colour, thickness and
   opacity, since those three are per-shape in Rive. Position and length stay
   per-speck, and those carry the variation the eye actually registers.
-- **Mostly light specks** (72%). The body sits at roughly 13% luminance, so a
-  black speck at 8% alpha moves it about 1% and is invisible, while a white one
-  at the same alpha reads clearly. The dark specks therefore carry two to three
-  times the alpha of the light ones.
 - **It is material, not an overlay.** The grain is parented inside the body and
   handle and clipped to them, so it turns, squashes and travels with the form
   rather than sitting in screen space.
 - **The eyes stay clean.** Grain sits above the form shading and below the eyes,
   because the eyes are the whole expression and they read better crisp.
 
-Density is one number per region in `GRAIN` (`scripts/lib/geometry.mjs`), in
-specks per 1000 square px: roughly 12 is a whisper, 20 is the shipped default,
-32 is pronounced. It scales file size close to linearly, which is why it is a
-single dial.
+#### Specks are sized in luminance, not alpha
+
+A speck is specified by the luminance deviation it should produce, and the alpha
+needed to produce it is solved for. On a surface at luminance `L`, a white speck
+at alpha `a` shifts the pixel by `a·(1 − L)` and a near-black one by
+`a·(L − 0.027)`. This character sits around `L = 0.13`, so the same alpha buys
+about eleven times more from a light speck than a dark one, and a single alpha
+range cannot make both directions land:
+
+```
+light speck   a = delta / (lightLuma − L)
+dark speck    a = delta / (L − darkLuma)
+```
+
+That is why the shipped light specks run at 1.8–14% alpha and the dark ones at
+18–55%: very different numbers, the same visual weight.
+
+#### The grain is mean-preserving
+
+Each direction can only deliver so much deviation before it hits its alpha cap.
+Calling those `headLight` and `headDark`, choosing a light speck with probability
+`headDark / (headLight + headDark)` makes the expected luminance shift exactly
+zero, at every brightness and every strength:
+
+```
+p·headLight − (1 − p)·headDark = 0    for    p = headDark / (headLight + headDark)
+```
+
+This matters more than it sounds. With a hand-tuned light/dark ratio, turning the
+grain up brightened the character by 13% — the strength knob was quietly also a
+design knob. Deriving the ratio instead of tuning it holds the shift at a
+constant 1.6% regardless of strength, so the two dials are independent. The ratio
+lands at 49% light / 51% dark on its own, and nobody had to pick it.
+
+#### The grain follows the shading
+
+Speck strength is scaled by the local surface luminance, so the lit shoulder and
+the rim grain harder than the contact shadow. Without this the grain flattens the
+form: it covers the highlight and the shadow with the same uniform noise and the
+character reads as a shape with dust on it rather than as a shaded object with
+texture. `bodyLuma()` and `handleLuma()` in `scripts/lib/geometry.mjs` evaluate
+the same gradient stack the artwork paints — base gradient, contact shadow, front
+field, rim light — from the same constants, so the shading the grain reacts to
+cannot drift from the shading that is drawn. Sampled against a real 512 px render
+across 7,134 points inside the silhouette, the model correlates at r = 0.996 with
+identical means.
+
+The model describes the rest pose. At back-facing angles the surface is darker
+than it predicts, so the grain reads marginally stronger there; a per-facing
+scatter would fix it and multiply the file size by thirteen, which is not a
+trade worth making.
+
+#### Two dials
+
+Both live in `GRAIN` (`scripts/lib/geometry.mjs`), one entry per region.
+
+| Dial | What it changes | Cost |
+| --- | --- | --- |
+| `density` | How **fine** the grain is, in specks per 1000 square px | The expensive one. 140 is 14,432 specks and takes the file from 181 KB to 743 KB — roughly 40 KB and 1,030 specks per 10 points — and CPU rasterisation of a 256 px frame from 0.9 ms to 7.3 ms |
+| `delta` | How **strong** the grain is, as a target luminance deviation | Free, and thanks to mean preservation it does not change how light the character reads |
+
+Density is chosen against the budget, not against the eye. Grain wants to sit at
+roughly one speck per device pixel; at 256 px on a 3× screen that would be tens
+of thousands more specks than is sensible to ship. 140 is the compromise, 70
+halves the cost and reads slightly coarser, and there is no visible ceiling —
+only a price.
 
 The grain is tuned for the avatar's intended display size of roughly 96–256 px,
 where it reads as a fine tooth on the surface. Zoomed far past that the specks
@@ -150,8 +208,8 @@ from `riv_design_tokens` (seed `#1B1D22`, mood `tech`, scheme `dark`).
 | back detail | `#2E323C` | Seam and vents |
 | contact shadow | `#0C0E12` → transparent, 72% peak | Under the handle |
 | rim light | `#9C9EA5` at 24% | Upper-left edge |
-| grain, light | `#FFFFFF` at 3–7.5% | 72% of specks |
-| grain, dark | `#05070B` at 10–22% | 28% of specks |
+| grain, light | `#FFFFFF` at 1.8–14% | 49% of specks |
+| grain, dark | `#05070B` at 18–55% | 51% of specks |
 | eyes | `#F8FAFC` | Both eyes, all variants |
 
 The asset itself has no background. On very dark surfaces, place it on a slightly
@@ -161,7 +219,7 @@ elevated container rather than adding a permanent outline.
 
 - No raster artwork, no embedded images, no third-party mascot assets. The `.riv`
   contains 0 image assets; the grain that would normally be a noise texture is
-  2059 real vector specks.
+  14,432 real vector specks.
 - The turnaround is a projection model, not a flat rotation: the handle's
   projected width, the closing of its opening, and the eyes' travel around the
   head cylinder are each computed from the facing angle.
