@@ -34,6 +34,9 @@
     </clipPath>
   </defs>
   <g id="facing-0" transform="translate(190 300) scale(0.78)">
+    <clipPath id="cellMask-0">
+      <path transform="scale(1 1)" d="M 0 -137.5 C 87 -137.5 136 -118.5 157 -59.5 C 172.04 -16.51 170 45.5 150 86.5 C 132 122.5 93 134.5 48 137.5 C 25 139.5 -25 139.5 -48 137.5 C -93 134.5 -132 122.5 -150 86.5 C -170 45.5 -172 -16.5 -157 -59.5 C -136 -118.5 -87 -137.5 0 -137.5 Z" />
+    </clipPath>
     <g transform="translate(0 -169.5) scale(1 1)">
       <path fill-rule="evenodd" clip-rule="evenodd" d="M 0 -76 C 70 -76 107 -62 122 -26 C 136 8 128 43 104 76 C 34.67 76 -34.67 76 -104 76 C -128 43 -136 8 -122 -26 C -107 -62 -70 -76 0 -76 Z M 0 -32 C -46 -32 -71 -22 -71 10 C -71 42 -50 56 0 56 C 50 56 71 42 71 10 C 71 -22 46 -32 0 -32 Z" fill="url(#handleFill)" />
     </g>
@@ -54,21 +57,26 @@
         <path id="rim-light" d="M -157 -59.5 C -142.3 -100.8 -113.88 -122.5 -68.31 -131.8" fill="none" stroke="#9C9EA5" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" opacity="0.24" />
       </g>
     </g>
-    <g transform="translate(0 -35)">
+    <g clip-path="url(#cellMask-0)">
+      <g transform="translate(0 -35)">
         <g transform="translate(-36 0) scale(1 1)" opacity="1">
           <rect x="-12" y="-31" width="24" height="62" rx="12" fill="#F8FAFC" />
         </g>
         <g transform="translate(36 0) scale(1 1)" opacity="1">
           <rect x="-12" y="-31" width="24" height="62" rx="12" fill="#F8FAFC" />
         </g>
+      </g>
     </g>
     <text x="0" y="230" text-anchor="middle" font-family="ui-monospace, monospace" font-size="26" fill="#7C828E">0&#176;</text>
   </g>
   <g id="facing-60" transform="translate(570 300) scale(0.78)">
+    <clipPath id="cellMask-60">
+      <path transform="scale(0.96 1)" d="M 0 -137.5 C 87 -137.5 136 -118.5 157 -59.5 C 172.04 -16.51 170 45.5 150 86.5 C 132 122.5 93 134.5 48 137.5 C 25 139.5 -25 139.5 -48 137.5 C -93 134.5 -132 122.5 -150 86.5 C -170 45.5 -172 -16.5 -157 -59.5 C -136 -118.5 -87 -137.5 0 -137.5 Z" />
+    </clipPath>
     <g transform="translate(0 -169.5) scale(0.76 1)">
       <path fill-rule="evenodd" clip-rule="evenodd" d="M 0 -76 C 70 -76 107 -62 122 -26 C 136 8 128 43 104 76 C 34.67 76 -34.67 76 -104 76 C -128 43 -136 8 -122 -26 C -107 -62 -70 -76 0 -76 Z M 0 -32 C -3.71 -32 -5.72 -22 -5.72 10 C -5.72 42 -4.03 56 0 56 C 4.03 56 5.72 42 5.72 10 C 5.72 -22 3.71 -32 0 -32 Z" fill="url(#handleFill)" />
     </g>
-    <g transform="scale(0.97 1)">
+    <g transform="scale(0.96 1)">
       <path d="M 0 -137.5 C 87 -137.5 136 -118.5 157 -59.5 C 172.04 -16.51 170 45.5 150 86.5 C 132 122.5 93 134.5 48 137.5 C 25 139.5 -25 139.5 -48 137.5 C -93 134.5 -132 122.5 -150 86.5 C -170 45.5 -172 -16.5 -157 -59.5 C -136 -118.5 -87 -137.5 0 -137.5 Z" fill="url(#bodyFill)" />
 
       <g id="depth" clip-path="url(#bodyMask)">
@@ -85,21 +93,26 @@
         <path id="rim-light" d="M -157 -59.5 C -142.3 -100.8 -113.88 -122.5 -68.31 -131.8" fill="none" stroke="#9C9EA5" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" opacity="0.24" />
       </g>
     </g>
-    <g transform="translate(0 -35)">
-        <g transform="translate(-117.14 0) scale(0.33 1)" opacity="0.93">
+    <g clip-path="url(#cellMask-60)">
+      <g transform="translate(0 -35)">
+        <g transform="translate(-139.16 0) scale(0.39 1)" opacity="1">
           <rect x="-12" y="-31" width="24" height="62" rx="12" fill="#F8FAFC" />
         </g>
-        <g transform="translate(-81.14 0) scale(0.8 1)" opacity="1">
+        <g transform="translate(-103.16 0) scale(0.74 1)" opacity="1">
           <rect x="-12" y="-31" width="24" height="62" rx="12" fill="#F8FAFC" />
         </g>
+      </g>
     </g>
     <text x="0" y="230" text-anchor="middle" font-family="ui-monospace, monospace" font-size="26" fill="#7C828E">60&#176;</text>
   </g>
   <g id="facing-120" transform="translate(950 300) scale(0.78)">
+    <clipPath id="cellMask-120">
+      <path transform="scale(0.96 1)" d="M 0 -137.5 C 87 -137.5 136 -118.5 157 -59.5 C 172.04 -16.51 170 45.5 150 86.5 C 132 122.5 93 134.5 48 137.5 C 25 139.5 -25 139.5 -48 137.5 C -93 134.5 -132 122.5 -150 86.5 C -170 45.5 -172 -16.5 -157 -59.5 C -136 -118.5 -87 -137.5 0 -137.5 Z" />
+    </clipPath>
     <g transform="translate(0 -169.5) scale(0.76 1)">
       <path fill-rule="evenodd" clip-rule="evenodd" d="M 0 -76 C 70 -76 107 -62 122 -26 C 136 8 128 43 104 76 C 34.67 76 -34.67 76 -104 76 C -128 43 -136 8 -122 -26 C -107 -62 -70 -76 0 -76 Z M 0 -32 C -3.71 -32 -5.72 -22 -5.72 10 C -5.72 42 -4.03 56 0 56 C 4.03 56 5.72 42 5.72 10 C 5.72 -22 3.71 -32 0 -32 Z" fill="url(#handleFill)" />
     </g>
-    <g transform="scale(0.97 1)">
+    <g transform="scale(0.96 1)">
       <path d="M 0 -137.5 C 87 -137.5 136 -118.5 157 -59.5 C 172.04 -16.51 170 45.5 150 86.5 C 132 122.5 93 134.5 48 137.5 C 25 139.5 -25 139.5 -48 137.5 C -93 134.5 -132 122.5 -150 86.5 C -170 45.5 -172 -16.5 -157 -59.5 C -136 -118.5 -87 -137.5 0 -137.5 Z" fill="url(#bodyFill)" />
 
       <g id="depth" clip-path="url(#bodyMask)">
@@ -116,13 +129,18 @@
         <path id="rim-light" d="M -157 -59.5 C -142.3 -100.8 -113.88 -122.5 -68.31 -131.8" fill="none" stroke="#9C9EA5" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" opacity="0.24" />
       </g>
     </g>
-    <g transform="translate(0 -35)">
+    <g clip-path="url(#cellMask-120)">
+      <g transform="translate(0 -35)">
 
 
+      </g>
     </g>
     <text x="0" y="230" text-anchor="middle" font-family="ui-monospace, monospace" font-size="26" fill="#7C828E">120&#176;</text>
   </g>
   <g id="facing-180" transform="translate(1330 300) scale(0.78)">
+    <clipPath id="cellMask-180">
+      <path transform="scale(1 1)" d="M 0 -137.5 C 87 -137.5 136 -118.5 157 -59.5 C 172.04 -16.51 170 45.5 150 86.5 C 132 122.5 93 134.5 48 137.5 C 25 139.5 -25 139.5 -48 137.5 C -93 134.5 -132 122.5 -150 86.5 C -170 45.5 -172 -16.5 -157 -59.5 C -136 -118.5 -87 -137.5 0 -137.5 Z" />
+    </clipPath>
     <g transform="translate(0 -169.5) scale(1 1)">
       <path fill-rule="evenodd" clip-rule="evenodd" d="M 0 -76 C 70 -76 107 -62 122 -26 C 136 8 128 43 104 76 C 34.67 76 -34.67 76 -104 76 C -128 43 -136 8 -122 -26 C -107 -62 -70 -76 0 -76 Z M 0 -32 C -46 -32 -71 -22 -71 10 C -71 42 -50 56 0 56 C 50 56 71 42 71 10 C 71 -22 46 -32 0 -32 Z" fill="url(#handleFill)" />
     </g>
@@ -143,17 +161,22 @@
         <path id="rim-light" d="M -157 -59.5 C -142.3 -100.8 -113.88 -122.5 -68.31 -131.8" fill="none" stroke="#9C9EA5" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" opacity="0.24" />
       </g>
     </g>
-    <g transform="translate(0 -35)">
+    <g clip-path="url(#cellMask-180)">
+      <g transform="translate(0 -35)">
 
 
+      </g>
     </g>
     <text x="0" y="230" text-anchor="middle" font-family="ui-monospace, monospace" font-size="26" fill="#7C828E">180&#176;</text>
   </g>
   <g id="facing-240" transform="translate(1710 300) scale(0.78)">
+    <clipPath id="cellMask-240">
+      <path transform="scale(0.96 1)" d="M 0 -137.5 C 87 -137.5 136 -118.5 157 -59.5 C 172.04 -16.51 170 45.5 150 86.5 C 132 122.5 93 134.5 48 137.5 C 25 139.5 -25 139.5 -48 137.5 C -93 134.5 -132 122.5 -150 86.5 C -170 45.5 -172 -16.5 -157 -59.5 C -136 -118.5 -87 -137.5 0 -137.5 Z" />
+    </clipPath>
     <g transform="translate(0 -169.5) scale(0.76 1)">
       <path fill-rule="evenodd" clip-rule="evenodd" d="M 0 -76 C 70 -76 107 -62 122 -26 C 136 8 128 43 104 76 C 34.67 76 -34.67 76 -104 76 C -128 43 -136 8 -122 -26 C -107 -62 -70 -76 0 -76 Z M 0 -32 C -3.71 -32 -5.72 -22 -5.72 10 C -5.72 42 -4.03 56 0 56 C 4.03 56 5.72 42 5.72 10 C 5.72 -22 3.71 -32 0 -32 Z" fill="url(#handleFill)" />
     </g>
-    <g transform="scale(0.97 1)">
+    <g transform="scale(0.96 1)">
       <path d="M 0 -137.5 C 87 -137.5 136 -118.5 157 -59.5 C 172.04 -16.51 170 45.5 150 86.5 C 132 122.5 93 134.5 48 137.5 C 25 139.5 -25 139.5 -48 137.5 C -93 134.5 -132 122.5 -150 86.5 C -170 45.5 -172 -16.5 -157 -59.5 C -136 -118.5 -87 -137.5 0 -137.5 Z" fill="url(#bodyFill)" />
 
       <g id="depth" clip-path="url(#bodyMask)">
@@ -170,17 +193,22 @@
         <path id="rim-light" d="M -157 -59.5 C -142.3 -100.8 -113.88 -122.5 -68.31 -131.8" fill="none" stroke="#9C9EA5" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" opacity="0.24" />
       </g>
     </g>
-    <g transform="translate(0 -35)">
+    <g clip-path="url(#cellMask-240)">
+      <g transform="translate(0 -35)">
 
 
+      </g>
     </g>
     <text x="0" y="230" text-anchor="middle" font-family="ui-monospace, monospace" font-size="26" fill="#7C828E">240&#176;</text>
   </g>
   <g id="facing-300" transform="translate(2090 300) scale(0.78)">
+    <clipPath id="cellMask-300">
+      <path transform="scale(0.96 1)" d="M 0 -137.5 C 87 -137.5 136 -118.5 157 -59.5 C 172.04 -16.51 170 45.5 150 86.5 C 132 122.5 93 134.5 48 137.5 C 25 139.5 -25 139.5 -48 137.5 C -93 134.5 -132 122.5 -150 86.5 C -170 45.5 -172 -16.5 -157 -59.5 C -136 -118.5 -87 -137.5 0 -137.5 Z" />
+    </clipPath>
     <g transform="translate(0 -169.5) scale(0.76 1)">
       <path fill-rule="evenodd" clip-rule="evenodd" d="M 0 -76 C 70 -76 107 -62 122 -26 C 136 8 128 43 104 76 C 34.67 76 -34.67 76 -104 76 C -128 43 -136 8 -122 -26 C -107 -62 -70 -76 0 -76 Z M 0 -32 C -3.71 -32 -5.72 -22 -5.72 10 C -5.72 42 -4.03 56 0 56 C 4.03 56 5.72 42 5.72 10 C 5.72 -22 3.71 -32 0 -32 Z" fill="url(#handleFill)" />
     </g>
-    <g transform="scale(0.97 1)">
+    <g transform="scale(0.96 1)">
       <path d="M 0 -137.5 C 87 -137.5 136 -118.5 157 -59.5 C 172.04 -16.51 170 45.5 150 86.5 C 132 122.5 93 134.5 48 137.5 C 25 139.5 -25 139.5 -48 137.5 C -93 134.5 -132 122.5 -150 86.5 C -170 45.5 -172 -16.5 -157 -59.5 C -136 -118.5 -87 -137.5 0 -137.5 Z" fill="url(#bodyFill)" />
 
       <g id="depth" clip-path="url(#bodyMask)">
@@ -197,17 +225,22 @@
         <path id="rim-light" d="M -157 -59.5 C -142.3 -100.8 -113.88 -122.5 -68.31 -131.8" fill="none" stroke="#9C9EA5" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" opacity="0.24" />
       </g>
     </g>
-    <g transform="translate(0 -35)">
-        <g transform="translate(81.14 0) scale(0.8 1)" opacity="1">
+    <g clip-path="url(#cellMask-300)">
+      <g transform="translate(0 -35)">
+        <g transform="translate(103.16 0) scale(0.74 1)" opacity="1">
           <rect x="-12" y="-31" width="24" height="62" rx="12" fill="#F8FAFC" />
         </g>
-        <g transform="translate(117.14 0) scale(0.33 1)" opacity="0.93">
+        <g transform="translate(139.16 0) scale(0.39 1)" opacity="1">
           <rect x="-12" y="-31" width="24" height="62" rx="12" fill="#F8FAFC" />
         </g>
+      </g>
     </g>
     <text x="0" y="230" text-anchor="middle" font-family="ui-monospace, monospace" font-size="26" fill="#7C828E">300&#176;</text>
   </g>
   <g id="facing-360" transform="translate(2470 300) scale(0.78)">
+    <clipPath id="cellMask-360">
+      <path transform="scale(1 1)" d="M 0 -137.5 C 87 -137.5 136 -118.5 157 -59.5 C 172.04 -16.51 170 45.5 150 86.5 C 132 122.5 93 134.5 48 137.5 C 25 139.5 -25 139.5 -48 137.5 C -93 134.5 -132 122.5 -150 86.5 C -170 45.5 -172 -16.5 -157 -59.5 C -136 -118.5 -87 -137.5 0 -137.5 Z" />
+    </clipPath>
     <g transform="translate(0 -169.5) scale(1 1)">
       <path fill-rule="evenodd" clip-rule="evenodd" d="M 0 -76 C 70 -76 107 -62 122 -26 C 136 8 128 43 104 76 C 34.67 76 -34.67 76 -104 76 C -128 43 -136 8 -122 -26 C -107 -62 -70 -76 0 -76 Z M 0 -32 C -46 -32 -71 -22 -71 10 C -71 42 -50 56 0 56 C 50 56 71 42 71 10 C 71 -22 46 -32 0 -32 Z" fill="url(#handleFill)" />
     </g>
@@ -228,13 +261,15 @@
         <path id="rim-light" d="M -157 -59.5 C -142.3 -100.8 -113.88 -122.5 -68.31 -131.8" fill="none" stroke="#9C9EA5" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" opacity="0.24" />
       </g>
     </g>
-    <g transform="translate(0 -35)">
+    <g clip-path="url(#cellMask-360)">
+      <g transform="translate(0 -35)">
         <g transform="translate(-36 0) scale(1 1)" opacity="1">
           <rect x="-12" y="-31" width="24" height="62" rx="12" fill="#F8FAFC" />
         </g>
         <g transform="translate(36 0) scale(1 1)" opacity="1">
           <rect x="-12" y="-31" width="24" height="62" rx="12" fill="#F8FAFC" />
         </g>
+      </g>
     </g>
     <text x="0" y="230" text-anchor="middle" font-family="ui-monospace, monospace" font-size="26" fill="#7C828E">360&#176;</text>
   </g>

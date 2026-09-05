@@ -221,8 +221,9 @@ elevated container rather than adding a permanent outline.
   contains 0 image assets; the grain that would normally be a noise texture is
   14,432 real vector specks.
 - The turnaround is a projection model, not a flat rotation: the handle's
-  projected width, the closing of its opening, and the eyes' travel around the
-  head cylinder are each computed from the facing angle.
+  projected width, the closing of its opening, the silhouette squeeze and the
+  eyes' travel around the bell's cross-section are each computed from the facing
+  angle, and the last two are projections of the same ellipse.
 - Small-size legibility was explicitly deprioritised per the brief. The asset is
   tuned for 96–256 px mobile avatar use; below ~48 px the depth layers stop
   contributing and the silhouette carries the read on its own.

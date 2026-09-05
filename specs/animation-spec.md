@@ -15,9 +15,26 @@ One angle drives everything:
    The opening is gone by 64 degrees while the outer arch is still 70% wide, and
    the arch bottoms out at 30% of its width at true profile — which is what a
    real handle of that thickness does.
-2. **The eyes ride a cylinder** of radius 120 at ±17.46 degrees, so they wrap
-   around the form, foreshorten, stall at the limb and pass out of sight.
-   Foreshortening is normalised so facing 0 lands on exactly 1.0.
+2. **The eyes are decals on the bell itself.** Seen from above the bell is an
+   ellipse `BELL_RADIUS_X` across by `BELL_RADIUS_X * 0.95` deep, and the eyes
+   sit on it at ±13.74 degrees, so they wrap around the real form, foreshorten,
+   stall at the limb and pass out of sight. The silhouette squeeze is the exact
+   projection of that same ellipse, `hypot(cos a, 0.95 * sin a)`, which is what
+   keeps an eye pinned to the rim at every angle rather than only at 0 and 90.
+   Foreshortening comes from the ellipse *normal*, not from the eye's own depth:
+   on a circle the two agree, on a flattened bell they do not, and the point
+   version holds an eye at full width past the angle where its patch of surface
+   has already turned edge-on. Foreshortening is normalised so facing 0 lands on
+   exactly 1.0, and the resting pair stays exactly 72 px apart.
+
+   `BELL_RADIUS_X` is 151.6, which is *not* the body's half-width at eye height
+   (163.5). An eye is a rigid shape up to 76 tall and the bell keeps narrowing
+   above eye height, so an eye riding the 163.5 circle swings clear off the
+   outline between about 45 and 75 degrees while its centre is still well
+   inside. An eye can only ride the smallest circle it spans. `FaceRoot` is
+   additionally clipped to `body-mask`, which absorbs the last ~2 px of corner
+   overhang on the tallest eye variants and the ±21 px a hard gaze adds on top
+   of the turn.
 3. **A front light field and a back dark field counter-slide** across the bell at
    ±118 px, giving it a readable near and far surface.
 

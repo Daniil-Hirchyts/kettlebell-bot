@@ -8,7 +8,8 @@
 // Both halves are checked here because a broken composition is very hard to see
 // in a filmstrip.
 
-import { TURN_CHANNELS } from "./turn.mjs";
+import { TURN_CHANNELS, turnPose } from "./turn.mjs";
+import { EYE_VARIANTS, EYE_Y, bodyHalfWidthAt } from "./geometry.mjs";
 
 const MOOD_TARGETS = ["Char", "BodyPivot", "HandlePivot", "Face", "EyeLSolo", "EyeRSolo"];
 
@@ -210,6 +211,62 @@ export function validateScene(scene, meta) {
           `${entry?.to ?? "(none)"} is not a track-free idle — it can never yield those channels back`,
       );
     }
+  }
+
+  // 9 · the eyes must stay on the bell, and must reach its edge at profile
+  //
+  // The eyes are decals on the body, so the turn model has exactly two ways to
+  // be wrong about them and both have shipped. Ride too small a circle and an
+  // eye floats inside the form at profile, which reads as a face painted on a
+  // surface that isn't there. Ride too large a one and the eye swings off the
+  // outline mid-turn -- and because FaceRoot is clipped to body-mask, that
+  // failure is *silent*: the eye is trimmed away instead of drawn in the wrong
+  // place, and every pixel assertion about turned-away frames still passes.
+  //
+  // Both are pure geometry, so both are settled here rather than by looking.
+  // Each variant is measured on its own bounding box: the widest eye is also one
+  // of the shortest, so pairing the widest width with the tallest height would
+  // fail a shape that does not exist.
+  const eyeBoxes = EYE_VARIANTS.map((v) => ({
+    key: v.key,
+    halfW: v.kind === "rect" || v.kind === "ellipse" ? v.width / 2 : Math.max(...v.points.map((p) => Math.abs(p.x))),
+    halfH: v.kind === "rect" || v.kind === "ellipse" ? v.height / 2 : Math.max(...v.points.map((p) => Math.abs(p.y))),
+  }));
+  let worstOverhang = { over: -Infinity };
+  let profileReach = 0;
+  for (let deg = 0; deg <= 360; deg += 1) {
+    const pose = turnPose(deg);
+    const squeeze = pose["BodyPlate|scaleX"];
+    for (const side of ["L", "R"]) {
+      if (pose[`Eye${side}|opacity`] < 0.05) continue;
+      const cx = Math.abs(pose[`Eye${side}|x`]);
+      for (const box of eyeBoxes) {
+        const half = box.halfW * pose[`Eye${side}|scaleX`];
+        for (let y = EYE_Y - box.halfH; y <= EYE_Y + box.halfH; y += 2) {
+          const rim = bodyHalfWidthAt(y) * squeeze;
+          const over = cx + half - rim;
+          if (over > worstOverhang.over) worstOverhang = { over, deg, side, y, key: box.key };
+        }
+      }
+      if (deg === 90 || deg === 270) {
+        profileReach = Math.max(profileReach, cx / (bodyHalfWidthAt(EYE_Y) * squeeze));
+      }
+    }
+  }
+  // The clip absorbs a few units of corner on the tallest variants; it must not
+  // be doing structural work.
+  if (worstOverhang.over > 4) {
+    errors.push(
+      `eye leaves the body silhouette by ${worstOverhang.over.toFixed(1)} at facing ${worstOverhang.deg} ` +
+        `(Eye${worstOverhang.side}, variant ${worstOverhang.key}, y=${worstOverhang.y}) — body-mask would ` +
+        `silently trim it away; lower BELL_RADIUS_X`,
+    );
+  }
+  if (profileReach < 0.85) {
+    errors.push(
+      `at profile the eye reaches only ${(profileReach * 100).toFixed(0)}% of the body's half-width — ` +
+        `it reads as floating inside the form; raise BELL_RADIUS_X`,
+    );
   }
 
   return { errors, warnings };
