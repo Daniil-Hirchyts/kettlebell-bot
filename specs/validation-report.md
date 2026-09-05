@@ -22,17 +22,29 @@ npm run build && npm run test && npm run previews && npm run sheets
 | Animations | 67 |
 | Tracks / keyframes | 1282 / 12966 |
 | State machine | `KettlebellBotMachine` — 24 inputs, 9 layers, 49 states, 81 transitions |
-| Easing distribution | 10223 cubic, 853 hold, 1228 linear (linear only between dense turn samples, where the value curve itself already carries the easing) |
+| Easing distribution | 8592 `smooth` (only between dense turn samples, where the value curve itself already carries the easing), 2293 named cubics (`ease-in-out` 658, `ease-out` 636, `ease-out-back` 479, `ease-in` 336, `snap` 95, `ease-in-back` 52, `emphasized-decel` 37), 716 `hold`, 1365 with no interpolator (single-pose tracks, and the first keyframe of every track) |
 
 ## Build-time guards
 
 `scripts/build-rive.mjs` runs `validateScene()` before writing anything. All
-eight error classes pass; the warning class (transform track with no easing) is
+nine error classes pass; the warning class (transform track with no easing) is
 empty.
 
-Rule 8 is the newest: a layer that shares channels with an earlier layer must
-have a track-free entry state, or it can never yield those channels back. It was
-added with the `Turn Shot` layer and verified by deliberately breaking it.
+Rule 8: a layer that shares channels with an earlier layer must have a
+track-free entry state, or it can never yield those channels back. Added with
+the `Turn Shot` layer and verified by deliberately breaking it.
+
+Rule 9 is the newest: the eye path must stay on the bell and must reach its edge
+at profile. The eyes are decals on the body, so the turn model has exactly two
+ways to be wrong about them and both have shipped. Ride too small a circle and
+an eye floats inside the form at profile; ride too large a one and it swings off
+the outline mid-turn — which is the dangerous direction, because `FaceRoot` is
+clipped to `body-mask` and the eye is then trimmed away rather than drawn in the
+wrong place, leaving every pixel assertion about turned-away frames still
+passing. The rule fails if any of the seven eye variants, measured on its own
+bounding box, leaves the silhouette by more than 4 units at any angle, or if the
+eye reaches under 85% of the half-width at profile. Verified to bite in both
+directions.
 
 Real defects caught by these guards or by the state-machine suite, and fixed:
 

@@ -127,8 +127,11 @@ export const BELL_RADIUS_Z = BELL_RADIUS_X * BELL_DEPTH_RATIO;
 // The eyes are decals on that ellipse, so their radii are the bell's radii. The
 // azimuth is then whatever keeps the resting pair EYE_SEPARATION apart, because
 // the front-facing rest pose is the canonical look and must not move.
+// Derived, never authored: whatever angle puts the resting pair exactly
+// EYE_SEPARATION apart on the BELL_RADIUS_X circle. Quoting the resulting
+// degrees here would only go stale the next time either input moves.
 export const EYE_SEPARATION = 72; // resting distance between eye centres
-export const EYE_AZIMUTH = (Math.asin(EYE_SEPARATION / 2 / BELL_RADIUS_X) * 180) / Math.PI; // 12.7217 deg
+export const EYE_AZIMUTH = (Math.asin(EYE_SEPARATION / 2 / BELL_RADIUS_X) * 180) / Math.PI;
 
 // ---------------------------------------------------------------------------
 // Eye shape variants. Every variant is centred on (0, 0) so the solo swap never
