@@ -1,6 +1,6 @@
 # Animation specification
 
-Everything runs at 60 fps. The system has 67 animations, 1282 tracks and 12966
+Everything runs at 60 fps. The system has 67 animations, 1282 tracks and 12943
 keyframes, driven by one state machine with nine layers.
 
 ## The idea
@@ -17,7 +17,7 @@ One angle drives everything:
    real handle of that thickness does.
 2. **The eyes are decals on the bell itself.** Seen from above the bell is an
    ellipse `BELL_RADIUS_X` across by `BELL_RADIUS_X * 0.95` deep, and the eyes
-   sit on it at ±13.74 degrees, so they wrap around the real form, foreshorten,
+   sit on it at ±16.35 degrees, so they wrap around the real form, foreshorten,
    stall at the limb and pass out of sight. The silhouette squeeze is the exact
    projection of that same ellipse, `hypot(cos a, 0.95 * sin a)`, which is what
    keeps an eye pinned to the rim at every angle rather than only at 0 and 90.
@@ -25,16 +25,25 @@ One angle drives everything:
    on a circle the two agree, on a flattened bell they do not, and the point
    version holds an eye at full width past the angle where its patch of surface
    has already turned edge-on. Foreshortening is normalised so facing 0 lands on
-   exactly 1.0, and the resting pair stays exactly 72 px apart.
+   exactly 1.0, and the resting pair stays exactly `EYE_SEPARATION` apart.
 
-   `BELL_RADIUS_X` is 151.6, which is *not* the body's half-width at eye height
-   (163.5). An eye is a rigid shape up to 76 tall and the bell keeps narrowing
-   above eye height, so an eye riding the 163.5 circle swings clear off the
-   outline between about 45 and 75 degrees while its centre is still well
-   inside. An eye can only ride the smallest circle it spans. `FaceRoot` is
-   additionally clipped to `body-mask`, which absorbs the last ~2 px of corner
-   overhang on the tallest eye variants and the ±21 px a hard gaze adds on top
-   of the turn.
+   `BELL_RADIUS_X` is 149.2, which is *not* the body's half-width at eye height
+   (165.4). An eye is a rigid shape, up to 106 tall at `EYE_SCALE` 1.4, and the
+   bell keeps narrowing above eye height, so an eye riding the eye-height circle
+   swings clear off the outline between about 45 and 75 degrees while its centre
+   is still well inside. An eye can only ride the smallest circle it spans, so
+   the radius is `bodyHalfWidthAt(EYE_Y - EYE_MAX_HALF.y)` — derived by the
+   module from the eye shapes themselves, not hand-measured, so resizing the
+   eyes cannot silently invalidate it. `FaceRoot` is additionally clipped to
+   `body-mask`, which absorbs the last ~4 px of corner overhang on the tallest
+   eye variants and the ±21 px a hard gaze adds on top of the turn.
+
+   Eye size is one dial, `EYE_SCALE`, and it is not free. A larger eye reaches
+   higher up a narrower part of the bell, which lowers `BELL_RADIUS_X` and pulls
+   the eye back from the rim at profile; a wider `EYE_SEPARATION` costs azimuth,
+   which does the same. Validator rule 9 holds both floors, so the dials can be
+   turned confidently: the build fails rather than quietly regressing the
+   profile pose that rule exists to protect.
 3. **A front light field and a back dark field counter-slide** across the bell at
    ±118 px, giving it a readable near and far surface.
 

@@ -143,12 +143,12 @@
       </g>
     </g>
 
-    <g id="face" transform="translate(0 -35)">
+    <g id="face" transform="translate(0 -24)">
         <g id="eye-left" transform="translate(-36 0)">
-          <rect x="-12" y="-31" width="24" height="62" rx="12" fill="#F8FAFC" />
+          <rect x="-16.799999999999997" y="-43.4" width="33.599999999999994" height="86.8" rx="16.799999999999997" fill="#F8FAFC" />
         </g>
         <g id="eye-right" transform="translate(36 0)">
-          <rect x="-12" y="-31" width="24" height="62" rx="12" fill="#F8FAFC" />
+          <rect x="-16.799999999999997" y="-43.4" width="33.599999999999994" height="86.8" rx="16.799999999999997" fill="#F8FAFC" />
         </g>
     </g>
   </g>

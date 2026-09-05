@@ -244,9 +244,9 @@ The fix makes the eyes and the silhouette projections of one solid:
 Two things were then wrong that measurement caught and the eye alone would not
 have:
 
-**`BELL_RADIUS_X` is 151.6, not 163.5.** Riding the true eye-height radius put
-the eye centre on the rim at 90 — correct — but an eye is a rigid shape up to 76
-tall, and the bell keeps narrowing above eye height. Rendered, the far eye left
+**`BELL_RADIUS_X` had to be 151.6, not 163.5** (at the eye sizes of the time —
+it is derived from them now; see Iteration 8). Riding the true eye-height radius
+put the eye centre on the rim at 90 — correct — but an eye is a rigid shape, and the bell keeps narrowing above eye height. Rendered, the far eye left
 the silhouette entirely between 45 and 75 degrees. An eye can only ride the
 smallest circle it spans, so the radius is measured at the top of the tallest
 eye variant. Worst-case overhang across all angles and all seven variants fell
@@ -274,6 +274,62 @@ nothing anywhere else — the overhanging corner, and only that.
 The turnaround sheet is regenerated from the same maths, and
 `build-svg.mjs` now clips the sheet's eyes to each cell's own squeezed body, so
 the static SVG cannot disagree with the rig about where an eye ends.
+
+### Iteration 8 — much bigger eyes
+
+Requested: make the eyes much bigger. They are now `EYE_SCALE` 1.4 — the default
+pill goes 24 x 62 to 33.6 x 86.8, very nearly double the area — and the whole
+face sits on three dials instead of thirty hand-authored coordinates.
+
+The interesting part is that eye size is not a free parameter here, because the
+eyes are decals on the bell. A taller eye reaches higher up the body, where the
+bell has already narrowed, which forces `BELL_RADIUS_X` down and pulls the eye
+back from the rim at profile — undoing the previous iteration. Rather than
+re-measure the radius by hand and risk exactly the staleness this file keeps
+recording, `BELL_RADIUS_X` is now derived by the module:
+
+```
+BELL_RADIUS_X = bodyHalfWidthAt(EYE_Y - EYE_MAX_HALF.y)
+```
+
+so it re-measures itself whenever the eyes are resized. `bodyHalfWidthAt()` had
+to move above the eye block for that, which is the only reason `geometry.mjs`
+was reordered.
+
+The three dials were then chosen against rule 9 rather than by eye. Sweeping
+`EYE_SCALE` x `EYE_Y` x `EYE_SEPARATION` and reading off the two guard metrics:
+
+| scale | eye Y | separation | overhang (max 4) | profile reach (min 85%) |
+|---|---|---|---|---|
+| 1.3 | -35 | 72 | 3.3 | 86.0% |
+| 1.4 | -35 | any | — | fails |
+| 1.4 | -24 | 84 | 3.6 | 86.7% |
+| 1.5 | -24 | 84 | 4.0 | 85.4% |
+| 1.6 | any | any | — | fails |
+
+Three things fall out of that table:
+
+- **Overhang is set almost entirely by `EYE_SCALE`**, barely at all by height or
+  separation. It is what caps the size: 1.5 sits exactly on the limit and 1.6 is
+  out of reach at any height.
+- **Reach is set by height and separation.** At the original eye height of -35
+  the ceiling is 1.3 with the pair no wider apart than before — and rendered,
+  that reads visibly crowded, because the eyes grow while the gap between them
+  does not.
+- **Lowering the eyes buys the room back.** The bell is widest near its middle,
+  so moving the centre from -35 to -24 raises the usable radius enough to afford
+  both 1.4 and a wider pair.
+
+Shipped: `EYE_SCALE` 1.4, `EYE_Y` -24, `EYE_SEPARATION` 84 — margins of 0.4
+units of overhang and 1.7 points of reach. The eyes sit 11 px lower than before,
+which was not requested and is the one judgement call here: at the old height
+the only options were noticeably smaller eyes or a crowded pair.
+
+Checked across the whole system rather than on the front pose alone: all seven
+variants keep clear gaps (`previews/sheets/eye-shapes.png`), all 16 moods still
+read (`previews/sheets/emotions.png`), profile still puts the eye on the outer
+corner, and the `shots` pass measures 910 eye pixels at front against 469 before
+— the ~1.96x area increase, confirmed in pixels rather than asserted.
 
 ## Two defects the build guards caught
 
