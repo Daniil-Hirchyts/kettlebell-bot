@@ -1,6 +1,6 @@
 # Animation specification
 
-Everything runs at 60 fps. The system has 67 animations, 1282 tracks and 12943
+Everything runs at 60 fps. The system has 67 animations, 1282 tracks and 12966
 keyframes, driven by one state machine with nine layers.
 
 ## The idea
