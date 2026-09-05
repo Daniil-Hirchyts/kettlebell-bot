@@ -25,8 +25,10 @@ it happens to be in.
   is horizontal or vertical, which makes squashing the arch on the X axis an
   exact four-track operation instead of a twenty-track approximation. This is
   what lets the opening close correctly as the bot turns to profile.
-- Eyes: 24 x 62 rounded pills, centres 72 px apart at rest, 35 px above the body
-  centre
+- Eyes: 33.6 x 86.8 rounded pills, centres 84 px apart at rest, 24 px above the
+  body centre. Every variant is authored at a base size and multiplied by
+  `EYE_SCALE` (currently 1.4), so eye size is one dial rather than 30
+  coordinates — see specs/animation-spec.md for what it trades against
 
 ### Depth layers
 
@@ -182,10 +184,10 @@ the active child instantly, then acts on it with scale, rotation and offset.
 
 | Variant | Geometry | Used by |
 |---|---|---|
-| `pill` | 24 x 62 rounded bar (the reference shape) | calm, thinking, nervous, acknowledge |
-| `tall` | 28 x 76 rounded bar | working, excited |
-| `round` | 42 px circle | curious, listening, surprise, wobble, tapped |
-| `slit` | 34 x 12 rounded bar | bored, sleepy, skeptical |
+| `pill` | 24 x 62 rounded bar (the reference shape) x `EYE_SCALE` | calm, thinking, nervous, acknowledge |
+| `tall` | 28 x 76 rounded bar x `EYE_SCALE` | working, excited |
+| `round` | 42 px circle x `EYE_SCALE` | curious, listening, surprise, wobble, tapped |
+| `slit` | 34 x 12 rounded bar x `EYE_SCALE` | bored, sleepy, skeptical |
 | `arc` | Upward crescent | happy, proud, playful, relieved, laugh |
 | `wedge` | Angled-top pill, mirrored per side | focused, blocked, frustrated, gear-up |
 | `star` | Four-point sparkle | celebrate |

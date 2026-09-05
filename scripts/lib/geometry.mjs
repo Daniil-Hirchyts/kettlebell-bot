@@ -56,6 +56,49 @@ export const BODY_HALF_WIDTH = 157;
 export const BODY_TOP = -137.5;
 export const BODY_BOTTOM = 137.5;
 
+const DEG = Math.PI / 180;
+const polar = (angle, distance) => [Math.cos(angle * DEG) * distance, Math.sin(angle * DEG) * distance];
+
+function flattenOpenPath(points, steps = 40) {
+  const out = [];
+  for (let i = 0; i + 1 < points.length; i += 1) {
+    const a = points[i];
+    const b = points[i + 1];
+    const [ox, oy] = polar(a.cubic.rotation, a.cubic.outDistance ?? a.cubic.distance ?? 0);
+    const [ix, iy] = polar(
+      b.cubic.inRotation ?? (b.cubic.rotation ?? 0) + 180,
+      b.cubic.inDistance ?? b.cubic.distance ?? 0,
+    );
+    for (let s = 0; s <= steps; s += 1) {
+      const t = s / steps;
+      const u = 1 - t;
+      out.push([
+        u * u * u * a.x + 3 * u * u * t * (a.x + ox) + 3 * u * t * t * (b.x + ix) + t * t * t * b.x,
+        u * u * u * a.y + 3 * u * u * t * (a.y + oy) + 3 * u * t * t * (b.y + iy) + t * t * t * b.y,
+      ]);
+    }
+  }
+  return out;
+}
+
+// Half-width of the body silhouette at a given height, measured off the real
+// outline rather than off the anchor points (the curve bulges ~10 past its
+// widest anchor). BELL_RADIUS_X is one reading of this, and the build guard in
+// validate.mjs uses it to prove the eye path never leaves the form.
+const BODY_POLYLINE = flattenOpenPath([...BODY_POINTS, BODY_POINTS[0]], 96);
+
+export function bodyHalfWidthAt(y) {
+  let best = 0;
+  for (let i = 1; i < BODY_POLYLINE.length; i += 1) {
+    const [x0, y0] = BODY_POLYLINE[i - 1];
+    const [x1, y1] = BODY_POLYLINE[i];
+    if ((y0 - y) * (y1 - y) > 0) continue; // segment does not straddle this height
+    const t = y1 === y0 ? 0 : (y - y0) / (y1 - y0);
+    best = Math.max(best, Math.abs(x0 + (x1 - x0) * t));
+  }
+  return best;
+}
+
 // ---------------------------------------------------------------------------
 // Handle — compound path (outer arch + real negative-space opening).
 // Local to the handle's own centre, which sits at HANDLE_CY in character space.
@@ -97,41 +140,6 @@ export const HOLE_BOTTOM_HANDLE = 50;
 export const HANDLE_OUTER_WIDTH = 244; // 2 * 122
 export const HANDLE_HOLE_WIDTH = 142; // 2 * 71
 export const HANDLE_DEPTH = 72; // front-to-back thickness of the arch plate
-
-// ---------------------------------------------------------------------------
-// Bell cross-section — the one solid the whole turnaround is built on.
-//
-// Seen from above, the bell is a body of revolution flattened slightly
-// front-to-back. At eye height its plan-view outline is an ellipse
-// BELL_RADIUS_X across and BELL_RADIUS_X * BELL_DEPTH_RATIO deep. Both the
-// silhouette squeeze and the eye path are projections of this same ellipse,
-// which is what keeps an eye on the rim of the body at 90 degrees instead of
-// floating somewhere inside it.
-//
-// BELL_RADIUS_X is measured, not chosen. It is NOT the half-width at eye height
-// (163.5) but the narrowest half-width anywhere the eye reaches: the eye is a
-// rigid shape 76 tall at its largest, and the bell keeps narrowing above eye
-// height, so the top of an eye riding the 163.5 circle swings off the outline
-// between about 45 and 75 degrees while its centre is still comfortably inside.
-// The eye can only ride the smallest circle it spans. Re-measure both if the
-// body outline or the tallest eye variant ever changes.
-// ---------------------------------------------------------------------------
-export const EYE_Y = -35; // resting eye centre height in character space
-export const BELL_RADIUS_X = 151.6; // body half-width at y = EYE_Y - 38, the top of the tallest eye
-export const BELL_DEPTH_RATIO = 0.95; // depth / width; drives the silhouette squeeze too
-export const BELL_RADIUS_Z = BELL_RADIUS_X * BELL_DEPTH_RATIO;
-
-// ---------------------------------------------------------------------------
-// Eye rig constants
-// ---------------------------------------------------------------------------
-// The eyes are decals on that ellipse, so their radii are the bell's radii. The
-// azimuth is then whatever keeps the resting pair EYE_SEPARATION apart, because
-// the front-facing rest pose is the canonical look and must not move.
-// Derived, never authored: whatever angle puts the resting pair exactly
-// EYE_SEPARATION apart on the BELL_RADIUS_X circle. Quoting the resulting
-// degrees here would only go stale the next time either input moves.
-export const EYE_SEPARATION = 72; // resting distance between eye centres
-export const EYE_AZIMUTH = (Math.asin(EYE_SEPARATION / 2 / BELL_RADIUS_X) * 180) / Math.PI;
 
 // ---------------------------------------------------------------------------
 // Eye shape variants. Every variant is centred on (0, 0) so the solo swap never
@@ -177,6 +185,43 @@ function starPoints() {
   ];
 }
 
+// One dial for how large the eyes read. Every variant is authored at its
+// original size and scaled here, so the seven shapes keep their relationship to
+// each other and a resize is a single number rather than 30 hand-edited
+// coordinates. It is not free: the eyes are decals on the bell, and a taller
+// eye reaches higher up the body where the bell has narrowed, which forces
+// BELL_RADIUS_X down and pulls the eye back from the rim at profile. See the
+// bell cross-section block below, which derives that radius from these shapes.
+export const EYE_SCALE = 1.4;
+
+const scaleVariant = (v) => {
+  const s = EYE_SCALE;
+  const scalePoints = (points) =>
+    points.map((p) => ({
+      ...p,
+      x: p.x * s,
+      y: p.y * s,
+      ...(p.radius === undefined ? {} : { radius: p.radius * s }),
+      ...(p.cubic === undefined
+        ? {}
+        : {
+            cubic: {
+              ...p.cubic,
+              ...(p.cubic.distance === undefined ? {} : { distance: p.cubic.distance * s }),
+              ...(p.cubic.inDistance === undefined ? {} : { inDistance: p.cubic.inDistance * s }),
+              ...(p.cubic.outDistance === undefined ? {} : { outDistance: p.cubic.outDistance * s }),
+            },
+          }),
+    }));
+  return {
+    ...v,
+    ...(v.width === undefined ? {} : { width: v.width * s }),
+    ...(v.height === undefined ? {} : { height: v.height * s }),
+    ...(v.cornerRadius === undefined ? {} : { cornerRadius: v.cornerRadius * s }),
+    ...(v.points === undefined ? {} : { points: scalePoints(v.points) }),
+  };
+};
+
 // Ordered: the first entry is each eye's default solo child.
 export const EYE_VARIANTS = [
   { key: "pill", kind: "rect", width: 24, height: 62, cornerRadius: 12 },
@@ -186,7 +231,16 @@ export const EYE_VARIANTS = [
   { key: "arc", kind: "poly", points: arcPoints() },
   { key: "wedge", kind: "poly", points: wedgePoints(), mirrorable: true },
   { key: "star", kind: "poly", points: starPoints() },
-];
+].map(scaleVariant);
+
+/** Half-extent of the largest eye on each axis, after EYE_SCALE. */
+export const EYE_MAX_HALF = EYE_VARIANTS.reduce(
+  (acc, v) => ({
+    x: Math.max(acc.x, v.points ? Math.max(...v.points.map((p) => Math.abs(p.x))) : v.width / 2),
+    y: Math.max(acc.y, v.points ? Math.max(...v.points.map((p) => Math.abs(p.y))) : v.height / 2),
+  }),
+  { x: 0, y: 0 },
+);
 
 export const EYE_DEFAULT_VARIANT = EYE_VARIANTS[0].key;
 
@@ -203,14 +257,57 @@ export function eyeShapeSpec(variant, id, parent, side, z) {
 }
 
 // ---------------------------------------------------------------------------
+// Bell cross-section — the one solid the whole turnaround is built on.
+//
+// Seen from above, the bell is a body of revolution flattened slightly
+// front-to-back. At eye height its plan-view outline is an ellipse
+// BELL_RADIUS_X across and BELL_RADIUS_X * BELL_DEPTH_RATIO deep. Both the
+// silhouette squeeze and the eye path are projections of this same ellipse,
+// which is what keeps an eye on the rim of the body at 90 degrees instead of
+// floating somewhere inside it.
+//
+// BELL_RADIUS_X is measured, not chosen, and now measured by the module rather
+// than by hand. It is NOT the half-width at eye height: the eye is a rigid
+// shape and the bell keeps narrowing above eye height, so an eye riding the
+// eye-height circle swings off the outline between about 45 and 75 degrees
+// while its centre is still comfortably inside. An eye can only ride the
+// smallest circle it spans, which is the one at the top of the tallest variant.
+//
+// Deriving it means EYE_SCALE and EYE_Y stay honest dials: enlarge the eyes and
+// the radius follows on its own instead of quietly becoming wrong. The cost is
+// visible in the same place — a taller eye reaches higher up a narrower part of
+// the bell, so the radius shrinks and the eye sits a little further from the
+// rim at profile. Validator rule 9 holds the floor on that.
+// ---------------------------------------------------------------------------
+export const EYE_Y = -24; // resting eye centre height in character space
+export const BELL_RADIUS_X = bodyHalfWidthAt(EYE_Y - EYE_MAX_HALF.y);
+export const BELL_DEPTH_RATIO = 0.95; // depth / width; drives the silhouette squeeze too
+export const BELL_RADIUS_Z = BELL_RADIUS_X * BELL_DEPTH_RATIO;
+
+// ---------------------------------------------------------------------------
+// Eye rig constants
+// ---------------------------------------------------------------------------
+// The eyes are decals on that ellipse, so their radii are the bell's radii. The
+// azimuth is then whatever keeps the resting pair EYE_SEPARATION apart, because
+// the front-facing rest pose is the canonical look and must not move.
+// Derived, never authored: whatever angle puts the resting pair exactly
+// EYE_SEPARATION apart on the BELL_RADIUS_X circle. Quoting the resulting
+// degrees here would only go stale the next time either input moves.
+// Widened with the eyes, but deliberately by less than EYE_SCALE: the pair has
+// to keep a gap between the two widest variants, while every extra unit of
+// separation is an extra degree of azimuth, which pulls the eye back from the
+// limb at profile. This is the balance point between those two.
+export const EYE_SEPARATION = 84; // resting distance between eye centres
+export const EYE_AZIMUTH = (Math.asin(EYE_SEPARATION / 2 / BELL_RADIUS_X) * 180) / Math.PI;
+
+
+// ---------------------------------------------------------------------------
 // Depth / turnaround planes
 // ---------------------------------------------------------------------------
 export const PLATE_RADIUS = 118; // how far the front/back panels swing while turning
 
 // Rim light: the upper-left run of the real body outline, stroked thick and
 // clipped to the silhouette so only the inner half survives as a crescent.
-const DEG = Math.PI / 180;
-const polar = (angle, distance) => [Math.cos(angle * DEG) * distance, Math.sin(angle * DEG) * distance];
 
 /**
  * Shorten a body-outline segment with de Casteljau, so the rim highlight ends
@@ -395,45 +492,6 @@ function radialField(x, y, { box, center, radius, stops }) {
 }
 
 /** Flatten an open cubic path to a polyline. */
-function flattenOpenPath(points, steps = 40) {
-  const out = [];
-  for (let i = 0; i + 1 < points.length; i += 1) {
-    const a = points[i];
-    const b = points[i + 1];
-    const [ox, oy] = polar(a.cubic.rotation, a.cubic.outDistance ?? a.cubic.distance ?? 0);
-    const [ix, iy] = polar(
-      b.cubic.inRotation ?? (b.cubic.rotation ?? 0) + 180,
-      b.cubic.inDistance ?? b.cubic.distance ?? 0,
-    );
-    for (let s = 0; s <= steps; s += 1) {
-      const t = s / steps;
-      const u = 1 - t;
-      out.push([
-        u * u * u * a.x + 3 * u * u * t * (a.x + ox) + 3 * u * t * t * (b.x + ix) + t * t * t * b.x,
-        u * u * u * a.y + 3 * u * u * t * (a.y + oy) + 3 * u * t * t * (b.y + iy) + t * t * t * b.y,
-      ]);
-    }
-  }
-  return out;
-}
-
-// Half-width of the body silhouette at a given height, measured off the real
-// outline rather than off the anchor points (the curve bulges ~10 past its
-// widest anchor). BELL_RADIUS_X is one reading of this, and the build guard in
-// validate.mjs uses it to prove the eye path never leaves the form.
-const BODY_POLYLINE = flattenOpenPath([...BODY_POINTS, BODY_POINTS[0]], 96);
-
-export function bodyHalfWidthAt(y) {
-  let best = 0;
-  for (let i = 1; i < BODY_POLYLINE.length; i += 1) {
-    const [x0, y0] = BODY_POLYLINE[i - 1];
-    const [x1, y1] = BODY_POLYLINE[i];
-    if ((y0 - y) * (y1 - y) > 0) continue; // segment does not straddle this height
-    const t = y1 === y0 ? 0 : (y - y0) / (y1 - y0);
-    best = Math.max(best, Math.abs(x0 + (x1 - x0) * t));
-  }
-  return best;
-}
 
 /** Shortest distance from a point to a polyline. */
 function distanceToPath(x, y, polyline) {

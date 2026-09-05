@@ -20,9 +20,9 @@ npm run build && npm run test && npm run previews && npm run sheets
 | Rig nodes | 24 named transforms, including 2 `Solo` groups |
 | Vector shapes | 104 — 14,443 Bézier contours (29 cubic + 28,892 straight vertices; 14,432 of the contours are grain specks), 14 primitives, 5 gradient fills, 18 solid fills, 81 stroke-only shapes (80 grain buckets + the rim) |
 | Animations | 67 |
-| Tracks / keyframes | 1282 / 12966 |
+| Tracks / keyframes | 1282 / 12943 |
 | State machine | `KettlebellBotMachine` — 24 inputs, 9 layers, 49 states, 81 transitions |
-| Easing distribution | 8592 `smooth` (only between dense turn samples, where the value curve itself already carries the easing), 2293 named cubics (`ease-in-out` 658, `ease-out` 636, `ease-out-back` 479, `ease-in` 336, `snap` 95, `ease-in-back` 52, `emphasized-decel` 37), 716 `hold`, 1365 with no interpolator (single-pose tracks, and the first keyframe of every track) |
+| Easing distribution | 8569 `smooth` (only between dense turn samples, where the value curve itself already carries the easing), 2293 named cubics (`ease-in-out` 658, `ease-out` 636, `ease-out-back` 479, `ease-in` 336, `snap` 95, `ease-in-back` 52, `emphasized-decel` 37), 716 `hold`, 1365 with no interpolator (single-pose tracks, and the first keyframe of every track) |
 
 ## Build-time guards
 
