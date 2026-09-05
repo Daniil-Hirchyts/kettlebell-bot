@@ -40,8 +40,12 @@ projection model rather than a set of drawn poses. One angle drives everything:
   depth times `|sin a|`, and its opening closes faster than the outer silhouette
   because the near arm occludes the far one. The opening is gone by 64 degrees;
   the arch bottoms out at 30% of its width at true profile.
-- **The eyes ride a cylinder.** They wrap around the form, foreshorten, stall at
-  the limb and pass out of sight, then reappear from the other side.
+- **The eyes are decals on the bell.** They ride the bell's own cross-section —
+  an ellipse slightly flatter front-to-back than it is wide — so they wrap around
+  the real form, foreshorten, stall at the limb and pass out of sight, then
+  reappear from the other side. At true profile an eye sits on the outer corner
+  of the silhouette, where a decal on that surface has to be, and the body's
+  silhouette squeeze is the exact projection of the same ellipse.
 - **A front light field and a back dark field counter-slide** across the bell,
   giving it a near surface and a far one. Turned away, a seam and two vents make
   the back readable as a back.

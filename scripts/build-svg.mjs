@@ -191,17 +191,26 @@ const cell = (deg, index) => {
           <rect x="-12" y="-31" width="24" height="62" rx="12" fill="${COLOR.eye}" />
         </g>`;
   };
+  // The eyes are clipped to this cell's own squeezed body, exactly as FaceRoot
+  // is clipped to body-mask in the rig. Without it the sheet would show an eye
+  // overhanging the outline near profile while the .riv does not.
+  const squeeze = r(pose["BodyPlate|scaleX"]);
   return `  <g id="facing-${deg}" transform="translate(${index * CELL + CELL / 2} 300) scale(0.78)">
+    <clipPath id="cellMask-${deg}">
+      <path transform="scale(${squeeze} 1)" d="${bodyPath}" />
+    </clipPath>
     <g transform="translate(0 ${HANDLE_CY}) scale(${r(pose["HandlePlate|scaleX"])} 1)">
       <path fill-rule="evenodd" clip-rule="evenodd" d="${pathData(HANDLE_OUTER, true)} ${holePath(hole)}" fill="url(#handleFill)" />
     </g>
-    <g transform="scale(${r(pose["BodyPlate|scaleX"])} 1)">
+    <g transform="scale(${squeeze} 1)">
       <path d="${bodyPath}" fill="url(#bodyFill)" />
 ${depthLayers(pose)}
     </g>
-    <g transform="translate(0 ${EYE_Y})">
+    <g clip-path="url(#cellMask-${deg})">
+      <g transform="translate(0 ${EYE_Y})">
 ${eye("L")}
 ${eye("R")}
+      </g>
     </g>
     <text x="0" y="230" text-anchor="middle" font-family="ui-monospace, monospace" font-size="26" fill="#7C828E">${deg}&#176;</text>
   </g>`;

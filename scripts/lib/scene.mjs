@@ -78,7 +78,14 @@ export function buildGroups() {
     { id: "HandlePlate", parent: "HandlePivot", x: 0, y: 0 },
     { id: "HandleGrain", parent: "HandlePlate", x: 0, y: 0, clipBy: "handle-shape" },
 
-    { id: "FaceRoot", parent: "Yaw", x: 0, y: EYE_Y },
+    // The eyes are painted on the bell, so the bell's silhouette bounds them.
+    // Without this clip they visibly leave the outline twice: near profile,
+    // where an eye rides the rim at eye height but the body has already
+    // narrowed above it, and under a hard gaze, which pushes an eye 21 further
+    // out than the turn put it. Clipping is also what lets the eye radius stay
+    // honest -- the alternative is shrinking the eye path until nothing can
+    // ever poke out, which is what used to strand the eyes inside the form.
+    { id: "FaceRoot", parent: "Yaw", x: 0, y: EYE_Y, clipBy: "body-mask" },
     { id: "Face", parent: "FaceRoot", x: 0, y: 0 },
     { id: "GazeX", parent: "Face", x: 0, y: 0 },
     { id: "GazeY", parent: "GazeX", x: 0, y: 0 },

@@ -212,6 +212,69 @@ what the animation actually promises.
 Two orders of magnitude instead of 1.4×, and it fails all four shots on the
 broken build rather than two.
 
+### Iteration 7 — the eyes sat inside the form at profile
+
+Reported from the playground: at 90 degrees the eye reads as floating *inside*
+the kettlebell rather than sitting on its outer corner, "like his body is
+transparent" in reverse — the eye looked painted on a surface that wasn't there.
+
+Measured before touching anything, and the report was exactly right. At facing
+90 the visible eye centre was at |x| = 114.5 while the body's edge at eye height
+was 155.3: the eye reached only 74% of the half-width, leaving a 41-unit dark
+margin outside it. The cause was a single constant. The eyes rode an invented
+"head cylinder" of radius 120 while the bell they are painted on is 163.5 across
+at eye height. Nothing tied the two together, so the eye path was a third
+smaller than the form it was supposed to be wrapped around.
+
+The fix makes the eyes and the silhouette projections of one solid:
+
+- The bell's plan-view cross-section became an explicit ellipse
+  (`BELL_RADIUS_X` by `BELL_RADIUS_X * BELL_DEPTH_RATIO`).
+- The eyes are decals on it, with the azimuth *derived* from the requirement
+  that the resting pair stay 72 px apart — so the front-facing rest pose is
+  reproduced to the digit and no preview shifts.
+- The silhouette squeeze became the exact projection of that ellipse,
+  `hypot(cos a, 0.95 sin a)`, replacing a linear approximation that disagreed
+  with it by about 1% mid-turn.
+- Foreshortening now comes from the ellipse normal rather than the eye point's
+  own depth. On a circle these are the same number; on a flattened bell the
+  point version keeps an eye at full width past the angle where its own patch of
+  surface has gone edge-on.
+
+Two things were then wrong that measurement caught and the eye alone would not
+have:
+
+**`BELL_RADIUS_X` is 151.6, not 163.5.** Riding the true eye-height radius put
+the eye centre on the rim at 90 — correct — but an eye is a rigid shape up to 76
+tall, and the bell keeps narrowing above eye height. Rendered, the far eye left
+the silhouette entirely between 45 and 75 degrees. An eye can only ride the
+smallest circle it spans, so the radius is measured at the top of the tallest
+eye variant. Worst-case overhang across all angles and all seven variants fell
+from 13.6 units to 2.3.
+
+**The clip was hiding the failure rather than fixing it.** `FaceRoot` is now
+clipped to `body-mask`, which is what a decal on a surface has to do, and which
+also absorbs the ±21 px a hard gaze adds on top of the turn. But with the
+radius still at 163.5 the clip was deleting the whole eye at 90 rather than
+trimming it, and the state-machine suite stayed green throughout — it only
+checks that turned-away shots show *no* eyes, so an eye wrongly clipped to
+nothing looks like a pass. Caught by rendering the same sweep with the clip on
+and off and diffing the bright-pixel counts.
+
+| facing | eye reaches (% of half-width) | before | after |
+|---|---|---|---|
+| 45 | | 40% | 46% |
+| 60 | | 51% | 66% |
+| 75 | | 60% | 81% |
+| 90 | | 74% | 90% |
+
+With the clip on, it trims 10% of the eye's pixels at 90 and 2% at 60, and
+nothing anywhere else — the overhanging corner, and only that.
+
+The turnaround sheet is regenerated from the same maths, and
+`build-svg.mjs` now clips the sheet's eyes to each cell's own squeezed body, so
+the static SVG cannot disagree with the rig about where an eye ends.
+
 ## Two defects the build guards caught
 
 Both were invisible in a single-animation preview and would have shipped:
@@ -231,6 +294,7 @@ Both were invisible in a single-animation preview and would have shipped:
 - [x] Full 360 turnaround: front, three-quarter, profile, back, opposite profile, front
 - [x] Turn built from projection, not a flat global rotation
 - [x] Eyes wrap the form, foreshorten and pass behind the limb
+- [x] Eyes ride the bell's own cross-section, reaching its outer corner at profile
 - [x] Handle opening closes and reopens correctly through the turn
 - [x] 16 emotional states legible without labels (`previews/sheets/emotions.png`)
 - [x] 10 one-shot reactions with anticipation, overshoot and settle

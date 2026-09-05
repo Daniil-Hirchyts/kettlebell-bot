@@ -14,14 +14,17 @@
 //   1. The handle is a flat plate. Its projected width is |cos a| plus the
 //      plate's own depth times |sin a|, and its opening closes faster than the
 //      outer silhouette because the near arm occludes the far one.
-//   2. The eyes ride on a cylinder of radius EYE_RADIUS at +/- EYE_AZIMUTH, so
-//      they wrap around the form, foreshorten, and pass behind the limb.
+//   2. The eyes are decals on the bell itself, at +/- EYE_AZIMUTH on the
+//      BELL_RADIUS_X by BELL_RADIUS_Z cross-section, so they wrap around the
+//      real form, foreshorten, and pass around its edge.
 //   3. A front face panel and a back panel counter-slide across the body,
 //      giving the bell a readable near and far surface.
 
 import {
+  BELL_DEPTH_RATIO,
+  BELL_RADIUS_X,
+  BELL_RADIUS_Z,
   EYE_AZIMUTH,
-  EYE_RADIUS,
   HANDLE_DEPTH,
   HANDLE_HOLE_WIDTH,
   HANDLE_OUTER_WIDTH,
@@ -32,6 +35,16 @@ import {
 } from "./geometry.mjs";
 
 const DEG = Math.PI / 180;
+
+// Foreshortening is normalised so facing 0 lands on exactly 1.0: the rest pose
+// has to reproduce the static rig, or every single-animation preview would
+// disagree with the state machine by a few percent.
+const REST_FORESHORTEN = (() => {
+  const p = EYE_AZIMUTH * DEG;
+  const nx = Math.sin(p) / BELL_RADIUS_X;
+  const nz = Math.cos(p) / BELL_RADIUS_Z;
+  return 0.13 + (0.87 * nz) / Math.hypot(nx, nz);
+})();
 
 export function smoothstep(edge0, edge1, x) {
   const t = Math.min(1, Math.max(0, (x - edge0) / (edge1 - edge0)));
@@ -91,22 +104,35 @@ export function turnPose(deg, dyn = {}) {
   const hole = Math.max(0, holeProjected / (HANDLE_HOLE_WIDTH * handleScaleX));
 
   // --- body + depth panels ------------------------------------------------
-  const bodyScaleX = 1 - 0.05 * (1 - absCos);
+  // Exact projected width of the bell's cross-section ellipse. The eyes are
+  // projections of the same ellipse, so using the real formula here (rather
+  // than a linear approximation of it) is what keeps an eye pinned to the rim
+  // at every angle and not just at 0 and 90.
+  const bodyScaleX = Math.hypot(cos, BELL_DEPTH_RATIO * sin);
   const frontVisible = smoothstep(-0.04, 0.34, cos);
   const backVisible = smoothstep(-0.04, 0.34, -cos);
 
-  // --- eyes on the head cylinder -----------------------------------------
-  // Foreshortening is normalised so facing 0 lands on exactly 1.0: the rest
-  // pose has to reproduce the static rig, or every single-animation preview
-  // would disagree with the state machine by a few percent.
-  const REST_FORESHORTEN = 0.13 + 0.87 * Math.cos(EYE_AZIMUTH * DEG);
+  // --- eyes on the bell's surface -----------------------------------------
+  // An eye sits at azimuth p on the cross-section ellipse, so its unrotated
+  // position is (Rx sin p, Rz cos p) with +z pointing at the viewer. Yawing that
+  // point gives the screen x. How square-on the eye is to the viewer is a
+  // property of the *surface*, not of the point, so it comes from the ellipse
+  // normal -- (sin p / Rx, cos p / Rz) -- and not from the point's own depth.
+  // On a circle the two agree; on a flattened bell they do not, and using the
+  // point would hold an eye at full width past the angle where its patch of
+  // surface has already turned edge-on.
   const eye = (azimuth) => {
-    const d = (azimuth - deg) * DEG;
-    const depth = Math.cos(d);
+    const p = azimuth * DEG;
+    const sp = Math.sin(p);
+    const cp = Math.cos(p);
+    const nx = sp / BELL_RADIUS_X;
+    const nz = cp / BELL_RADIUS_Z;
+    const nLen = Math.hypot(nx, nz);
+    const toward = (nx * sin + nz * cos) / nLen;
     return {
-      x: EYE_RADIUS * Math.sin(d),
-      scaleX: (0.13 + 0.87 * Math.max(0, depth)) / REST_FORESHORTEN,
-      opacity: smoothstep(0.0, 0.26, depth),
+      x: BELL_RADIUS_X * sp * cos - BELL_RADIUS_Z * cp * sin,
+      scaleX: (0.13 + 0.87 * Math.max(0, toward)) / REST_FORESHORTEN,
+      opacity: smoothstep(0.0, 0.26, toward),
     };
   };
   const eyeL = eye(-EYE_AZIMUTH);
