@@ -233,26 +233,46 @@ export const RIM_POINTS = truncateSegment(BODY_POINTS[6], BODY_POINTS[0], 0.7);
 // Film grain. Vector specks, not a texture — see scripts/lib/grain.mjs for why.
 // Seeds are fixed so the build stays byte-deterministic.
 export const GRAIN = {
-  // Density is specks per 1000 square px of covered area. Roughly:
-  //   12 = whisper · 20 = default · 32 = pronounced
-  // Raising it is linear in file size, which is why it is one number here.
+  // Two independent dials, and it is worth keeping them straight.
+  //
+  // `density` is specks per 1000 square px of covered area, and it sets how FINE
+  // the grain is. It is the one that costs: measured on this artwork, density 140
+  // is 14,432 specks and takes the file from 181 KB to 743 KB, so roughly 40 KB
+  // and 1,030 specks per 10 points of density, and CPU rasterisation of a 256 px
+  // frame from 0.9 ms to 7.3 ms. Grain wants to sit near one speck per device
+  // pixel and that is far out of budget here, so this is chosen against the
+  // budget rather than against the eye -- 140 is the shipped compromise, 70 halves
+  // the cost and reads slightly coarser, and there is no visible ceiling, only a
+  // price.
+  //
+  // `delta` is the target luminance deviation of a speck: how STRONG the grain
+  // is, and it is free. Because the scatter is mean-preserving (see grain.mjs)
+  // this can be moved without changing how light or dark the character reads.
+  // `deltaGain` spreads it across the shading, so the lit shoulder and the rim
+  // grain harder than the contact shadow.
   body: {
     seed: 20260904,
-    density: 20,
-    length: [0.7, 2.2],
-    thickness: [0.9, 1.7],
-    opacityLight: [0.03, 0.075],
-    opacityDark: [0.1, 0.22],
-    lightRatio: 0.72,
+    density: 140,
+    lumaRange: [0.09, 0.23],
+    delta: 0.048,
+    deltaGain: [0.62, 1.5],
+    deltaJitter: [0.55, 1.45],
+    length: [0.7, 2.0],
+    thickness: [0.85, 1.6],
+    maxAlphaLight: 0.3,
+    maxAlphaDark: 0.55,
   },
   handle: {
     seed: 77010203,
-    density: 20,
-    length: [0.7, 2.0],
-    thickness: [0.9, 1.6],
-    opacityLight: [0.03, 0.07],
-    opacityDark: [0.1, 0.2],
-    lightRatio: 0.72,
+    density: 140,
+    lumaRange: [0.10, 0.16],
+    delta: 0.043,
+    deltaGain: [0.7, 1.35],
+    deltaJitter: [0.55, 1.45],
+    length: [0.7, 1.9],
+    thickness: [0.85, 1.55],
+    maxAlphaLight: 0.28,
+    maxAlphaDark: 0.5,
   },
 };
 
@@ -289,3 +309,144 @@ export const FIELD = {
     { color: "#000C0E12", position: 1 },
   ],
 };
+
+// ---------------------------------------------------------------------------
+// Surface shading model
+// ---------------------------------------------------------------------------
+// Grain has to know how bright the surface under it is. Without that it flattens
+// the form: a speck tuned for the lit shoulder vanishes in the contact shadow,
+// and one tuned for the shadow blows the highlight out. This evaluates the same
+// gradient stack the artwork paints, from the same constants, so the shading the
+// grain reacts to can never drift from the shading that is drawn.
+
+/** Relative luminance of an #RRGGBB or #AARRGGBB colour, plus its alpha. */
+export function parseColor(hex) {
+  const h = hex.replace("#", "");
+  const packed = h.length === 8;
+  const alpha = packed ? parseInt(h.slice(0, 2), 16) / 255 : 1;
+  const o = packed ? 2 : 0;
+  const r = parseInt(h.slice(o, o + 2), 16);
+  const g = parseInt(h.slice(o + 2, o + 4), 16);
+  const b = parseInt(h.slice(o + 4, o + 6), 16);
+  return { alpha, luma: (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 };
+}
+
+const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+const lerp = (a, b, t) => a + (b - a) * t;
+
+/** Sample a gradient stop list at t, returning blended alpha and luminance. */
+function sampleStops(stops, t) {
+  const u = clamp01(t);
+  const parsed = stops.map((s, i) => ({
+    ...parseColor(s.color),
+    position: s.position ?? i / Math.max(1, stops.length - 1),
+  }));
+  if (u <= parsed[0].position) return parsed[0];
+  for (let i = 1; i < parsed.length; i += 1) {
+    const a = parsed[i - 1];
+    const b = parsed[i];
+    if (u <= b.position) {
+      const k = (u - a.position) / (b.position - a.position || 1);
+      return { alpha: lerp(a.alpha, b.alpha, k), luma: lerp(a.luma, b.luma, k) };
+    }
+  }
+  return parsed[parsed.length - 1];
+}
+
+/** Source-over composite of one layer onto a base luminance. */
+const over = (base, layer) => base * (1 - layer.alpha) + layer.luma * layer.alpha;
+
+/** A radial field clipped to its own ellipse, exactly as the depth shapes draw. */
+function radialField(x, y, { box, center, radius, stops }) {
+  const ex = (x - box.x) / (box.width / 2);
+  const ey = (y - box.y) / (box.height / 2);
+  if (ex * ex + ey * ey > 1) return { alpha: 0, luma: 0 };
+  const d = Math.hypot(x - center.x, y - center.y) / radius;
+  if (d >= 1) return { alpha: 0, luma: 0 };
+  return sampleStops(stops, d);
+}
+
+/** Flatten an open cubic path to a polyline. */
+function flattenOpenPath(points, steps = 40) {
+  const out = [];
+  for (let i = 0; i + 1 < points.length; i += 1) {
+    const a = points[i];
+    const b = points[i + 1];
+    const [ox, oy] = polar(a.cubic.rotation, a.cubic.outDistance ?? a.cubic.distance ?? 0);
+    const [ix, iy] = polar(
+      b.cubic.inRotation ?? (b.cubic.rotation ?? 0) + 180,
+      b.cubic.inDistance ?? b.cubic.distance ?? 0,
+    );
+    for (let s = 0; s <= steps; s += 1) {
+      const t = s / steps;
+      const u = 1 - t;
+      out.push([
+        u * u * u * a.x + 3 * u * u * t * (a.x + ox) + 3 * u * t * t * (b.x + ix) + t * t * t * b.x,
+        u * u * u * a.y + 3 * u * u * t * (a.y + oy) + 3 * u * t * t * (b.y + iy) + t * t * t * b.y,
+      ]);
+    }
+  }
+  return out;
+}
+
+/** Shortest distance from a point to a polyline. */
+function distanceToPath(x, y, polyline) {
+  let best = Infinity;
+  for (let i = 1; i < polyline.length; i += 1) {
+    const [ax, ay] = polyline[i - 1];
+    const [bx, by] = polyline[i];
+    const dx = bx - ax;
+    const dy = by - ay;
+    const len = dx * dx + dy * dy;
+    const t = len === 0 ? 0 : clamp01(((x - ax) * dx + (y - ay) * dy) / len);
+    best = Math.min(best, Math.hypot(x - (ax + t * dx), y - (ay + t * dy)));
+  }
+  return best;
+}
+
+const BODY_TOP_LUMA = parseColor(COLOR.bodyTop).luma;
+const BODY_BOTTOM_LUMA = parseColor(COLOR.bodyBottom).luma;
+const HANDLE_TOP_LUMA = parseColor(COLOR.handleTop).luma;
+const HANDLE_BOTTOM_LUMA = parseColor(COLOR.handleBottom).luma;
+const RIM_LUMA = parseColor(COLOR.rim).luma;
+const RIM_POLYLINE = flattenOpenPath(RIM_POINTS, 40);
+
+/** Luminance of the grain-target colours, so speck alpha can be solved for. */
+export const GRAIN_LIGHT_LUMA = parseColor(COLOR.grainLight).luma;
+export const GRAIN_DARK_LUMA = parseColor(COLOR.grainDark).luma;
+
+/**
+ * Approximate luminance of the rest-pose body surface at a point in BodyPlate
+ * space. Layers composite in the z order the scene draws them: base gradient,
+ * contact shadow, front field, rim light.
+ */
+export function bodyLuma(x, y) {
+  let luma = lerp(BODY_TOP_LUMA, BODY_BOTTOM_LUMA, clamp01((y + 140) / 280));
+
+  luma = over(luma, radialField(x, y, {
+    box: DEPTH_SHAPES.topShade,
+    center: { x: DEPTH_SHAPES.topShade.x, y: DEPTH_SHAPES.topShade.y + 6 },
+    radius: 68,
+    stops: FIELD.topShade,
+  }));
+
+  luma = over(luma, radialField(x, y, {
+    box: DEPTH_SHAPES.facePlate,
+    center: { x: DEPTH_SHAPES.facePlate.x, y: DEPTH_SHAPES.facePlate.y - 14 },
+    radius: 126,
+    stops: FIELD.front,
+  }));
+
+  const rimDistance = distanceToPath(x, y, RIM_POLYLINE);
+  if (rimDistance < 7.5) {
+    // The round stroke edge is soft; feather the last two units so the grain
+    // does not draw a hard band along the highlight.
+    luma = over(luma, { alpha: 0.24 * clamp01((7.5 - rimDistance) / 2), luma: RIM_LUMA });
+  }
+  return luma;
+}
+
+/** Same, for the handle in HandlePlate space. */
+export function handleLuma(x, y) {
+  return lerp(HANDLE_TOP_LUMA, HANDLE_BOTTOM_LUMA, clamp01((y + 78) / 156));
+}

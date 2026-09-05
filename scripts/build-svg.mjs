@@ -17,6 +17,8 @@ import {
   EYE_VARIANTS,
   EYE_Y,
   GRAIN,
+  bodyLuma,
+  handleLuma,
   FIELD,
   HANDLE_CY,
   HANDLE_HOLE,
@@ -92,12 +94,23 @@ ${FIELD.topShade.map((s) => {
 
 // Grain: one stroked path per bucket, each holding many two-point subpaths.
 // Generated from the same seeds as the Rive scene, so the two stay identical.
+// Grain is ~14k two-point dashes, so its path data dominates the file. Writing
+// them as relative moves with trimmed leading zeros keeps the SVG openable in a
+// design tool without changing a single coordinate.
+const compact = (v) => {
+  const t = Number(v.toFixed(2)).toString();
+  return t.startsWith("0.") ? t.slice(1) : t.startsWith("-0.") ? `-${t.slice(2)}` : t;
+};
+
 const grainMarkup = (specks, indent) =>
   bucketSpecks(specks)
     .map((bucket) => {
       const d = bucket.subpaths
-        .map((sp) => `M ${r(sp.points[0].x)} ${r(sp.points[0].y)} L ${r(sp.points[1].x)} ${r(sp.points[1].y)}`)
-        .join(" ");
+        .map((sp) => {
+          const [a, b] = sp.points;
+          return `M${compact(a.x)},${compact(a.y)}l${compact(b.x - a.x)},${compact(b.y - a.y)}`;
+        })
+        .join("");
       const color = bucket.light ? COLOR.grainLight : COLOR.grainDark;
       return `${indent}<path fill="none" stroke="${color}" stroke-width="${bucket.thickness}" stroke-linecap="round" opacity="${bucket.opacity}" d="${d}" />`;
     })
@@ -136,7 +149,7 @@ ${gradients}
     <g id="handle" transform="translate(0 ${HANDLE_CY})">
       <path id="handle-shape" fill-rule="evenodd" clip-rule="evenodd" d="${handlePath}" fill="url(#handleFill)" />
       <g id="handle-grain" clip-path="url(#handleMask)">
-${grainMarkup(scatterGrain({ include: [HANDLE_OUTER], exclude: [HANDLE_HOLE], ...GRAIN.handle }), "        ")}
+${grainMarkup(scatterGrain({ include: [HANDLE_OUTER], exclude: [HANDLE_HOLE], luma: handleLuma, ...GRAIN.handle }), "        ")}
       </g>
     </g>
 
@@ -144,7 +157,7 @@ ${grainMarkup(scatterGrain({ include: [HANDLE_OUTER], exclude: [HANDLE_HOLE], ..
       <path id="body-core" d="${bodyPath}" fill="url(#bodyFill)" />
 ${depthLayers()}
       <g id="body-grain" clip-path="url(#bodyMask)">
-${grainMarkup(scatterGrain({ include: [BODY_POINTS], ...GRAIN.body }), "        ")}
+${grainMarkup(scatterGrain({ include: [BODY_POINTS], luma: bodyLuma, ...GRAIN.body }), "        ")}
       </g>
     </g>
 

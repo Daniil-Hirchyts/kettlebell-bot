@@ -84,7 +84,7 @@ were wrong in instructive ways.
 |---|---|---|
 | 939 ellipse specks, density 9, 1.5–3.4 px, balanced light/dark | Read as scattered dust, not grain: specks individually distinguishable and too far apart. The dark specks did nothing at all — the body is already at ~13% luminance, so darkening it 8% is invisible | Raised density, shrank the specks, split the alpha ranges so light and dark specks carry different weight, and shifted the mix to 72% light |
 | 2300 ellipse specks, density 24 | Read correctly, but the file went 185 KB → 348 KB (+87%) and `riv_optimize` recovered nothing | Switched the primitive |
-| 2059 dash specks, density 20, bucketed into 29 shapes | Shipped. Finer and more grain-like — real grain is directional, not round — and 263 KB | — |
+| 2059 dash specks, density 20, bucketed into 29 shapes | Finer and more grain-like — real grain is directional, not round — and 263 KB. Superseded by iteration 5 | — |
 
 A degenerate two-point path (both points identical) draws nothing in this
 runtime, so every dash carries a real length; that was verified with a probe
@@ -93,6 +93,124 @@ scene before committing to the approach.
 The grain is checked through the full turnaround: it stays clipped to the form,
 turns with it, and does not interfere with the handle squash, the opening
 closing, the eye wrap or the back detail.
+
+### Iteration 5 — grain that reads as illustration grain
+
+Feedback on iteration 4: the reference is illustration grain, where the
+highlights and shadows are themselves made of grain, and what shipped read as
+dust scattered over a smooth surface. It was wrong in two independent ways.
+
+**Too sparse.** A density sweep against file size and render cost:
+
+| Density | Specks | File | 256 px frame | Read |
+|---|---|---|---|---|
+| 20 (shipped in iteration 4) | 2,059 | 263 KB | — | Scattered dust |
+| 70 | 7,188 | 461 KB | 3.2 ms | Grain, slightly coarse |
+| 140 | 14,432 | 743 KB | 7.3 ms | Grain |
+| 300 | 30,950 | 1,383 KB | — | Oversampled; below one device pixel |
+
+There is no perceptual ceiling in reach — grain wants roughly one speck per
+device pixel and that is far out of budget — so density is chosen against the
+budget. 140 is the compromise. Confirmed first that the format offers no
+cheaper primitive: the Rive MCP scene schema has no noise, blend mode, feather
+or stroke dash-array, so more geometry is the only lever.
+
+**Uniform, so it flattened the form.** Grain of a single strength over the whole
+surface buries the shading. Fixed by scaling speck strength with local surface
+luminance, evaluated by `bodyLuma()`/`handleLuma()` from the same gradient
+constants the artwork paints. Validated against a real 512 px render over 7,134
+points inside the silhouette: r = 0.996, means identical to four decimals.
+
+**A defect found while fixing it.** Measuring mean luminance before and after
+showed the grain was brightening the character — +5.0% at delta 0.032, +6.8% at
+0.048, +13.1% at 0.068. The hand-tuned 72% light ratio meant the strength dial
+was also a brightness dial, so every strength change silently restyled the
+character. Replaced with a derived ratio: each direction's achievable deviation
+is computed, and light is chosen with probability
+`headDark / (headLight + headDark)`, which cancels the expected shift exactly.
+The residual is now +1.6% and, more importantly, constant across strength. The
+ratio settles at 49/51 on its own.
+
+| Check | Before | After |
+|---|---|---|
+| Brightness shift at delta 0.048 | +6.8% | +1.6% |
+| Shift varies with strength | +5.0% → +13.1% | +1.6% flat |
+| Light/dark mix | 72/28, hand-tuned | 49/51, derived |
+
+Re-verified after the change: byte-deterministic rebuild, `riv_lint` 0 errors /
+0 warnings, all state-machine passes, 45 previews and 5 contact sheets
+regenerated, turnaround re-checked at all seven facings, and the SVG re-imported
+through `riv_import_svg` with the grain intact.
+
+One approximation is knowingly left in: the shading model describes the rest
+pose, so at back-facing angles the surface is darker than it predicts and the
+grain reads marginally stronger. A per-facing scatter would fix it at thirteen
+times the file size.
+
+### Iteration 6 — two reported turn bugs
+
+Both came from using the playground, and neither was caught by the existing
+suite. They were unrelated to each other.
+
+**1 · The body looked transparent during spins and the shoulder peek.** The back
+seam and vents were visible through the front of the character while the eyes
+were still showing, and the eyes themselves rendered grey rather than white.
+
+The cause was in the keyframe reducer in `turnTracks()`. It dropped every
+interior keyframe whose value matched the previous one — including the last
+keyframe of a flat run. That is the shoulder, and losing it turns "hold, then
+move" into one long ramp from where the hold began. `TurnBack.opacity` was
+reduced to `0:0` then `36:0.6746`, so the back panel began fading up at frame
+zero instead of holding at zero until the character had actually turned past
+profile. `EyeL/R.opacity` had the same shape, which is why the eyes dimmed.
+
+Fixed by keeping a keyframe when the value is flat on both sides only. Costs 639
+keyframes (+5%) and repairs every scripted turn at once:
+
+| Track in `turn_spin_right` | Before | After |
+|---|---|---|
+| `TurnBack.opacity` | `0:0  36:0.67  39:1 …` | `0:0  33:0  36:0.67  39:1 …` |
+| `TurnFront.opacity` | `0:1  33:0.74  36:0 …` | `0:1  30:1  33:0.74  36:0 …` |
+| `EyeL.opacity` | `0:1  33:0  54:0 …` | `0:1  30:1  33:0  54:0 …` |
+
+**2 · The 360 tour did nothing.** A one-shot cannot share a state-machine layer
+with a level-triggered condition. The Turn layer holds its state with transitions
+like `status == 0`, which is true on *every* frame rather than only when status
+changes, so firing a turn shot entered the shot state and was then immediately
+dragged back to the facing blend. All four shots were affected; the spins and the
+peek move far enough in their first half second to look plausible anyway, but the
+tour opens on a deliberate 24-frame hold at facing 0 and so was pulled back before
+it had moved at all.
+
+Fixed by moving the shots to their own `Turn Shot` layer above `Turn`, idling on
+the track-free `neutral` animation — the same shape the Reaction layer already
+uses over Mood. Added validator rule 8: any layer sharing channels with an
+earlier layer must have a track-free entry state, or it can never yield them
+back. Verified the guard fails when deliberately broken.
+
+**The suite let both through, so it was the third thing to fix.** The `turn` pass
+asserted only that each shot's animation was *entered*, which a stolen shot still
+satisfies, and it sampled 0.45 s into a 7-second tour. A new `shots` pass fires
+each shot and samples it at the point where the character should be facing away.
+
+The assertion went through one bad version worth recording. Comparing whole
+frames against the front pose separated a working tour from a dead one by just
+4.85% against 3.40% — the test would have passed the very bug it was written for,
+because a stolen shot still drifts before it is dragged back. Replaced with a
+count of eye pixels: the eyes are the only thing brighter than 25% luminance, so
+on a black background they isolate exactly, and "the character turned away" is
+what the animation actually promises.
+
+| Capture | Fixed | Broken |
+|---|---|---|
+| `front-baseline` | 469 eye px | 469 |
+| `tour-at-back` | 0 | 462 |
+| `spin-right-mid` | 0 | 475 |
+| `spin-left-mid` | 0 | 466 |
+| `peek-at-back` | 0 | 459 |
+
+Two orders of magnitude instead of 1.4×, and it fails all four shots on the
+broken build rather than two.
 
 ## Two defects the build guards caught
 

@@ -10,6 +10,8 @@ import {
   EYE_VARIANTS,
   EYE_Y,
   GRAIN,
+  bodyLuma,
+  handleLuma,
   HANDLE_CY,
   HANDLE_HOLE,
   HANDLE_OUTER,
@@ -281,9 +283,9 @@ export function buildShapes() {
     }));
 
   shapes.push(
-    ...grainShapes(scatterGrain({ include: [BODY_POINTS], ...GRAIN.body }), "BodyGrain", 20),
+    ...grainShapes(scatterGrain({ include: [BODY_POINTS], luma: bodyLuma, ...GRAIN.body }), "BodyGrain", 20),
     ...grainShapes(
-      scatterGrain({ include: [HANDLE_OUTER], exclude: [HANDLE_HOLE], ...GRAIN.handle }),
+      scatterGrain({ include: [HANDLE_OUTER], exclude: [HANDLE_HOLE], luma: handleLuma, ...GRAIN.handle }),
       "HandleGrain",
       5,
     ),
@@ -411,6 +413,9 @@ export function buildScene() {
           { from: "TouchPress", to: "TouchRest", durationMs: 200, condition: { input: "pressed", op: "!=", value: true } },
         ],
       },
+      // Held facing and the scripted mood turns. Everything here is driven by a
+      // level-triggered `status`/`facing` condition, so the layer holds whatever
+      // the app last asked for.
       {
         name: "Turn",
         states: [
@@ -419,7 +424,6 @@ export function buildScene() {
             blend1d: { input: "facing", animations: facingPoses.map((p) => ({ animation: p.anim.name, value: p.deg })) },
           },
           ...yawLoops.map((y) => ({ name: y.state, animation: y.anim.name })),
-          ...turnShots.map((t) => ({ name: t.state, animation: t.anim.name })),
         ],
         transitions: [
           { from: "entry", to: "FacingBlend", durationMs: 0 },
@@ -435,6 +439,26 @@ export function buildScene() {
             durationMs: 260,
             condition: { input: "status", op: "==", value: status },
           })),
+        ],
+      },
+      // The triggered turn shots ride on their own layer, above the one that
+      // holds the facing, for the same reason reactions ride above moods: a
+      // one-shot cannot share a layer with a level-triggered condition. The
+      // `status == n` transitions above are true on every frame, so from a shot
+      // state they immediately fired again and dragged the machine back to
+      // FacingBlend. The spins survived it because their first half-second moves
+      // a lot, but the 360 tour opens on a deliberate 24-frame hold at facing 0,
+      // so it was pulled back before it had moved at all and looked completely
+      // dead. Here the only way in is a trigger, and the idle state keys nothing,
+      // so the facing layer below shows through whenever no shot is playing.
+      {
+        name: "Turn Shot",
+        states: [
+          { name: "TurnShotIdle", animation: NEUTRAL.name },
+          ...turnShots.map((t) => ({ name: t.state, animation: t.anim.name })),
+        ],
+        transitions: [
+          { from: "entry", to: "TurnShotIdle", durationMs: 0 },
           ...turnShots.map((t) => ({
             from: "any",
             to: t.state,
@@ -443,7 +467,7 @@ export function buildScene() {
           })),
           ...turnShots.map((t) => ({
             from: t.state,
-            to: "FacingBlend",
+            to: "TurnShotIdle",
             durationMs: 160,
             exitTimeMs: Math.round((t.anim.duration / 60) * 1000),
           })),

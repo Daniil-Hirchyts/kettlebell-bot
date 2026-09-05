@@ -161,8 +161,15 @@ export function turnTracks(samples, easing = "smooth") {
     for (const [index, pose] of poses.entries()) {
       const value = pose.values[key];
       const isLast = index === poses.length - 1;
-      // Drop interior keyframes that do not move the value at all.
-      if (previous !== null && value === previous && !isLast) continue;
+      const next = isLast ? null : poses[index + 1].values[key];
+      // Drop interior keyframes that do not move the value -- but only when the
+      // value is flat on BOTH sides. The last keyframe of a flat run is a
+      // shoulder and has to survive: without it the runtime has nothing between
+      // the start of the hold and the first moving sample, so it ramps across
+      // the whole span instead of holding and then moving. That is what made the
+      // back panel start fading in at frame zero and show through the front of
+      // the character during every spin.
+      if (previous !== null && value === previous && !isLast && next === value) continue;
       keyframes.push(index === 0 ? { frame: pose.frame, value } : { frame: pose.frame, value, easing });
       previous = value;
     }
