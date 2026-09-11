@@ -33,6 +33,7 @@ export const COLOR = {
   backDetail: "#2E323C",
   topShade: "#0C0E12",
   rim: "#9C9EA5",
+  lift: "#E8ECF4",
   grainLight: "#FFFFFF",
   grainDark: "#05070B",
   eye: "#F8FAFC",
@@ -114,10 +115,11 @@ export const HANDLE_OUTER = [
 ];
 
 export const HANDLE_HOLE = [
-  // Redesigned opening: every tangent is axis-aligned, so squashing the arch on
-  // the X axis is an exact operation (two vertex X tracks + two horizontal
-  // handle-length tracks) instead of a 20-track approximation. Traversal winds
-  // opposite to the outer contour so the hole stays a real hole.
+  // Redesigned opening: every tangent is axis-aligned, so the see-through
+  // window can be keyed exactly -- vertex positions and handle lengths, never a
+  // rotation (eight tracks, see turnPose) -- instead of a 20-track
+  // approximation. Traversal winds opposite to the outer contour, so the hole
+  // stays a real hole and the window's clip removes only the window.
   { x: 0, y: -32, cubic: { rotation: 180, distance: 46 } },
   { x: -71, y: 10, cubic: { rotation: 90, distance: 32 } },
   { x: 0, y: 56, cubic: { rotation: 0, distance: 50 } },
@@ -137,8 +139,6 @@ export const HOLE_BOTTOM_HANDLE = 50;
 
 
 // Physical dimensions the yaw model needs (see scripts/lib/turn.mjs).
-export const HANDLE_OUTER_WIDTH = 244; // 2 * 122
-export const HANDLE_HOLE_WIDTH = 142; // 2 * 71
 export const HANDLE_DEPTH = 72; // front-to-back thickness of the arch plate
 
 // ---------------------------------------------------------------------------
@@ -306,55 +306,6 @@ export const EYE_AZIMUTH = (Math.asin(EYE_SEPARATION / 2 / BELL_RADIUS_X) * 180)
 // ---------------------------------------------------------------------------
 export const PLATE_RADIUS = 118; // how far the front/back panels swing while turning
 
-// Rim light: the upper-left run of the real body outline, stroked thick and
-// clipped to the silhouette so only the inner half survives as a crescent.
-
-/**
- * Shorten a body-outline segment with de Casteljau, so the rim highlight ends
- * on the real silhouette instead of running blunt into the handle junction.
- */
-function truncateSegment(from, to, t) {
-  const [ox, oy] = polar(from.cubic.rotation, from.cubic.outDistance ?? from.cubic.distance);
-  const [ix, iy] = polar(to.cubic.inRotation ?? from.cubic.rotation + 180, to.cubic.inDistance ?? to.cubic.distance);
-  const p0 = [from.x, from.y];
-  const c1 = [from.x + ox, from.y + oy];
-  const c2 = [to.x + ix, to.y + iy];
-  const p3 = [to.x, to.y];
-  const mix = (a, b) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
-  const a = mix(p0, c1);
-  const b = mix(c1, c2);
-  const c = mix(c2, p3);
-  const d = mix(a, b);
-  const e = mix(b, c);
-  const end = mix(d, e);
-  const angle = (vx, vy) => Math.atan2(vy, vx) / DEG;
-  const len = (vx, vy) => Math.hypot(vx, vy);
-  return [
-    {
-      x: from.x,
-      y: from.y,
-      cubic: {
-        rotation: angle(a[0] - p0[0], a[1] - p0[1]),
-        inRotation: from.cubic.inRotation,
-        inDistance: from.cubic.inDistance ?? 0,
-        outDistance: len(a[0] - p0[0], a[1] - p0[1]),
-      },
-    },
-    {
-      x: end[0],
-      y: end[1],
-      cubic: {
-        rotation: angle(e[0] - end[0], e[1] - end[1]) + 180,
-        inRotation: angle(d[0] - end[0], d[1] - end[1]),
-        inDistance: len(d[0] - end[0], d[1] - end[1]),
-        outDistance: 0,
-      },
-    },
-  ];
-}
-
-export const RIM_POINTS = truncateSegment(BODY_POINTS[6], BODY_POINTS[0], 0.7);
-
 // Film grain. Vector specks, not a texture — see scripts/lib/grain.mjs for why.
 // Seeds are fixed so the build stays byte-deterministic.
 export const GRAIN = {
@@ -387,9 +338,38 @@ export const GRAIN = {
     maxAlphaLight: 0.3,
     maxAlphaDark: 0.55,
   },
+  // Each handle surface has its own speck field, so the grain is material on
+  // whichever one it belongs to: the face, the far face's copy (`handle`) and
+  // the top-wall band (`handleBridge`). The walls only ever show as a band
+  // beside the face, or as the whole handle at profile, so they carry a coarser
+  // field than the face.
+  handleFace: {
+    seed: 91827364,
+    density: 140,
+    lumaRange: [0.10, 0.16],
+    delta: 0.043,
+    deltaGain: [0.7, 1.35],
+    deltaJitter: [0.55, 1.45],
+    length: [0.7, 1.9],
+    thickness: [0.85, 1.55],
+    maxAlphaLight: 0.28,
+    maxAlphaDark: 0.5,
+  },
   handle: {
     seed: 77010203,
-    density: 140,
+    density: 90,
+    lumaRange: [0.10, 0.16],
+    delta: 0.043,
+    deltaGain: [0.7, 1.35],
+    deltaJitter: [0.55, 1.45],
+    length: [0.7, 1.9],
+    thickness: [0.85, 1.55],
+    maxAlphaLight: 0.28,
+    maxAlphaDark: 0.5,
+  },
+  handleBridge: {
+    seed: 55443322,
+    density: 90,
     lumaRange: [0.10, 0.16],
     delta: 0.043,
     deltaGain: [0.7, 1.35],
@@ -433,6 +413,197 @@ export const FIELD = {
     { color: "#5E0C0E12", position: 0.5 },
     { color: "#000C0E12", position: 1 },
   ],
+};
+
+// ---------------------------------------------------------------------------
+// Key light
+// ---------------------------------------------------------------------------
+// One light for the whole character, in view space, pointing from the surface
+// toward the light: above, to the left and in front -- the side the rim has
+// always been lit from. The rig's lighting below and the app icon's projection
+// (scripts/build-icon.mjs) both read this one vector.
+const normalize = (v) => {
+  const l = Math.hypot(...v) || 1;
+  return v.map((c) => c / l);
+};
+const dot = (a, b) => a.reduce((s, c, i) => s + c * b[i], 0);
+
+export const KEY_LIGHT = normalize([-0.5, -0.72, 0.48]);
+const LIGHT_2D = normalize(KEY_LIGHT.slice(0, 2));
+
+// ---------------------------------------------------------------------------
+// Form lighting on the bell
+// ---------------------------------------------------------------------------
+// The bell is a body of revolution, so under a light that stays put while the
+// bot turns, its shading does not turn with it. These fields live on BodyPlate,
+// squeeze with the silhouette and otherwise never move -- which is what keeps
+// them apart from the front and back fields: those are surface markings and
+// have to slide, these are light and must not.
+//
+// Anchors are derived from the solid, not placed by eye. The key lift sits
+// where the surface faces the light most squarely, the falloff where a
+// viewer-facing patch faces it least; the rim and bounce are radial fields
+// pushed off-centre so their outer stops only reach the edge that faces toward
+// (rim) or away from (bounce) the light, which gives a soft directional
+// crescent with no blur -- feathering is not drawn by the preview renderer.
+function bellLightAnchors() {
+  let lit = { score: -Infinity };
+  let dark = { score: Infinity };
+  const slope = (y) => {
+    const a = Math.max(BODY_TOP, y - 0.5);
+    const b = Math.min(BODY_BOTTOM, y + 0.5);
+    return Math.max(-40, Math.min(40, (bodyHalfWidthAt(b) - bodyHalfWidthAt(a)) / (b - a)));
+  };
+  for (let i = 1; i < 140; i += 1) {
+    const y = BODY_TOP + ((BODY_BOTTOM - BODY_TOP) * i) / 140;
+    const w = bodyHalfWidthAt(y);
+    const dw = slope(y);
+    for (let j = 0; j < 180; j += 1) {
+      const t = (j / 180) * 2 * Math.PI;
+      // Normal of x²/w² + z²/(D w)² = 1, reduced on the surface.
+      const n = normalize([Math.sin(t), -dw, Math.cos(t) / BELL_DEPTH_RATIO]);
+      if (n[2] < 0.15) continue; // only patches the viewer can see
+      const score = dot(n, KEY_LIGHT);
+      const at = { x: w * Math.sin(t), y };
+      if (score > lit.score) lit = { score, at };
+      if (score < dark.score) dark = { score, at };
+    }
+  }
+  return { lit: lit.at, dark: dark.at };
+}
+
+const OUTLINE = BODY_POLYLINE.slice(0, -1).map(([x, y]) => ({ x, y }));
+const reach = (center) => Math.max(...OUTLINE.map((p) => Math.hypot(p.x - center.x, p.y - center.y)));
+const ANCHORS = bellLightAnchors();
+const RIM_CENTER = { x: -LIGHT_2D[0] * 40, y: -LIGHT_2D[1] * 40 };
+const BOUNCE_CENTER = { x: LIGHT_2D[0] * 50, y: LIGHT_2D[1] * 50 };
+
+// Each field is drawn as a circle of its own radius, centred on its gradient.
+export const LIGHTING = {
+  falloff: {
+    center: ANCHORS.dark,
+    radius: 210,
+    stops: [
+      { color: "#9A05070B", position: 0 },
+      { color: "#3605070B", position: 0.5 },
+      { color: "#0005070B", position: 1 },
+    ],
+  },
+  keyLift: {
+    center: ANCHORS.lit,
+    radius: 150,
+    stops: [
+      { color: "#28E8ECF4", position: 0 },
+      { color: "#10E8ECF4", position: 0.45 },
+      { color: "#00E8ECF4", position: 1 },
+    ],
+  },
+  bounce: {
+    center: BOUNCE_CENTER,
+    radius: reach(BOUNCE_CENTER),
+    stops: [
+      { color: "#009C9EA5", position: 0 },
+      { color: "#009C9EA5", position: 0.84 },
+      { color: "#299C9EA5", position: 1 },
+    ],
+  },
+  rim: {
+    center: RIM_CENTER,
+    radius: reach(RIM_CENTER),
+    stops: [
+      { color: "#009C9EA5", position: 0 },
+      { color: "#009C9EA5", position: 0.8 },
+      { color: "#2E9C9EA5", position: 0.93 },
+      { color: "#6B9C9EA5", position: 1 },
+    ],
+  },
+};
+
+/**
+ * Runs of a closed outline that face the key light, one per threshold, for a
+ * crisp edge highlight. Strokes carry only a solid colour here, so a highlight
+ * that fades toward its ends is built from a few nested runs at low opacity:
+ * the squarer the edge faces the light, the more runs overlap on it.
+ * Outlines are clockwise on screen, so (ty, -tx) is the outward normal.
+ */
+function litRuns(points, thresholds) {
+  const n = points.length;
+  const weight = points.map((_, i) => {
+    const a = points[(i - 1 + n) % n];
+    const b = points[(i + 1) % n];
+    const [nx, ny] = normalize([b.y - a.y, -(b.x - a.x)]);
+    return nx * LIGHT_2D[0] + ny * LIGHT_2D[1];
+  });
+  // Start from the edge facing furthest away, so every lit run is contiguous.
+  const start = weight.indexOf(Math.min(...weight));
+  const order = Array.from({ length: n }, (_, k) => (start + k) % n);
+  return thresholds.map((threshold) =>
+    order.filter((i) => weight[i] >= threshold).map((i) => ({ x: Number(points[i].x.toFixed(2)), y: Number(points[i].y.toFixed(2)) })),
+  );
+}
+
+export const EDGE_LIGHT = {
+  thresholds: [0.5, 0.7, 0.86],
+  opacity: 0.2, // per run; three overlap where the edge faces the light squarely
+  body: { thickness: 7 },
+  handle: { thickness: 6 },
+};
+export const BODY_EDGE_RUNS = litRuns(OUTLINE, EDGE_LIGHT.thresholds);
+export const HANDLE_EDGE_RUNS = litRuns(
+  flattenOpenPath([...HANDLE_OUTER, HANDLE_OUTER[0]], 40).slice(0, -1).map(([x, y]) => ({ x, y })),
+  EDGE_LIGHT.thresholds,
+);
+
+// The top wall seen from the side: the band between the two faces' tops. A
+// turn widens it to the plate's depth times |sin a|; at profile it is the whole
+// handle, a flat-topped post, which is what the side of a plate is.
+export const HANDLE_BRIDGE = [
+  { x: -HANDLE_DEPTH / 2, y: HANDLE_OUTER[0].y },
+  { x: HANDLE_DEPTH / 2, y: HANDLE_OUTER[0].y },
+  { x: HANDLE_DEPTH / 2, y: HANDLE_OUTER[2].y },
+  { x: -HANDLE_DEPTH / 2, y: HANDLE_OUTER[2].y },
+];
+
+// The outline's +x half, closed along its axis: the far face's outer half,
+// which is all of it the wall band ever shows. It meets the band edge to edge,
+// so the two can carry a tint each without it landing twice.
+export const HANDLE_HALF = (() => {
+  const points = [];
+  for (const [x, y] of flattenOpenPath([...HANDLE_OUTER, HANDLE_OUTER[0]], 40)) {
+    if (x < -1e-9) break;
+    const last = points.at(-1);
+    if (!last || Math.hypot(last.x - x, last.y - y) > 1e-6) points.push({ x: Number(x.toFixed(2)), y: Number(y.toFixed(2)) });
+  }
+  points.push({ x: 0, y: HANDLE_OUTER[2].y });
+  return points;
+})();
+
+// Only the band's top faces the light as an edge the viewer sees; its sides
+// are hidden by the faces at every angle but true profile.
+const densify = (points, per = 24) =>
+  points.flatMap((a, i) => {
+    const b = points[(i + 1) % points.length];
+    return Array.from({ length: per }, (_, k) => ({ x: a.x + ((b.x - a.x) * k) / per, y: a.y + ((b.y - a.y) * k) / per }));
+  });
+export const BRIDGE_EDGE_RUNS = litRuns(densify(HANDLE_BRIDGE), EDGE_LIGHT.thresholds)
+  .map((run) => run.filter((p) => p.y === HANDLE_OUTER[0].y))
+  .filter((run) => run.length > 1);
+
+// ---------------------------------------------------------------------------
+// Handle surfaces
+// ---------------------------------------------------------------------------
+// The handle is a plate HANDLE_DEPTH thick, drawn as two surfaces: the face
+// nearest the viewer (HandleFace), and the walls around it -- the rest of the
+// plate's exact projection, a copy of the outline at the far face (WallFar)
+// and the band between the two faces' tops (HandleBridge). Each is lit by how
+// squarely it faces KEY_LIGHT, relative to how the face is lit at rest, so the
+// front view is unchanged and a turn is carried by the light as well as the
+// shape: turn the face away from the light and it dims while the wall that
+// swings into view catches it.
+export const HANDLE_SHADING = {
+  shadeMax: 0.48, // dark overlay when a surface faces fully away from the light
+  liftMax: 0.1, // light overlay when it faces the light squarely; more reads as grey plastic
+  inner: 0.42, // occlusion on the walls seen through the opening
 };
 
 // ---------------------------------------------------------------------------
@@ -513,7 +684,13 @@ const BODY_BOTTOM_LUMA = parseColor(COLOR.bodyBottom).luma;
 const HANDLE_TOP_LUMA = parseColor(COLOR.handleTop).luma;
 const HANDLE_BOTTOM_LUMA = parseColor(COLOR.handleBottom).luma;
 const RIM_LUMA = parseColor(COLOR.rim).luma;
-const RIM_POLYLINE = flattenOpenPath(RIM_POINTS, 40);
+const circleField = ({ center, radius, stops }) => ({
+  box: { x: center.x, y: center.y, width: radius * 2, height: radius * 2 },
+  center,
+  radius,
+  stops,
+});
+const EDGE_POLYLINES = BODY_EDGE_RUNS.map((run) => run.map((p) => [p.x, p.y]));
 
 /** Luminance of the grain-target colours, so speck alpha can be solved for. */
 export const GRAIN_LIGHT_LUMA = parseColor(COLOR.grainLight).luma;
@@ -522,7 +699,7 @@ export const GRAIN_DARK_LUMA = parseColor(COLOR.grainDark).luma;
 /**
  * Approximate luminance of the rest-pose body surface at a point in BodyPlate
  * space. Layers composite in the z order the scene draws them: base gradient,
- * contact shadow, front field, rim light.
+ * contact shadow, front field, then the fixed form lighting and the edge light.
  */
 export function bodyLuma(x, y) {
   let luma = lerp(BODY_TOP_LUMA, BODY_BOTTOM_LUMA, clamp01((y + 140) / 280));
@@ -541,16 +718,21 @@ export function bodyLuma(x, y) {
     stops: FIELD.front,
   }));
 
-  const rimDistance = distanceToPath(x, y, RIM_POLYLINE);
-  if (rimDistance < 7.5) {
-    // The round stroke edge is soft; feather the last two units so the grain
-    // does not draw a hard band along the highlight.
-    luma = over(luma, { alpha: 0.24 * clamp01((7.5 - rimDistance) / 2), luma: RIM_LUMA });
+  for (const field of [LIGHTING.falloff, LIGHTING.keyLift, LIGHTING.bounce, LIGHTING.rim]) {
+    luma = over(luma, radialField(x, y, circleField(field)));
+  }
+
+  const half = EDGE_LIGHT.body.thickness / 2;
+  for (const run of EDGE_POLYLINES) {
+    const d = distanceToPath(x, y, run);
+    // The round stroke edge is soft; feather the last unit so the grain does
+    // not draw a hard band along the highlight.
+    if (d < half) luma = over(luma, { alpha: EDGE_LIGHT.opacity * clamp01(half - d), luma: RIM_LUMA });
   }
   return luma;
 }
 
-/** Same, for the handle in HandlePlate space. */
+/** Same, for the handle in its own (HandlePivot) space. */
 export function handleLuma(x, y) {
   return lerp(HANDLE_TOP_LUMA, HANDLE_BOTTOM_LUMA, clamp01((y + 78) / 156));
 }

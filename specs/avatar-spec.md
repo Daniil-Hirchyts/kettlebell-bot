@@ -20,11 +20,14 @@ it happens to be in.
 - Body: seven-anchor Bézier blob, half-width 157, top -137.5, bottom +137.5,
   taken verbatim from the reference artwork
 - Handle: compound path — a five-anchor outer arch plus a real negative-space
-  opening, centred 169.5 above the body centre
+  opening, centred 169.5 above the body centre. Drawn as the plate's exact
+  projection — near face, far face and the band between their tops — which is
+  what gives it thickness
 - Handle opening: redesigned to four axis-aligned Bézier anchors. Every tangent
-  is horizontal or vertical, which makes squashing the arch on the X axis an
-  exact four-track operation instead of a twenty-track approximation. This is
-  what lets the opening close correctly as the bot turns to profile.
+  is horizontal or vertical, which lets the see-through window be keyed
+  exactly — eight vertex position and handle-length tracks, never a rotation —
+  instead of a twenty-track approximation. This is what lets the opening close
+  correctly, to a point, as the bot turns to profile.
 - Eyes: 33.6 x 86.8 rounded pills, centres 84 px apart at rest, 24 px above the
   body centre. Every variant is authored at a base size and multiplied by
   `EYE_SCALE` (currently 1.4), so eye size is one dial rather than 30
@@ -43,14 +46,41 @@ swing freely across the form without ever leaving it.
 | `face-plate` | Soft radial light field marking the front surface; slides and squashes with facing |
 | `back-plate` | Soft radial dark field marking the back surface |
 | `back-seam`, `back-vent-a`, `back-vent-b` | Crisp back-of-device detail, only visible when turned away |
-| `body-rim` | Stroked run of the real body outline, clipped to a crescent — a fixed key light from the upper left |
-| `BodyGrain`, `HandleGrain` | Film grain — see below |
+| `body-falloff` | Radial dark field where a viewer-facing patch of the bell faces the key light least (lower right) |
+| `body-keylift` | Radial light field where the bell faces the key light most squarely (upper left) |
+| `body-bounce` | Off-centre radial field whose outer stop only reaches the edge facing away from the light |
+| `body-rim` | Off-centre radial field whose outer stop only reaches the edge facing the light — a soft directional rim with no blur |
+| `body-edge-0..2` | Three nested runs of the outline that face the light, stroked and clipped: a crisp edge that fades toward its ends |
+| `BodyGrain`, `HandleFaceGrain`, `WallFarGrain`, `BridgeGrain` | Film grain — see below |
+
+The lighting layers are anchored to `KEY_LIGHT` and derived from the solid
+rather than placed by eye: the key lift sits where the bell's normal faces the
+light most squarely, the falloff where a visible patch faces it least. They sit
+on `BodyPlate` outside the turning panels, so they squeeze with the silhouette
+and never slide — the bell is a body of revolution, and its light does not turn
+with it. The soft rim uses no feathering, which the preview renderer does not
+draw; it is a radial field pushed off-centre so only the lit edge reaches its
+outer stops.
+
+### Handle layers
+
+| Layer | Role |
+|---|---|
+| `handle-cut` | Invisible clip: a large rectangle with the see-through window wound against it, so clipping to it removes only the window. The window is keyed as a lens that closes to a point |
+| `wall-near`, `wall-far`, `wall-bridge` | The walls: the outline at the near face and at the far face, and the band between their tops. Their union is the plate's exact projection; the window is cut from all three |
+| `wall-far-shade/lift`, `wall-bridge-shade/lift` | Tints on the far face's outer half and on the band, opacity keyed from how squarely the wall in view faces the key light. The two meet edge to edge, so a tint never lands twice where the pieces overlap |
+| `wall-far-edge-*`, `wall-bridge-edge-*` | Edge light on the walls: the far face's lit outline, on an unmirrored twin clipped to its outer half, and the band's top |
+| `handle-face` | The near face on `HandleFace` — slides half the plate's depth off-centre and foreshortens. Always opaque: it is part of the silhouette |
+| `handle-face-shade`, `handle-face-lift` | The same tints for the face, on `HandleFaceDetail`, which fades near profile |
+| `handle-inner` | Occlusion on the inner wall of the opening, clipped so the window stays clear |
+| `handle-edge-0..2` | The face's lit edge, built the same way as the bell's |
 
 ### Film grain
 
 The grain is not a texture. Embedded raster is out of scope for this project, and
-a tiled noise image would repeat, so the grain is 14,432 individually placed
-vector specks — 11,069 on the bell, 3,363 on the handle. There is no tile,
+a tiled noise image would repeat, so the grain is 18,543 individually placed
+vector specks — 11,069 on the bell, 3,350 on the handle's face and 4,124 on its
+walls (3,134 on the far face's copy, 990 on the band). There is no tile,
 therefore no pattern to notice.
 
 - **Placement** is a jittered grid, not uniform random. Random sampling clumps,
@@ -62,12 +92,14 @@ therefore no pattern to notice.
   (a path plus two vertices, rather than a shape, an ellipse, a fill and a
   colour). A zero-length path draws nothing in this runtime, so every dash has a
   real length.
-- **Specks are grouped into 80 shapes**, bucketed by colour, thickness and
+- **Specks are grouped into 157 shapes**, bucketed by colour, thickness and
   opacity, since those three are per-shape in Rive. Position and length stay
   per-speck, and those carry the variation the eye actually registers.
 - **It is material, not an overlay.** The grain is parented inside the body and
   handle and clipped to them, so it turns, squashes and travels with the form
-  rather than sitting in screen space.
+  rather than sitting in screen space. The handle has one field per surface — a
+  finer one on the face, a coarser one on each wall piece, which only ever show as a
+  band or at profile — so each slides with the surface it belongs to.
 - **The eyes stay clean.** Grain sits above the form shading and below the eyes,
   because the eyes are the whole expression and they read better crisp.
 
@@ -113,10 +145,12 @@ form: it covers the highlight and the shadow with the same uniform noise and the
 character reads as a shape with dust on it rather than as a shaded object with
 texture. `bodyLuma()` and `handleLuma()` in `scripts/lib/geometry.mjs` evaluate
 the same gradient stack the artwork paints — base gradient, contact shadow, front
-field, rim light — from the same constants, so the shading the grain reacts to
-cannot drift from the shading that is drawn. Sampled against a real 512 px render
-across 7,134 points inside the silhouette, the model correlates at r = 0.996 with
-identical means.
+field, then the key-light fields and the edge light — from the same constants, so
+the shading the grain reacts to cannot drift from the shading that is drawn.
+Sampled against a real 512 px render of the bare surface (grain and eyes
+removed) across 8,188 points inside the silhouette, the model correlates at
+r = 0.980, with means of 0.153 and 0.152. It measured 0.996 against the flatter
+shading that preceded the key light.
 
 The model describes the rest pose. At back-facing angles the surface is darker
 than it predicts, so the grain reads marginally stronger there; a per-facing
@@ -129,7 +163,7 @@ Both live in `GRAIN` (`scripts/lib/geometry.mjs`), one entry per region.
 
 | Dial | What it changes | Cost |
 | --- | --- | --- |
-| `density` | How **fine** the grain is, in specks per 1000 square px | The expensive one. 140 is 14,432 specks and takes the file from 181 KB to 743 KB — roughly 40 KB and 1,030 specks per 10 points — and CPU rasterisation of a 256 px frame from 0.9 ms to 7.3 ms |
+| `density` | How **fine** the grain is, in specks per 1000 square px | The expensive one. Measured before the handle had a separate face, 140 was 14,432 specks and took the file from 181 KB to 743 KB — roughly 40 KB and 1,030 specks per 10 points — and CPU rasterisation of a 256 px frame from 0.9 ms to 7.3 ms. The shipped mix, 140 on the bell and the handle's face and 90 on its walls, is 18,543 specks |
 | `delta` | How **strong** the grain is, as a target luminance deviation | Free, and thanks to mean preservation it does not change how light the character reads |
 
 Density is chosen against the budget, not against the eye. Grain wants to sit at
@@ -158,12 +192,18 @@ Root                        (256, 302, scale 0.92)
             └── Yaw         turn-system lean, lift and squash
                 ├── BodyPivot
                 │   └── BodyPlate
-                │       ├── body-core · body-mask · body-topshade · body-rim
+                │       ├── body-core · body-mask · body-topshade
+                │       ├── body-falloff · body-keylift · body-bounce · body-rim · body-edge-*
                 │       ├── TurnFront → face-plate
                 │       └── TurnBack  → back-plate · back-seam · back-vent-a/b
                 ├── HandleRoot
                 │   └── HandlePivot
-                │       └── HandlePlate → handle-shape
+                │       ├── handle-cut                                  (the window's clip)
+                │       ├── HandleFace   → wall-near · handle-face · HandleFaceGrain
+                │       │   └── HandleFaceDetail → handle-face-shade/lift · handle-inner · handle-edge-*
+                │       ├── WallFar      → wall-far · wall-far-shade/lift · WallFarGrain
+                │       ├── WallFarEdge  → wall-far-edge-*
+                │       └── HandleBridge → wall-bridge · wall-bridge-shade/lift · wall-bridge-edge-* · BridgeGrain
                 └── FaceRoot
                     └── Face
                         └── GazeX
@@ -209,7 +249,11 @@ from `riv_design_tokens` (seed `#1B1D22`, mood `tech`, scheme `dark`).
 | back field | `#05070B` → transparent, 69% peak | Back surface |
 | back detail | `#2E323C` | Seam and vents |
 | contact shadow | `#0C0E12` → transparent, 72% peak | Under the handle |
-| rim light | `#9C9EA5` at 24% | Upper-left edge |
+| rim and edge light | `#9C9EA5`, rim field up to 42%, edge runs 20% each | Edges facing the key light |
+| key lift | `#E8ECF4` → transparent, 16% peak | Where the bell faces the key light |
+| falloff | `#05070B` → transparent, 60% peak | Where the bell faces away from it |
+| bounce | `#9C9EA5` → transparent, 16% peak | Edge facing away from the light |
+| handle tints | `#05070B` up to 48%, `#E8ECF4` up to 10% | Face and walls, keyed by the turn |
 | grain, light | `#FFFFFF` at 1.8–14% | 49% of specks |
 | grain, dark | `#05070B` at 18–55% | 51% of specks |
 | eyes | `#F8FAFC` | Both eyes, all variants |
@@ -221,7 +265,7 @@ elevated container rather than adding a permanent outline.
 
 - No raster artwork, no embedded images, no third-party mascot assets. The `.riv`
   contains 0 image assets; the grain that would normally be a noise texture is
-  14,432 real vector specks.
+  18,543 real vector specks.
 - The turnaround is a projection model, not a flat rotation: the handle's
   projected width, the closing of its opening, the silhouette squeeze and the
   eyes' travel around the bell's cross-section are each computed from the facing

@@ -1,6 +1,6 @@
 # Animation specification
 
-Everything runs at 60 fps. The system has 67 animations, 1282 tracks and 12943
+Everything runs at 60 fps. The system has 91 animations, 2667 tracks and 21000
 keyframes, driven by one state machine with nine layers.
 
 ## The idea
@@ -9,12 +9,30 @@ A flat rotation cannot sell a turn for this character, so the yaw is a small
 projection model (`scripts/lib/turn.mjs`) rather than a set of hand-drawn poses.
 One angle drives everything:
 
-1. **The handle is a flat plate.** Its projected width is `|cos a| + (depth/width) * |sin a|`,
-   and its opening closes faster than the outer silhouette because the near arm
-   occludes the far one: `hole = (holeWidth * |cos a| - depth * |sin a|) / (holeWidth * handleScaleX)`.
-   The opening is gone by 64 degrees while the outer arch is still 70% wide, and
-   the arch bottoms out at 30% of its width at true profile — which is what a
-   real handle of that thickness does.
+1. **The handle is a plate with real depth, drawn as its exact projection.** A
+   plate projects to the union of its near face, its far face and the band
+   between their tops — exactly, for an outline that is convex and symmetric —
+   so those are its three pieces: `HandleFace` at `x = -(depth/2) * sin a`
+   (mirrored once the back face is the nearer one), `WallFar` opposite it, both
+   scaled by `|cos a|`, and `HandleBridge`, `depth * |sin a|` wide. At rest the
+   face covers the rest exactly; turned, a band of wall shows beside it, and at
+   true profile the band is the whole handle — a flat-topped post, the side of
+   the plate.
+
+   You see through the plate only where the two faces' openings overlap. For
+   two ellipses set apart, that overlap is a lens `f` as wide and
+   `sqrt(f (2 - f))` as tall, with
+   `f = 1 - (depth/2 * |sin a|) / (holeHalfWidth * |cos a|)`; it is gone by 63
+   degrees. The window is one clip cut from all three pieces, keyed by eight
+   vertex tracks, and it closes to a point.
+
+   An earlier version squeezed the whole plate instead. That was at most 2 units
+   too wide but up to 11.5 too narrow near profile, so the face stuck out above
+   it; fading the face near profile then showed the gap as a ghost, and the
+   window closed to a zero-width sliver that the renderer still drew as a
+   hairline. Now the face stays opaque — it is part of the silhouette — and
+   only its lighting and edge fade over the last ~17 degrees before profile,
+   where a sliver's lit edge otherwise reads as a stray bright nick.
 2. **The eyes are decals on the bell itself.** Seen from above the bell is an
    ellipse `BELL_RADIUS_X` across by `BELL_RADIUS_X * 0.95` deep, and the eyes
    sit on it at ±16.35 degrees, so they wrap around the real form, foreshorten,
@@ -25,7 +43,10 @@ One angle drives everything:
    on a circle the two agree, on a flattened bell they do not, and the point
    version holds an eye at full width past the angle where its patch of surface
    has already turned edge-on. Foreshortening is normalised so facing 0 lands on
-   exactly 1.0, and the resting pair stays exactly `EYE_SEPARATION` apart.
+   exactly 1.0, and the resting pair stays exactly `EYE_SEPARATION` apart. Near
+   the limb its small readability floor goes away, so an eye thins to nothing
+   rather than fading while it still has width — a half-transparent eye read
+   as a grey ghost beside the white one.
 
    `BELL_RADIUS_X` is 149.2, which is *not* the body's half-width at eye height
    (165.4). An eye is a rigid shape, up to 106 tall at `EYE_SCALE` 1.4, and the
@@ -46,6 +67,17 @@ One angle drives everything:
    profile pose that rule exists to protect.
 3. **A front light field and a back dark field counter-slide** across the bell at
    ±118 px, giving it a readable near and far surface.
+4. **One key light.** `KEY_LIGHT` (`scripts/lib/geometry.mjs`) sits above, left
+   and in front. The bell is a body of revolution, so its shading does not turn
+   with it: the key lift, falloff, rim and bounce fields sit on `BodyPlate`
+   outside the turning panels, squeeze with the silhouette and never slide —
+   which is what keeps them apart from item 3, whose fields are surface markings
+   and must. The handle is flat, so a turn does relight it: the face and the
+   wall band each carry a shade and a lift tint whose opacities come from the
+   Lambert term of that surface's normal against the light, measured relative to
+   the face at rest so the front view is exactly the static artwork. Square-on,
+   the wall in view swaps sides; the two walls' values are cross-faded over the
+   zero-width band there, so every loop through 0 or 180 stays seamless.
 
 The held facing poses, the scripted head turns and the full spins are all the
 same maths sampled differently, so they can never disagree with each other.
@@ -61,7 +93,7 @@ overriding one another, and it is checked at build time by
 |---|---|---|
 | Energy | `Energy.*` | `intensity` (1D blend) |
 | Touch | `Touch.*` | `hover`, `pressed` |
-| Turn | `Yaw.*`, `BodyPlate.scaleX`, `HandlePlate.scaleX`, the four hole vertex tracks, `TurnFront.*`, `TurnBack.*`, `EyeL/R` `x` `scaleX` `opacity` | `facing` (1D blend), `status` |
+| Turn | `Yaw.*`, `BodyPlate.scaleX`, `HandleFace` `x` `scaleX`, `HandleFaceDetail.opacity`, `WallFar` and `WallFarEdge` `x` `scaleX`, `HandleBridge.scaleX`, the six handle light tints' `opacity`, the eight window vertex tracks, `TurnFront.*`, `TurnBack.*`, `EyeL/R` `x` `scaleX` `opacity` | `facing` (1D blend), `status` |
 | Turn Shot | the Turn channels, temporarily | `spinRight`, `spinLeft`, `turnaround`, `peek` |
 | Mood | `Char.*`, `BodyPivot.*`, `HandlePivot.*`, `Face.*`, `EyeL/RSolo.*` | `status` |
 | Reaction | the Mood channels, temporarily | reaction triggers |

@@ -15,7 +15,14 @@ import {
   HANDLE_CY,
   HANDLE_HOLE,
   HANDLE_OUTER,
-  RIM_POINTS,
+  HANDLE_EDGE_RUNS,
+  HANDLE_HALF,
+  HANDLE_BRIDGE,
+  BRIDGE_EDGE_RUNS,
+  HANDLE_SHADING,
+  BODY_EDGE_RUNS,
+  EDGE_LIGHT,
+  LIGHTING,
   ROOT_SCALE,
   ROOT_X,
   ROOT_Y,
@@ -75,8 +82,20 @@ export function buildGroups() {
     // any node an animation translates has to sit at the origin of its parent.
     { id: "HandleRoot", parent: "Yaw", x: 0, y: HANDLE_CY },
     { id: "HandlePivot", parent: "HandleRoot", x: 0, y: 0 },
-    { id: "HandlePlate", parent: "HandlePivot", x: 0, y: 0 },
-    { id: "HandleGrain", parent: "HandlePlate", x: 0, y: 0, clipBy: "handle-shape" },
+    // The plate is its near face, its far face and the band between their tops
+    // (turnPose). The face carries the artwork, and its lighting and edge sit
+    // on a child so they can fade near profile while the face stays opaque.
+    { id: "HandleFace", parent: "HandlePivot", x: REST["HandleFace|x"], y: 0, scaleX: REST["HandleFace|scaleX"] },
+    { id: "HandleFaceGrain", parent: "HandleFace", x: 0, y: 0, clipBy: "handle-face" },
+    { id: "HandleFaceDetail", parent: "HandleFace", x: 0, y: 0, opacity: REST["HandleFaceDetail|opacity"] },
+    // The far face's copy is mirrored onto whichever side it is on, so its
+    // tinted half is always the outer one. Its edge light rides an unmirrored
+    // twin, because which part of the outline faces the light does not flip.
+    { id: "WallFar", parent: "HandlePivot", x: REST["WallFar|x"], y: 0, scaleX: REST["WallFar|scaleX"] },
+    { id: "WallFarGrain", parent: "WallFar", x: 0, y: 0, clipBy: "handle-cut" },
+    { id: "WallFarEdge", parent: "HandlePivot", x: REST["WallFarEdge|x"], y: 0, scaleX: REST["WallFarEdge|scaleX"] },
+    { id: "HandleBridge", parent: "HandlePivot", x: 0, y: 0, scaleX: REST["HandleBridge|scaleX"] },
+    { id: "BridgeGrain", parent: "HandleBridge", x: 0, y: 0, clipBy: "handle-cut" },
 
     // The eyes are painted on the bell, so the bell's silhouette bounds them.
     // Without this clip they visibly leave the outline twice: near profile,
@@ -98,28 +117,141 @@ export function buildGroups() {
 // Artwork
 // ---------------------------------------------------------------------------
 export function buildShapes() {
+  const handleFill = {
+    gradient: {
+      type: "linear",
+      start: { x: 0, y: -78 },
+      end: { x: 0, y: 78 },
+      stops: [{ color: COLOR.handleTop }, { color: COLOR.handleBottom }],
+    },
+  };
+  const handlePlate = [
+    { closed: true, points: HANDLE_OUTER },
+    { closed: true, points: HANDLE_HOLE },
+  ];
+  // A flat tint whose opacity the turn keys: how the key light lands on one
+  // handle surface at the current facing (surfaceLight in turn.mjs).
+  const lightTint = (id, parent, z, color, geometry, extra = {}) => ({
+    id,
+    type: "polygon",
+    parent,
+    x: 0,
+    y: 0,
+    z,
+    ...geometry,
+    opacity: REST[`${id}|opacity`],
+    ...extra,
+    fill: { color },
+  });
+  // Nested runs of an outline that faces the key light, stroked and clipped to
+  // their own form so only the inner half shows: a crisp edge that fades out
+  // toward its ends. See EDGE_LIGHT in geometry.mjs.
+  const edgeLight = (id, parent, z, points, thickness, clipBy) => ({
+    id,
+    type: "polygon",
+    parent,
+    x: 0,
+    y: 0,
+    z,
+    closed: false,
+    points,
+    opacity: EDGE_LIGHT.opacity,
+    clipBy,
+    stroke: { color: COLOR.rim, thickness, cap: "round", join: "round" },
+  });
+  const r2 = (v) => Number(v.toFixed(2));
+  // One piece of the plate's walls, with the see-through window cut from it.
+  const wall = (id, parent, geometry) => ({
+    id,
+    type: "polygon",
+    parent,
+    x: 0,
+    y: 0,
+    z: 0,
+    ...geometry,
+    clipBy: "handle-cut",
+    fill: handleFill,
+  });
+  const cutBounds = [
+    { x: -320, y: -220 },
+    { x: 320, y: -220 },
+    { x: 320, y: 220 },
+    { x: -320, y: 220 },
+  ];
+
   const shapes = [
-    // The handle sits behind the bell, exactly as in the reference silhouette.
+    // The handle sits behind the bell, exactly as in the reference silhouette,
+    // and is drawn as the plate it is: its near face, its far face and the band
+    // between their tops, with the see-through window cut from all of them by
+    // one clip. At rest the face covers the rest exactly; turned, a band of
+    // wall shows, and inside the opening, its inner wall.
+    //
+    // Invisible: the window's clip -- a big rectangle with the window wound
+    // against it, so clipping to it removes only the window.
     {
-      id: "handle-shape",
+      id: "handle-cut",
       type: "polygon",
-      parent: "HandlePlate",
+      parent: "HandlePivot",
       x: 0,
       y: 0,
       z: 0,
       subpaths: [
-        { closed: true, points: HANDLE_OUTER },
+        { closed: true, points: cutBounds },
         { closed: true, points: HANDLE_HOLE },
       ],
-      fill: {
-        gradient: {
-          type: "linear",
-          start: { x: 0, y: -78 },
-          end: { x: 0, y: 78 },
-          stops: [{ color: COLOR.handleTop }, { color: COLOR.handleBottom }],
-        },
-      },
+      fill: { color: COLOR.invisible },
     },
+    wall("wall-far", "WallFar", { closed: true, points: HANDLE_OUTER }),
+    wall("wall-near", "HandleFace", { closed: true, points: HANDLE_OUTER }),
+    wall("wall-bridge", "HandleBridge", { closed: true, points: HANDLE_BRIDGE }),
+    // The wall tints cover the far face's outer half and the band, which meet
+    // edge to edge, so a tint never lands twice where the pieces overlap.
+    lightTint("wall-far-shade", "WallFar", 1, COLOR.grainDark, { closed: true, points: HANDLE_HALF }, { clipBy: "handle-cut" }),
+    lightTint("wall-bridge-shade", "HandleBridge", 1, COLOR.grainDark, { closed: true, points: HANDLE_BRIDGE }, { clipBy: "handle-cut" }),
+    lightTint("wall-far-lift", "WallFar", 2, COLOR.lift, { closed: true, points: HANDLE_HALF }, { clipBy: "handle-cut" }),
+    lightTint("wall-bridge-lift", "HandleBridge", 2, COLOR.lift, { closed: true, points: HANDLE_BRIDGE }, { clipBy: "handle-cut" }),
+    // Edge light on the walls: the far face's lit outline, kept to its outer
+    // half (the tint shape doubles as that clip), and the band's top.
+    ...HANDLE_EDGE_RUNS.map((points, index) =>
+      edgeLight(`wall-far-edge-${index}`, "WallFarEdge", 3, points, EDGE_LIGHT.handle.thickness, "wall-far-shade"),
+    ),
+    ...BRIDGE_EDGE_RUNS.map((points, index) =>
+      edgeLight(`wall-bridge-edge-${index}`, "HandleBridge", 3, points, EDGE_LIGHT.handle.thickness, "wall-bridge"),
+    ),
+    // z 3 also carries the walls' grain, above their edge light.
+    {
+      id: "handle-face",
+      type: "polygon",
+      parent: "HandleFace",
+      x: 0,
+      y: 0,
+      z: 4,
+      subpaths: handlePlate,
+      fill: handleFill,
+    },
+    lightTint("handle-face-shade", "HandleFaceDetail", 5, COLOR.grainDark, { subpaths: handlePlate }),
+    lightTint("handle-face-lift", "HandleFaceDetail", 6, COLOR.lift, { subpaths: handlePlate }),
+    // z 7 is the face's grain.
+    // Occlusion on the inner wall of the opening: the face's opening, less the
+    // part you can see straight through, which is exactly the window.
+    {
+      id: "handle-inner",
+      type: "polygon",
+      parent: "HandleFaceDetail",
+      x: 0,
+      y: 0,
+      z: 8,
+      closed: true,
+      points: HANDLE_HOLE,
+      opacity: HANDLE_SHADING.inner,
+      clipBy: "handle-cut",
+      fill: { color: COLOR.grainDark },
+    },
+    // The face's edge where it turns toward the light: its bevel against the
+    // wall, or its silhouette, whichever side the turn has put the wall on.
+    ...HANDLE_EDGE_RUNS.map((points, index) =>
+      edgeLight(`handle-edge-${index}`, "HandleFaceDetail", 9, points, EDGE_LIGHT.handle.thickness, "handle-face"),
+    ),
     {
       id: "body-core",
       type: "polygon",
@@ -250,26 +382,43 @@ export function buildShapes() {
       clipBy: "body-mask",
       fill: { color: COLOR.backDetail },
     },
-    // Fixed key light from the upper left; it anchors the lighting so the
+    // Form lighting from the key light, which anchors the lighting so the
     // rotating panels read as form rather than as graphics sliding around.
-    {
-      id: "body-rim",
-      type: "polygon",
+    // These are light, not surface: they stay put while the bot turns and only
+    // squeeze with the silhouette. See LIGHTING in geometry.mjs.
+    ...[
+      ["body-falloff", LIGHTING.falloff, 18],
+      ["body-keylift", LIGHTING.keyLift, 19],
+      ["body-bounce", LIGHTING.bounce, 20],
+      ["body-rim", LIGHTING.rim, 21],
+    ].map(([id, field, z]) => ({
+      id,
+      type: "ellipse",
       parent: "BodyPlate",
-      x: 0,
-      y: 0,
-      z: 18,
-      closed: false,
-      points: RIM_POINTS,
-      opacity: 0.24,
+      x: r2(field.center.x),
+      y: r2(field.center.y),
+      z,
+      width: r2(field.radius * 2),
+      height: r2(field.radius * 2),
       clipBy: "body-mask",
-      stroke: { color: COLOR.rim, thickness: 15, cap: "round", join: "round" },
-    },
+      fill: {
+        gradient: {
+          type: "radial",
+          start: { x: 0, y: 0 },
+          end: { x: 0, y: r2(field.radius) },
+          stops: field.stops,
+        },
+      },
+    })),
+    ...BODY_EDGE_RUNS.map((points, index) =>
+      edgeLight(`body-edge-${index}`, "BodyPlate", 22, points, EDGE_LIGHT.body.thickness, "body-mask"),
+    ),
   ];
 
   // Grain sits above the body's form shading but below the eyes, and on the
-  // handle it sits behind the bell so the overlap stays correct. Specks are
-  // grouped into a handful of stroked shapes rather than one shape each.
+  // handle it sits behind the bell so the overlap stays correct -- one field on
+  // the walls and one on the face, each above its own surface's lighting.
+  // Specks are grouped into a handful of stroked shapes rather than one each.
   const grainShapes = (specks, parent, baseZ) =>
     bucketSpecks(specks).map((bucket, index) => ({
       id: `${parent}-${index}`,
@@ -290,11 +439,13 @@ export function buildShapes() {
     }));
 
   shapes.push(
-    ...grainShapes(scatterGrain({ include: [BODY_POINTS], luma: bodyLuma, ...GRAIN.body }), "BodyGrain", 20),
+    ...grainShapes(scatterGrain({ include: [BODY_POINTS], luma: bodyLuma, ...GRAIN.body }), "BodyGrain", 25),
+    ...grainShapes(scatterGrain({ include: [HANDLE_OUTER], luma: handleLuma, ...GRAIN.handle }), "WallFarGrain", 3),
+    ...grainShapes(scatterGrain({ include: [HANDLE_BRIDGE], luma: handleLuma, ...GRAIN.handleBridge }), "BridgeGrain", 3),
     ...grainShapes(
-      scatterGrain({ include: [HANDLE_OUTER], exclude: [HANDLE_HOLE], luma: handleLuma, ...GRAIN.handle }),
-      "HandleGrain",
-      5,
+      scatterGrain({ include: [HANDLE_OUTER], exclude: [HANDLE_HOLE], luma: handleLuma, ...GRAIN.handleFace }),
+      "HandleFaceGrain",
+      7,
     ),
   );
 

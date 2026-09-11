@@ -2,7 +2,7 @@
 
 ## Runtime identifiers
 
-- File: `rive/kettlebell-bot.riv` (Rive format 7.0, 181 KB, no embedded assets)
+- File: `rive/kettlebell-bot.riv` (Rive format 7.0, 1,063 KB, no embedded assets)
 - Artboard: `KettlebellBot` (512 x 512, transparent)
 - State machine: `KettlebellBotMachine` — 24 inputs, 9 layers, 49 states, 81 transitions
 
@@ -25,7 +25,7 @@ coordinate timelines: the layers compose on their own.
 
 `facing`, `gazeX`, `gazeY` and `intensity` are 1D blend states, so they are
 continuous and safe to drive from a gesture every frame. `facing` is sampled at
-30-degree steps and blended between; anything in `0`–`360` is valid.
+10-degree steps and blended between; anything in `0`–`360` is valid.
 
 ### Mood values
 

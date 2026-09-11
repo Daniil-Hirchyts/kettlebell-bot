@@ -23,7 +23,11 @@ import {
   HANDLE_CY,
   HANDLE_HOLE,
   HANDLE_OUTER,
-  RIM_POINTS,
+  HANDLE_EDGE_RUNS,
+  HANDLE_SHADING,
+  BODY_EDGE_RUNS,
+  EDGE_LIGHT,
+  LIGHTING,
   ROOT_SCALE,
   ROOT_X,
   ROOT_Y,
@@ -31,11 +35,7 @@ import {
 import { compoundPathData, pathData, round as r, splitColor } from "./lib/svg.mjs";
 import { turnPose } from "./lib/turn.mjs";
 import { bucketSpecks, scatterGrain } from "./lib/grain.mjs";
-import {
-  HOLE_BOTTOM_HANDLE,
-  HOLE_SIDE_X,
-  HOLE_TOP_HANDLE,
-} from "./lib/geometry.mjs";
+import { BRIDGE_EDGE_RUNS, HANDLE_BRIDGE, HANDLE_HALF } from "./lib/geometry.mjs";
 
 const projectRoot = resolve(import.meta.dirname, "..");
 
@@ -44,17 +44,28 @@ const handlePath = compoundPathData([
   { closed: true, points: HANDLE_OUTER },
   { closed: true, points: HANDLE_HOLE },
 ]);
-const rimPath = pathData(RIM_POINTS, false);
 
-/** The handle opening, squeezed by the yaw model's hole factor. */
-function holePath(k = 1) {
+/** The see-through window at a pose: the opening as the turn's lens keys it. */
+function windowPath(pose) {
   const points = HANDLE_HOLE.map((p, i) => {
-    if (i === 0) return { ...p, cubic: { ...p.cubic, distance: HOLE_TOP_HANDLE * k } };
-    if (i === 2) return { ...p, cubic: { ...p.cubic, distance: HOLE_BOTTOM_HANDLE * k } };
-    return { ...p, x: Math.sign(p.x) * HOLE_SIDE_X * k };
+    const key = `handle-cut#p1_${i}`;
+    return {
+      ...p,
+      x: pose[`${key}|x`] ?? p.x,
+      y: pose[`${key}|y`] ?? p.y,
+      cubic: { ...p.cubic, distance: pose[`${key}|distance`] ?? p.cubic.distance },
+    };
   });
   return pathData(points, true);
 }
+
+const stopMarkup = (stops) =>
+  stops
+    .map((s) => {
+      const { hex, opacity } = splitColor(s.color);
+      return `      <stop offset="${s.position}" stop-color="${hex}" stop-opacity="${opacity}" />`;
+    })
+    .join("\n");
 
 const gradients = `
   <defs>
@@ -84,11 +95,15 @@ ${FIELD.topShade.map((s) => {
   return `      <stop offset="${s.position}" stop-color="${hex}" stop-opacity="${opacity}" />`;
 }).join("\n")}
     </radialGradient>
+${Object.entries(LIGHTING)
+  .map(
+    ([key, field]) => `    <radialGradient id="light-${key}" cx="${r(field.center.x)}" cy="${r(field.center.y)}" r="${r(field.radius)}" gradientUnits="userSpaceOnUse">
+${stopMarkup(field.stops)}
+    </radialGradient>`,
+  )
+  .join("\n")}
     <clipPath id="bodyMask">
       <path d="${bodyPath}" />
-    </clipPath>
-    <clipPath id="handleMask" clip-rule="evenodd">
-      <path d="${handlePath}" clip-rule="evenodd" />
     </clipPath>
   </defs>`;
 
@@ -123,6 +138,19 @@ const eyeMarkup = (side, sign) => {
         </g>`;
 };
 
+// Form lighting and edge light, fixed to the key light: in the rig these sit on
+// BodyPlate outside the turning panels, so they squeeze but never slide.
+const lightingMarkup = [
+  ...["falloff", "keyLift", "bounce", "rim"].map((key) => {
+    const { center, radius } = LIGHTING[key];
+    return `        <circle id="light-${key}-field" cx="${r(center.x)}" cy="${r(center.y)}" r="${r(radius)}" fill="url(#light-${key})" />`;
+  }),
+  ...BODY_EDGE_RUNS.map(
+    (run) =>
+      `        <path d="${pathData(run, false)}" fill="none" stroke="${COLOR.rim}" stroke-width="${EDGE_LIGHT.body.thickness}" stroke-linecap="round" stroke-linejoin="round" opacity="${EDGE_LIGHT.opacity}" />`,
+  ),
+].join("\n");
+
 const depthLayers = (pose = turnPose(0)) => `
       <g id="depth" clip-path="url(#bodyMask)">
         <ellipse id="top-shade" cx="${DEPTH_SHAPES.topShade.x}" cy="${DEPTH_SHAPES.topShade.y}" rx="${DEPTH_SHAPES.topShade.width / 2}" ry="${DEPTH_SHAPES.topShade.height / 2}" fill="url(#topShade)" />
@@ -135,8 +163,82 @@ const depthLayers = (pose = turnPose(0)) => `
           <rect x="${-DEPTH_SHAPES.backVentA.width / 2}" y="${DEPTH_SHAPES.backVentA.y - DEPTH_SHAPES.backVentA.height / 2}" width="${DEPTH_SHAPES.backVentA.width}" height="${DEPTH_SHAPES.backVentA.height}" rx="${DEPTH_SHAPES.backVentA.cornerRadius}" fill="${COLOR.backDetail}" opacity="0.72" />
           <rect x="${-DEPTH_SHAPES.backVentB.width / 2}" y="${DEPTH_SHAPES.backVentB.y - DEPTH_SHAPES.backVentB.height / 2}" width="${DEPTH_SHAPES.backVentB.width}" height="${DEPTH_SHAPES.backVentB.height}" rx="${DEPTH_SHAPES.backVentB.cornerRadius}" fill="${COLOR.backDetail}" opacity="0.5" />
         </g>
-        <path id="rim-light" d="${rimPath}" fill="none" stroke="${COLOR.rim}" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" opacity="0.24" />
+${lightingMarkup}
       </g>`;
+
+// The handle as the rig draws it (scene.mjs): the near face on HandleFace, the
+// far face's copy on WallFar and the band between their tops on HandleBridge,
+// the window cut from all three, and the tints the turn keys from the light.
+const handleLayers = (pose, { id = "", grain = false } = {}) => {
+  const at = (x, scale) => `translate(${r(x)} 0) scale(${r(scale)} 1)`;
+  const face = at(pose["HandleFace|x"], pose["HandleFace|scaleX"]);
+  const far = at(pose["WallFar|x"], pose["WallFar|scaleX"]);
+  const farEdge = at(pose["WallFarEdge|x"], pose["WallFarEdge|scaleX"]);
+  const bridge = at(0, pose["HandleBridge|scaleX"]);
+  const detail = r(pose["HandleFaceDetail|opacity"]);
+  const outer = pathData(HANDLE_OUTER, true);
+  const half = pathData(HANDLE_HALF, true);
+  const band = pathData(HANDLE_BRIDGE, true);
+  const tint = (d, color, key) => `<path d="${d}" fill="${color}" opacity="${r(pose[`${key}|opacity`])}" />`;
+  const strokes = (runs) =>
+    runs
+      .map(
+        (run) =>
+          `<path d="${pathData(run, false)}" fill="none" stroke="${COLOR.rim}" stroke-width="${EDGE_LIGHT.handle.thickness}" stroke-linecap="round" stroke-linejoin="round" opacity="${EDGE_LIGHT.opacity}" />`,
+      )
+      .join("\n          ");
+  const speckled = (clip, transform, include, exclude, options) =>
+    grain
+      ? `
+      <g clip-path="url(#${clip}${id})">
+        <g transform="${transform}">
+${grainMarkup(scatterGrain({ include, exclude, luma: handleLuma, ...options }), "          ")}
+        </g>
+      </g>`
+      : "";
+  return `<g id="handle" transform="translate(0 ${HANDLE_CY})">
+      <clipPath id="cut${id}"><path clip-rule="evenodd" d="M -320 -220 H 320 V 220 H -320 Z ${windowPath(pose)}" /></clipPath>
+      <clipPath id="face${id}"><path transform="${face}" clip-rule="evenodd" d="${handlePath}" /></clipPath>
+      <clipPath id="farHalf${id}"><path transform="${far}" d="${half}" /></clipPath>
+      <clipPath id="band${id}"><path transform="${bridge}" d="${band}" /></clipPath>
+      <g id="handle-walls" clip-path="url(#cut${id})">
+        <path id="wall-far" transform="${far}" d="${outer}" fill="url(#handleFill)" />
+        <path id="wall-near" transform="${face}" d="${outer}" fill="url(#handleFill)" />
+        <path id="wall-bridge" transform="${bridge}" d="${band}" fill="url(#handleFill)" />
+        <g transform="${far}">${tint(half, COLOR.grainDark, "wall-far-shade")}${tint(half, COLOR.lift, "wall-far-lift")}</g>
+        <g transform="${bridge}">${tint(band, COLOR.grainDark, "wall-bridge-shade")}${tint(band, COLOR.lift, "wall-bridge-lift")}</g>
+      </g>
+      <g clip-path="url(#farHalf${id})">
+        <g transform="${farEdge}">
+          ${strokes(HANDLE_EDGE_RUNS)}
+        </g>
+      </g>
+      <g clip-path="url(#band${id})">
+        <g transform="${bridge}">
+          ${strokes(BRIDGE_EDGE_RUNS)}
+        </g>
+      </g>${speckled("cut", far, [HANDLE_OUTER], [], GRAIN.handle)}${speckled("cut", bridge, [HANDLE_BRIDGE], [], GRAIN.handleBridge)}
+      <g id="handle-near-face">
+        <g transform="${face}">
+          <path id="handle-face" fill-rule="evenodd" d="${handlePath}" fill="url(#handleFill)" />
+          <g opacity="${detail}">
+            ${tint(handlePath, COLOR.grainDark, "handle-face-shade").replace("<path", '<path fill-rule="evenodd"')}
+            ${tint(handlePath, COLOR.lift, "handle-face-lift").replace("<path", '<path fill-rule="evenodd"')}
+          </g>
+        </g>${speckled("face", face, [HANDLE_OUTER], [HANDLE_HOLE], GRAIN.handleFace)}
+        <g opacity="${detail}">
+          <g clip-path="url(#cut${id})">
+            <path id="handle-inner" transform="${face}" d="${pathData(HANDLE_HOLE, true)}" fill="${COLOR.grainDark}" opacity="${HANDLE_SHADING.inner}" />
+          </g>
+          <g clip-path="url(#face${id})">
+            <g transform="${face}">
+          ${strokes(HANDLE_EDGE_RUNS)}
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>`;
+};
 
 const front = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" role="img" aria-labelledby="title description">
@@ -146,12 +248,7 @@ ${gradients}
 
   <!-- Group and shape ids mirror the Rive rig in rive/kettlebell-bot.scene.json. -->
   <g id="kettlebell-bot" transform="translate(${ROOT_X} ${ROOT_Y}) scale(${ROOT_SCALE})">
-    <g id="handle" transform="translate(0 ${HANDLE_CY})">
-      <path id="handle-shape" fill-rule="evenodd" clip-rule="evenodd" d="${handlePath}" fill="url(#handleFill)" />
-      <g id="handle-grain" clip-path="url(#handleMask)">
-${grainMarkup(scatterGrain({ include: [HANDLE_OUTER], exclude: [HANDLE_HOLE], luma: handleLuma, ...GRAIN.handle }), "        ")}
-      </g>
-    </g>
+    ${handleLayers(turnPose(0), { grain: true })}
 
     <g id="body">
       <path id="body-core" d="${bodyPath}" fill="url(#bodyFill)" />
@@ -182,7 +279,6 @@ const sheetWidth = FACINGS.length * CELL;
 
 const cell = (deg, index) => {
   const pose = turnPose(deg);
-  const hole = pose["handle-shape#p1_3|x"] / HOLE_SIDE_X;
   const eye = (side) => {
     const sign = side === "L" ? "L" : "R";
     const opacity = pose[`Eye${sign}|opacity`];
@@ -199,9 +295,7 @@ const cell = (deg, index) => {
     <clipPath id="cellMask-${deg}">
       <path transform="scale(${squeeze} 1)" d="${bodyPath}" />
     </clipPath>
-    <g transform="translate(0 ${HANDLE_CY}) scale(${r(pose["HandlePlate|scaleX"])} 1)">
-      <path fill-rule="evenodd" clip-rule="evenodd" d="${pathData(HANDLE_OUTER, true)} ${holePath(hole)}" fill="url(#handleFill)" />
-    </g>
+    ${handleLayers(pose, { id: `-${deg}` })}
     <g transform="scale(${squeeze} 1)">
       <path d="${bodyPath}" fill="url(#bodyFill)" />
 ${depthLayers(pose)}

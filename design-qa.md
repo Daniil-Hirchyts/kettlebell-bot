@@ -23,7 +23,8 @@ reference shapes, and it is a deliberate trade for the turnaround.
 
 Colour stayed a two-value system: charcoal body, off-white eyes. The supporting
 depth values are tint and shade steps around the same charcoal, and the one new
-hue — the rim light — is `palette.primary` from `riv_design_tokens` at 24%.
+hue — the rim and edge light — is `palette.primary` from `riv_design_tokens`,
+up to 42% in the rim field and 20% per edge run.
 
 ## Findings
 
@@ -331,6 +332,48 @@ read (`previews/sheets/emotions.png`), profile still puts the eye on the outer
 corner, and the `shots` pass measures 910 eye pixels at front against 469 before
 — the ~1.96x area increase, confirmed in pixels rather than asserted.
 
+### Iteration 9 — volume, and a handle with thickness
+
+Prompted by the app icon (`assets/icon/`, `scripts/build-icon.mjs`), which
+projects the same solid under a key light and reads far more three-dimensional
+than the rig did. Two things carried that, and both were missing from the
+animation.
+
+| Finding | Fix |
+|---|---|
+| The handle turned as one flat squeezed shape: at 30–60 degrees it read as a narrower arch with a slit for an opening, never as a plate with sides | The squeezed plate became the *walls*, and the near face now rides its own node, `HandleFace`, half the plate's depth off-centre and foreshortened. A turn uncovers a band of side wall and the opening's inner wall, which carries an occlusion tint. Measured against the exact extrusion, the squeezed walls stick out by at most 2 units, so they needed no new geometry |
+| The bell's shading was a gradient plus a sliding highlight, so it read more as a dark disc than a solid | One key light, `KEY_LIGHT`. The bell is a body of revolution, so its light does not turn with it: a key lift and a falloff anchored where the solid's normal faces the light most and least, a soft rim and a bounce built as off-centre radial fields (no feathering, which the preview renderer does not draw), and a crisp edge from nested stroked runs of the lit outline |
+| Nothing about the handle's lighting changed as it turned | The face and the wall band each carry a shade and a lift tint keyed from the Lambert term of their normal against the light, relative to the face at rest so the front view is untouched. Turned toward the light the face brightens while the far wall falls into shadow, and the reverse on the other side |
+| First pass of the lift was 26% of `#E8ECF4`, and the lit surface read as grey plastic — a different material | Lift cut to 10%, shade from 55% to 48% |
+| Rule 2 caught the wall light jumping at facing 0 and 180, where the wall in view swaps sides: four loops failed the seamless-loop check | The two walls' values cross-fade over `|sin a| < 0.12`, where the band is essentially zero wide |
+| `volume-showcase_turnaround`: 5–15 degrees short of profile the face was a sliver but still fully opaque, and its lit edge read as a stray bright nick on top of the handle — visible whenever an app holds `facing` near 80 | The face now fades over the last ~17 degrees (`smoothstep(0.04, 0.3, |cos a|)`), handing the handle to the walls, which already describe it there. Re-run clean |
+
+Cost: 26 nodes (+2), 157 shapes (+53, most of them the face's own grain field),
+1457 tracks (+175) and 15,307 keyframes (+2,364); the `.riv` goes from 752 KB to
+888 KB. The wall grain dropped to density 90, since the walls only ever show as a
+band or at profile. The grain's luminance model was re-measured against the new
+shading: r = 0.980 over 8,188 points, means 0.153 and 0.152.
+
+### Iteration 10 — the handle at profile, and ghosts in the facing blend
+
+Reported from the playground at a held facing near 90: "some opacity problems
+and not correct handle". Reproduced by driving `facing` on the live state
+machine, which is exactly what drag-to-turn does and what single-animation
+renders never exercise.
+
+| Finding | Fix |
+|---|---|
+| At profile the handle was a rounded thumb. The walls were the whole plate squeezed on X — at most 2 units too wide, but up to 11.5 too narrow near profile — and the side of a plate this thick is a flat-topped post | The handle is now its exact projection: the near face, a copy of the outline at the far face, and the band between their tops (`HandleBridge`). Their union is exact for a convex, symmetric outline |
+| 72–84 degrees: a translucent lobe above the handle. The face stuck out above the too-narrow walls, and fading it near profile showed the gap | The face stays opaque — it is part of the silhouette. Only its tints, occlusion and edge light fade, on `HandleFaceDetail` |
+| 72–97 degrees: a light hairline down the middle of the handle. The window closed to a zero-width sliver whose full-height edges the renderer still drew | The window is the lens where the two faces' openings overlap, keyed by eight vertex tracks; it narrows, flattens and closes to a point |
+| Near the limb the far eye went grey and half-transparent beside the white one | The foreshortening floor fades out at the limb, so the eye thins to nothing; its opacity ramp tightened from 0.26 to 0.1 of `toward` |
+| With a pose every 30 degrees, a facing of 75 was an even mix of the 60 and 90 poses, so everything that fades in between was averaged into a ghost | `FACING_STEP` 10: 37 poses. The turnaround sheet still shows every third |
+| Tints on overlapping wall pieces would compound where the pieces overlap | Tints sit only on the far face's outer half and on the band, which meet edge to edge |
+
+Cost: 30 nodes, 206 shapes, 91 animations, 2667 tracks and 21,000 keyframes;
+the `.riv` goes from 888 KB to 1,063 KB with the 24 extra facing poses, the new
+turn channels and a grain field for each wall piece.
+
 ## Two defects the build guards caught
 
 Both were invisible in a single-animation preview and would have shipped:
@@ -352,6 +395,10 @@ Both were invisible in a single-animation preview and would have shipped:
 - [x] Eyes wrap the form, foreshorten and pass behind the limb
 - [x] Eyes ride the bell's own cross-section, reaching its outer corner at profile
 - [x] Handle opening closes and reopens correctly through the turn
+- [x] Handle reads as a plate with thickness through the turn: face, wall band, inner wall
+- [x] At profile the handle is the side of the plate — a flat-topped post, not a squeezed arch
+- [x] Held facings blend without ghosting: a pose every 10 degrees, and nothing fades while it still has width
+- [x] One fixed key light: the bell's form lighting never slides, the handle is relit by the turn
 - [x] 16 emotional states legible without labels (`previews/sheets/emotions.png`)
 - [x] 10 one-shot reactions with anticipation, overshoot and settle
 - [x] Varied blink system: single, double, wink, plus per-mood blink rhythms

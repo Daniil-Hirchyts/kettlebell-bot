@@ -79,9 +79,10 @@ const renderAnimationFrame = async (animation, time, size) => {
 };
 
 try {
-  // 1 · turnaround — every facing pose the blend state interpolates between
+  // 1 · turnaround — every 30 degrees of the facing poses the blend state
+  // interpolates between (there is one every 10; the sheet stays readable)
   const facingCells = [];
-  for (const pose of meta.facingPoses) {
+  for (const pose of meta.facingPoses.filter((p) => p.deg % 30 === 0)) {
     facingCells.push({ label: `${pose.deg} deg`, image: await renderAnimationFrame(pose.anim.name, 0, 200) });
   }
   writeFileSync(

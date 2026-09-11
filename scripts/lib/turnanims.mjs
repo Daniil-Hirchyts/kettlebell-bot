@@ -8,9 +8,12 @@
 import { ch, E, FPS, loopAnim, oneShot, pose } from "./motion.mjs";
 import { sampleFacing, turnPoseTracks, turnTracks } from "./turn.mjs";
 
-export const FACING_STEP = 30;
+// Fine enough that blending two neighbours never averages away what a pose is
+// doing. At 30 degrees a facing of 75 was an even mix of the 60 and 90 poses,
+// and anything that fades between them rendered half-transparent -- a ghost.
+export const FACING_STEP = 10;
 
-/** 13 static poses at 30 degree steps, wired into the `facing` blend state. */
+/** 37 static poses at 10 degree steps, wired into the `facing` blend state. */
 export function buildFacingPoses() {
   const poses = [];
   for (let deg = 0; deg <= 360; deg += FACING_STEP) {

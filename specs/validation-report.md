@@ -1,6 +1,6 @@
 # Validation report
 
-Rebuilt and validated on 2026-09-04 with `rive-mcp-server@0.5.0` and its bundled
+Rebuilt and validated on 2026-09-11 with `rive-mcp-server@0.5.0` and its bundled
 official Rive canvas runtime, on macOS 27.0 / Node 26.8.1.
 
 Reproduce everything with:
@@ -15,14 +15,14 @@ npm run build && npm run test && npm run previews && npm run sheets
 |---|---|
 | `riv_create` | Validated with the official Rive runtime |
 | Format version | 7.0 |
-| File size | 752 KB, 0 embedded image assets (the vector grain is ~562 KB of that) |
+| File size | 1,063 KB (1,088,385 bytes), 0 embedded image assets |
 | Artboards | 1 — `KettlebellBot`, 512 x 512, transparent |
-| Rig nodes | 24 named transforms, including 2 `Solo` groups |
-| Vector shapes | 104 — 14,443 Bézier contours (29 cubic + 28,892 straight vertices; 14,432 of the contours are grain specks), 14 primitives, 5 gradient fills, 18 solid fills, 81 stroke-only shapes (80 grain buckets + the rim) |
-| Animations | 67 |
-| Tracks / keyframes | 1282 / 12943 |
+| Rig nodes | 30 named transforms, including 2 `Solo` groups |
+| Vector shapes | 206 — 18,578 Bézier contours (63 cubic + 38,149 straight vertices; 18,543 of the contours are grain specks), 18 primitives, 12 gradient fills, 26 solid fills, 168 stroke-only shapes (157 grain buckets + 11 edge-light runs) |
+| Animations | 91 (37 of them the `facing` poses, one every 10 degrees) |
+| Tracks / keyframes | 2667 / 21000 |
 | State machine | `KettlebellBotMachine` — 24 inputs, 9 layers, 49 states, 81 transitions |
-| Easing distribution | 8569 `smooth` (only between dense turn samples, where the value curve itself already carries the easing), 2293 named cubics (`ease-in-out` 658, `ease-out` 636, `ease-out-back` 479, `ease-in` 336, `snap` 95, `ease-in-back` 52, `emphasized-decel` 37), 716 `hold`, 1365 with no interpolator (single-pose tracks, and the first keyframe of every track) |
+| Easing distribution | 15241 `smooth` (only between dense turn samples, where the value curve itself already carries the easing), 2293 named cubics (`ease-in-out` 658, `ease-out` 636, `ease-out-back` 479, `ease-in` 336, `snap` 95, `ease-in-back` 52, `emphasized-decel` 37), 716 `hold`, 2750 with no interpolator (single-pose tracks, and the first keyframe of every track) |
 
 ## Build-time guards
 
@@ -66,23 +66,33 @@ Real defects caught by these guards or by the state-machine suite, and fixed:
    firing one entered the shot state and was immediately dragged back out. The
    360 tour, which opens on a hold, appeared to do nothing at all. Fixed with the
    `Turn Shot` layer; rule 8 and the new `shots` test pass both guard it.
+5. **Ghosts in the `facing` blend, and a thumb for a handle at profile.**
+   Reported from the playground, not caught by the suite, which only ever held
+   facings on the 30-degree poses. Between poses the blend averaged every fade:
+   the handle face half-transparent over walls too narrow for it, the see-through
+   window closed to a zero-width sliver drawn as a hairline, the far eye grey.
+   Fixed by drawing the handle as its exact projection with an opaque face, a
+   lens-shaped window that closes to a point, an eye that thins out instead of
+   fading, and a pose every 10 degrees. Reproduced and re-checked by driving
+   `facing` on the live machine at 65–105 degrees.
 
 ## Runtime
 
 | Tool | Result |
 |---|---|
-| `riv_inspect` | All 67 animations, 24 inputs and their initial values present and correctly typed |
-| `riv_lint` | **0 errors, 0 warnings**, 78 informational `motion-lopsided-scale` notes |
-| `riv_critique` | Two full iterations (`previews/critique/pass1-*`, `pass2-*`) plus a final confirmation pass |
+| `riv_inspect` | All 91 animations, 24 inputs and their initial values present and correctly typed |
+| `riv_lint` | **0 errors, 0 warnings**, 114 informational `motion-lopsided-scale` notes |
+| `riv_critique` | Two full iterations (`previews/critique/pass1-*`, `pass2-*`) plus a final confirmation pass, and a pass on the key light and handle thickness (`volume-*`) |
 | `riv_play_state_machine` | 5 passes, 108 steps, 68 captures — see below |
-| `riv_import_svg` | Both generated SVGs re-import cleanly (91 and 71 shapes) |
+| `riv_import_svg` | Both generated SVGs re-import cleanly (192 and 239 shapes) |
 | `riv_render_apng` / `riv_render_gif` | 45 previews, no failures |
 
-### About the 78 informational lint notes
+### About the 114 informational lint notes
 
 Every one is `motion-lopsided-scale` — one scale axis animated without the other.
-60 of them are on the yaw system (`EyeL`, `EyeR`, `TurnFront`, `TurnBack`,
-`HandlePlate`, `BodyPlate`), where single-axis scaling is the correct physics:
+96 of them are on the yaw system (`EyeL`, `EyeR`, `TurnFront`, `TurnBack`,
+`HandleFace`, `WallFar`, `WallFarEdge`, `HandleBridge`, `BodyPlate`, and the
+spins' squash on `Yaw`), where single-axis scaling is the correct physics:
 rotating about a vertical axis changes projected width and nothing else. Adding a
 companion Y scale there would be a visible defect, not a fix. The remaining 18 are
 eyelid and body squashes where `withVolume()` already supplies a bounded
@@ -106,7 +116,7 @@ entered. Captures land in `previews/states/`; the machine-readable summary is
 
 | Artefact | Path |
 |---|---|
-| Turnaround, all 13 facing poses | `previews/sheets/turnaround.png` |
+| Turnaround, every 30 degrees of the 37 facing poses | `previews/sheets/turnaround.png` |
 | All 16 emotional states, from the live machine | `previews/sheets/emotions.png` |
 | All 10 reactions | `previews/sheets/reactions.png` |
 | Gaze, intensity, touch and blinks | `previews/sheets/interaction.png` |

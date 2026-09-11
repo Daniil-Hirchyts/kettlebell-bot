@@ -11,9 +11,10 @@
 //          270 = left profile
 //
 // The three cues that carry the turn:
-//   1. The handle is a flat plate. Its projected width is |cos a| plus the
-//      plate's own depth times |sin a|, and its opening closes faster than the
-//      outer silhouette because the near arm occludes the far one.
+//   1. The handle is a plate with real depth, drawn as its near face, its far
+//      face and the band between their tops, which together are its exact
+//      projection. You see through its opening only where the two faces'
+//      openings overlap, so the window closes well before the outline does.
 //   2. The eyes are decals on the bell itself, at +/- EYE_AZIMUTH on the
 //      BELL_RADIUS_X by BELL_RADIUS_Z cross-section, so they wrap around the
 //      real form, foreshorten, and pass around its edge.
@@ -26,11 +27,13 @@ import {
   BELL_RADIUS_Z,
   EYE_AZIMUTH,
   HANDLE_DEPTH,
-  HANDLE_HOLE_WIDTH,
-  HANDLE_OUTER_WIDTH,
+  HANDLE_HOLE,
+  HANDLE_SHADING,
   HOLE_BOTTOM_HANDLE,
   HOLE_SIDE_X,
   HOLE_TOP_HANDLE,
+  HOLE_VERTEX,
+  KEY_LIGHT,
   PLATE_RADIUS,
 } from "./geometry.mjs";
 
@@ -53,6 +56,21 @@ export function smoothstep(edge0, edge1, x) {
 
 const round = (v, places = 4) => Number(v.toFixed(places));
 
+// How the key light lands on a handle surface with this view-space normal, as
+// the opacity of its shade and lift overlays. Measured against the face at
+// rest, so the front view is exactly the static artwork; the lift tops out at
+// the best a vertical surface can do, since the handle only ever yaws.
+const REST_LIGHT = KEY_LIGHT[2];
+const BEST_LIGHT = Math.hypot(KEY_LIGHT[0], KEY_LIGHT[2]);
+function surfaceLight([nx, ny, nz]) {
+  const lambert = Math.max(0, nx * KEY_LIGHT[0] + ny * KEY_LIGHT[1] + nz * KEY_LIGHT[2]);
+  const clamp01 = (v) => Math.min(1, Math.max(0, v));
+  return {
+    shade: HANDLE_SHADING.shadeMax * clamp01((REST_LIGHT - lambert) / REST_LIGHT),
+    lift: HANDLE_SHADING.liftMax * clamp01((lambert - REST_LIGHT) / (BEST_LIGHT - REST_LIGHT)),
+  };
+}
+
 // Every property the turn system owns. Anything not in this list belongs to
 // another state-machine layer — see specs/animation-spec.md.
 export const TURN_CHANNELS = [
@@ -62,11 +80,28 @@ export const TURN_CHANNELS = [
   ["Yaw", "scaleX"],
   ["Yaw", "scaleY"],
   ["BodyPlate", "scaleX"],
-  ["HandlePlate", "scaleX"],
-  ["handle-shape#p1_1", "x"],
-  ["handle-shape#p1_3", "x"],
-  ["handle-shape#p1_0", "distance"],
-  ["handle-shape#p1_2", "distance"],
+  ["HandleFace", "x"],
+  ["HandleFace", "scaleX"],
+  ["HandleFaceDetail", "opacity"],
+  ["handle-face-shade", "opacity"],
+  ["handle-face-lift", "opacity"],
+  ["WallFar", "x"],
+  ["WallFar", "scaleX"],
+  ["WallFarEdge", "x"],
+  ["WallFarEdge", "scaleX"],
+  ["HandleBridge", "scaleX"],
+  ["wall-far-shade", "opacity"],
+  ["wall-far-lift", "opacity"],
+  ["wall-bridge-shade", "opacity"],
+  ["wall-bridge-lift", "opacity"],
+  ["handle-cut#p1_0", "y"],
+  ["handle-cut#p1_0", "distance"],
+  ["handle-cut#p1_1", "x"],
+  ["handle-cut#p1_1", "distance"],
+  ["handle-cut#p1_2", "y"],
+  ["handle-cut#p1_2", "distance"],
+  ["handle-cut#p1_3", "x"],
+  ["handle-cut#p1_3", "distance"],
   ["TurnFront", "x"],
   ["TurnFront", "scaleX"],
   ["TurnFront", "opacity"],
@@ -98,10 +133,20 @@ export function turnPose(deg, dyn = {}) {
   const absCos = Math.abs(cos);
   const absSin = Math.abs(sin);
 
-  // --- handle -------------------------------------------------------------
-  const handleScaleX = absCos + (HANDLE_DEPTH / HANDLE_OUTER_WIDTH) * absSin;
-  const holeProjected = HANDLE_HOLE_WIDTH * absCos - HANDLE_DEPTH * absSin;
-  const hole = Math.max(0, holeProjected / (HANDLE_HOLE_WIDTH * handleScaleX));
+  // --- the see-through window ---------------------------------------------
+  // You see through the plate only where the near face's opening and the far
+  // face's overlap: two copies of the opening, each foreshortened by |cos a|,
+  // set depth * |sin a| apart. Their overlap is a lens that narrows and
+  // flattens as they slide apart -- for two ellipses exactly width * f and
+  // height * sqrt(f (2 - f)) -- and it closes to a point. Closing it to a
+  // zero-width sliver instead kept its full-height edges, and the renderer drew
+  // them as a hairline down the middle of the handle.
+  const holeHalf = HOLE_SIDE_X * absCos;
+  const apart = (HANDLE_DEPTH / 2) * absSin;
+  const f = holeHalf > 1e-9 ? Math.max(0, 1 - apart / holeHalf) : 0;
+  const g = Math.sqrt(f * (2 - f));
+  const hole = (key) => HANDLE_HOLE[HOLE_VERTEX[key]];
+  const holeMidY = hole("left").y;
 
   // --- body + depth panels ------------------------------------------------
   // Exact projected width of the bell's cross-section ellipse. The eyes are
@@ -129,14 +174,52 @@ export function turnPose(deg, dyn = {}) {
     const nz = cp / BELL_RADIUS_Z;
     const nLen = Math.hypot(nx, nz);
     const toward = (nx * sin + nz * cos) / nLen;
+    // Foreshortening keeps a small floor so a turned eye stays readable, but
+    // the floor goes as the eye reaches the limb, where a decal is edge-on and
+    // thins to nothing. Fading it out while it still had width left a grey,
+    // half-transparent eye beside the white one, which read as a ghost.
     return {
       x: BELL_RADIUS_X * sp * cos - BELL_RADIUS_Z * cp * sin,
-      scaleX: (0.13 + 0.87 * Math.max(0, toward)) / REST_FORESHORTEN,
-      opacity: smoothstep(0.0, 0.26, toward),
+      scaleX: Math.max(0.01, (0.13 * smoothstep(0, 0.2, toward) + 0.87 * Math.max(0, toward)) / REST_FORESHORTEN),
+      opacity: smoothstep(0.0, 0.1, toward),
     };
   };
   const eyeL = eye(-EYE_AZIMUTH);
   const eyeR = eye(EYE_AZIMUTH);
+
+  // --- the plate ----------------------------------------------------------
+  // A plate this thick projects to the union of its near face, its far face
+  // and the band between their tops -- exactly, for an outline that is convex
+  // and symmetric -- so that is how it is drawn. The faces are the same shape,
+  // half the plate's depth either side of centre, each foreshortened by
+  // |cos a|; the band is depth * |sin a| wide. At profile the faces are edge-on
+  // and the band is the whole handle.
+  //
+  // Which face is nearer only decides which one carries the face artwork; it
+  // swaps at profile, where both are zero wide. The face stays opaque: it is
+  // part of the silhouette, and fading it let the walls behind show through as
+  // a ghost. Only its lighting and edge fade near profile, where a sliver's lit
+  // edge otherwise reads as a stray bright nick.
+  //
+  // The far copy is mirrored onto whichever side it is on, so the half of it
+  // that carries the wall tint is always its outer half. It swaps sides only
+  // where it is zero wide or hidden under the face.
+  const near = cos >= 0 ? 1 : -1;
+  const faceX = -(HANDLE_DEPTH / 2) * sin * near;
+  const faceWidth = Math.max(0.02, absCos);
+  const farSide = -faceX < -1e-9 ? -1 : 1;
+  const faceLight = surfaceLight([-sin * near, 0, cos * near]);
+  // The wall that swings into view is on the side the face has moved away from.
+  // Square-on, the wall showing swaps sides; the band is zero wide there, so the
+  // two are cross-faded rather than switched, which keeps every loop that
+  // passes through 0 or 180 seamless.
+  const leftWall = surfaceLight([-cos, 0, -sin]);
+  const rightWall = surfaceLight([cos, 0, sin]);
+  const toRight = smoothstep(-0.12, 0.12, sin);
+  const wallLight = {
+    shade: leftWall.shade + (rightWall.shade - leftWall.shade) * toRight,
+    lift: leftWall.lift + (rightWall.lift - leftWall.lift) * toRight,
+  };
 
   // --- whole-body dynamics ------------------------------------------------
   const squash = dyn.squash ?? 0;
@@ -147,11 +230,28 @@ export function turnPose(deg, dyn = {}) {
     "Yaw|scaleX": 1 + squash,
     "Yaw|scaleY": 1 - squash,
     "BodyPlate|scaleX": bodyScaleX,
-    "HandlePlate|scaleX": handleScaleX,
-    "handle-shape#p1_1|x": -HOLE_SIDE_X * hole,
-    "handle-shape#p1_3|x": HOLE_SIDE_X * hole,
-    "handle-shape#p1_0|distance": HOLE_TOP_HANDLE * hole,
-    "handle-shape#p1_2|distance": HOLE_BOTTOM_HANDLE * hole,
+    "HandleFace|x": faceX,
+    "HandleFace|scaleX": faceWidth,
+    "HandleFaceDetail|opacity": smoothstep(0.04, 0.3, absCos),
+    "handle-face-shade|opacity": faceLight.shade,
+    "handle-face-lift|opacity": faceLight.lift,
+    "WallFar|x": -faceX,
+    "WallFar|scaleX": farSide * faceWidth,
+    "WallFarEdge|x": -faceX,
+    "WallFarEdge|scaleX": faceWidth,
+    "HandleBridge|scaleX": Math.max(0.002, absSin),
+    "wall-far-shade|opacity": wallLight.shade,
+    "wall-far-lift|opacity": wallLight.lift,
+    "wall-bridge-shade|opacity": wallLight.shade,
+    "wall-bridge-lift|opacity": wallLight.lift,
+    "handle-cut#p1_0|y": holeMidY + (hole("top").y - holeMidY) * g,
+    "handle-cut#p1_0|distance": HOLE_TOP_HANDLE * absCos * f,
+    "handle-cut#p1_1|x": -holeHalf * f,
+    "handle-cut#p1_1|distance": hole("left").cubic.distance * g,
+    "handle-cut#p1_2|y": holeMidY + (hole("bottom").y - holeMidY) * g,
+    "handle-cut#p1_2|distance": HOLE_BOTTOM_HANDLE * absCos * f,
+    "handle-cut#p1_3|x": holeHalf * f,
+    "handle-cut#p1_3|distance": hole("right").cubic.distance * g,
     "TurnFront|x": -PLATE_RADIUS * sin,
     "TurnFront|scaleX": Math.max(0.06, absCos),
     "TurnFront|opacity": frontVisible,

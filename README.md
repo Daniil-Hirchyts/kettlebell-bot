@@ -9,7 +9,7 @@ machine.
 
 | | |
 |---|---|
-| Turnaround, all 13 facings | ![](previews/sheets/turnaround.png) |
+| Turnaround, every 30 degrees | ![](previews/sheets/turnaround.png) |
 | All 16 emotional states | ![](previews/sheets/emotions.png) |
 
 Animated: [`previews/animations/showcase_turnaround.gif`](previews/animations/showcase_turnaround.gif) ·
@@ -17,7 +17,7 @@ Animated: [`previews/animations/showcase_turnaround.gif`](previews/animations/sh
 
 ## What is in the box
 
-- `rive/kettlebell-bot.riv` — the runtime asset. Rive format 7.0, 257 KB,
+- `rive/kettlebell-bot.riv` — the runtime asset. Rive format 7.0, 1,063 KB,
   transparent, no embedded images.
 - `rive/kettlebell-bot.scene.json` — the full reproducible scene the `.riv` is
   built from.
@@ -25,6 +25,10 @@ Animated: [`previews/animations/showcase_turnaround.gif`](previews/animations/sh
   to match the Rive rig.
 - `assets/svg/kettlebell-bot-turnaround.svg` — seven facings drawn by the same
   projection model the `.riv` animates.
+- `assets/icon/` — app-icon artwork: the bot in a held three-quarter pose,
+  looking up and past the viewer, cropped for the icon frame on a transparent
+  1024 canvas (SVG, with PNG renders). `npm run build:icon` regenerates the SVGs;
+  it projects the same solid the rig describes, with pitch as well as yaw.
 - `examples/KettlebellBot.tsx` — React wrapper with drag-to-turn, tap, hover and
   pointer-tracked gaze.
 - `specs/` — avatar, animation, integration and validation specifications.
@@ -36,10 +40,18 @@ Animated: [`previews/animations/showcase_turnaround.gif`](previews/animations/sh
 A flat rotation cannot sell a turn for this character, so the yaw is a small
 projection model rather than a set of drawn poses. One angle drives everything:
 
-- **The handle is a flat plate.** Its projected width is `|cos a|` plus its own
-  depth times `|sin a|`, and its opening closes faster than the outer silhouette
-  because the near arm occludes the far one. The opening is gone by 64 degrees;
-  the arch bottoms out at 30% of its width at true profile.
+- **The handle is a plate with real thickness.** It is drawn as its exact
+  projection: the near face, a copy of the outline at the far face, and the band
+  between their tops, which is the plate's depth times `|sin a|` wide. A turn
+  uncovers a band of side wall and the inner wall of the opening, and at true
+  profile the handle is a flat-topped post — the side of the plate. You see
+  through the opening only where the two faces' openings overlap: a lens that
+  narrows, flattens and closes to a point by 63 degrees.
+- **One key light, above and to the left.** The bell is a body of revolution, so
+  its lighting does not turn with it: a key lift, a falloff, a soft directional
+  rim and a bounce sit on the bell, squeeze with the silhouette and never slide.
+  The handle's face and walls are each lit by how squarely they face that light,
+  so as the bot turns one catches it while the other drops into shadow.
 - **The eyes are decals on the bell.** They ride the bell's own cross-section —
   an ellipse slightly flatter front-to-back than it is wide — so they wrap around
   the real form, foreshorten, stall at the limb and pass out of sight, then
@@ -49,7 +61,7 @@ projection model rather than a set of drawn poses. One angle drives everything:
 - **A front light field and a back dark field counter-slide** across the bell,
   giving it a near surface and a far one. Turned away, a seam and two vents make
   the back readable as a back.
-- **The grain is 14,432 vector specks**, not a texture — no tile, so nothing
+- **The grain is 18,543 vector specks**, not a texture — no tile, so nothing
   repeats. Placed on a jittered grid, drawn as tiny stroked dashes, parented
   inside the form so it turns with it. Each speck is sized by the luminance
   deviation it should produce rather than by an alpha, and the light/dark mix is
