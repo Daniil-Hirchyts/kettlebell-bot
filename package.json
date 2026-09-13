@@ -10,6 +10,8 @@
     "build:svg": "node scripts/build-svg.mjs",
     "build:riv": "node scripts/build-rive.mjs",
     "build:icon": "node scripts/build-icon.mjs",
+    "build:onboarding": "node scripts/build-onboarding.mjs",
+    "previews:onboarding": "node scripts/render-onboarding.mjs",
     "check": "node scripts/build-rive.mjs --dry",
     "verify": "node scripts/verify-asset.mjs",
     "previews": "node scripts/render-previews.mjs",

@@ -29,6 +29,12 @@ Animated: [`previews/animations/showcase_turnaround.gif`](previews/animations/sh
   looking up and past the viewer, cropped for the icon frame on a transparent
   1024 canvas (SVG, with PNG renders). `npm run build:icon` regenerates the SVGs;
   it projects the same solid the rig describes, with pitch as well as yaw.
+- `rive/onboarding/` — four looping portrait hero illustrations for onboarding
+  (`onboarding_character_intro`, `onboarding_plan`, `onboarding_discovery`,
+  `onboarding_progress`). Each is an independent 720 x 960 transparent `.riv`
+  with the real rig as its protagonist and an `Onboarding` state machine that
+  autoplays. See [`specs/onboarding-heroes.md`](specs/onboarding-heroes.md) and
+  the GIFs in `previews/onboarding/`.
 - `examples/KettlebellBot.tsx` — React wrapper with drag-to-turn, tap, hover and
   pointer-tracked gaze.
 - `specs/` — avatar, animation, integration and validation specifications.
@@ -120,6 +126,8 @@ npm run critique   # filmstrips, onion skins and contact sheets; tag it: npm run
 npm run lint:riv   # riv_lint
 npm run studio     # local Rive Studio at http://localhost:8787
 npm run all        # build, test, previews, sheets
+npm run build:onboarding     # the four onboarding heroes (validated loops)
+npm run previews:onboarding  # their contact sheets, seam report and previews
 ```
 
 ## Interaction playground
@@ -154,6 +162,7 @@ scripts/lib/turnanims.mjs   facing poses, head turns, spins, gaze, energy, touch
 scripts/lib/showcase.mjs    preview-only reels, sampled from the real animations
 scripts/lib/scene.mjs       rig, artwork and state-machine assembly
 scripts/lib/validate.mjs    the build-time guards
+scripts/lib/onboarding/     onboarding heroes: stage + loop timeline (kit), props, one module per hero
 scripts/verify-asset.mjs    drift check: committed asset vs. a clean rebuild
 scripts/lib/png.mjs         dependency-free PNG reader/writer for contact sheets
 scripts/lib/svg.mjs         geometry to SVG path data
