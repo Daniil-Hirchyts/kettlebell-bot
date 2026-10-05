@@ -1,11 +1,12 @@
 {
-  "generatedAt": "2026-09-11T09:14:26.349Z",
+  "generatedAt": "2026-10-05T16:59:35.910Z",
   "summary": [
     {
       "pass": "moods",
-      "steps": 17,
-      "captures": 17,
+      "steps": 21,
+      "captures": 21,
       "statesEntered": [
+        "fx_idle",
         "mood_00_calm",
         "mood_01_curious",
         "mood_02_thinking",
@@ -22,6 +23,10 @@
         "mood_13_nervous",
         "mood_14_playful",
         "mood_15_listening",
+        "mood_16_determined",
+        "mood_17_exhausted",
+        "mood_18_recovering",
+        "mood_19_cheeky",
         "neutral",
         "touch_rest",
         "unknown",
@@ -36,9 +41,10 @@
     },
     {
       "pass": "reactions",
-      "steps": 31,
-      "captures": 10,
+      "steps": 49,
+      "captures": 16,
       "statesEntered": [
+        "fx_idle",
         "mood_00_calm",
         "mood_01_curious",
         "mood_03_working",
@@ -51,10 +57,16 @@
         "mood_14_playful",
         "neutral",
         "react_acknowledge",
+        "react_appreciate",
         "react_celebrate",
+        "react_cheer",
+        "react_dizzy",
         "react_frustrated",
         "react_gearup",
+        "react_idea",
         "react_laugh",
+        "react_personalbest",
+        "react_powerup",
         "react_recoil",
         "react_relieved",
         "react_surprise",
@@ -73,6 +85,7 @@
       "steps": 25,
       "captures": 20,
       "statesEntered": [
+        "fx_idle",
         "mood_00_calm",
         "mood_01_curious",
         "mood_02_thinking",
@@ -104,6 +117,7 @@
         "blink_double",
         "blink_single",
         "blink_wink",
+        "fx_idle",
         "mood_00_calm",
         "neutral",
         "react_tapped",
@@ -119,6 +133,7 @@
       "steps": 13,
       "captures": 5,
       "statesEntered": [
+        "fx_idle",
         "mood_00_calm",
         "neutral",
         "touch_rest",
@@ -126,6 +141,238 @@
         "turn_showcase_360",
         "turn_spin_left",
         "turn_spin_right",
+        "unknown"
+      ],
+      "missing": []
+    },
+    {
+      "pass": "composition",
+      "steps": 14,
+      "captures": 8,
+      "statesEntered": [
+        "blink_single",
+        "fx_idle",
+        "mood_00_calm",
+        "mood_16_determined",
+        "mood_17_exhausted",
+        "mood_18_recovering",
+        "mood_19_cheeky",
+        "neutral",
+        "react_appreciate",
+        "react_powerup",
+        "touch_hover",
+        "touch_press",
+        "touch_rest",
+        "turn_spin_right",
+        "unknown"
+      ],
+      "missing": []
+    },
+    {
+      "pass": "geometry",
+      "steps": 28,
+      "captures": 24,
+      "statesEntered": [
+        "fx_idle",
+        "mood_00_calm",
+        "mood_16_determined",
+        "mood_17_exhausted",
+        "mood_18_recovering",
+        "mood_19_cheeky",
+        "neutral",
+        "touch_rest",
+        "unknown"
+      ],
+      "missing": []
+    },
+    {
+      "pass": "eyes",
+      "steps": 19,
+      "captures": 17,
+      "statesEntered": [
+        "blink_single",
+        "eyes_arc",
+        "eyes_crescent",
+        "eyes_diamond",
+        "eyes_droop",
+        "eyes_frown",
+        "eyes_pill",
+        "eyes_round",
+        "eyes_slit",
+        "eyes_soft",
+        "eyes_squint",
+        "eyes_star",
+        "eyes_tall",
+        "eyes_wedge",
+        "eyes_wide",
+        "fx_idle",
+        "mood_00_calm",
+        "mood_09_happy",
+        "neutral",
+        "react_idea",
+        "touch_rest",
+        "unknown"
+      ],
+      "missing": []
+    },
+    {
+      "pass": "eyeturn",
+      "steps": 49,
+      "captures": 42,
+      "statesEntered": [
+        "eyes_crescent",
+        "eyes_diamond",
+        "eyes_droop",
+        "eyes_frown",
+        "eyes_soft",
+        "eyes_squint",
+        "eyes_wide",
+        "fx_idle",
+        "mood_00_calm",
+        "neutral",
+        "touch_rest",
+        "unknown"
+      ],
+      "missing": []
+    },
+    {
+      "pass": "effects",
+      "steps": 9,
+      "captures": 8,
+      "statesEntered": [
+        "fx_dust",
+        "fx_idle",
+        "fx_motes",
+        "fx_sparkles",
+        "fx_sweat",
+        "mood_00_calm",
+        "neutral",
+        "touch_rest",
+        "unknown"
+      ],
+      "missing": []
+    },
+    {
+      "pass": "fxreplace",
+      "steps": 20,
+      "captures": 11,
+      "statesEntered": [
+        "blink_single",
+        "eyes_crescent",
+        "fx_dust",
+        "fx_idle",
+        "fx_motes",
+        "fx_sparkles",
+        "fx_sweat",
+        "mood_00_calm",
+        "mood_19_cheeky",
+        "neutral",
+        "react_appreciate",
+        "touch_hover",
+        "touch_press",
+        "touch_rest",
+        "turn_spin_right",
+        "unknown"
+      ],
+      "missing": []
+    },
+    {
+      "pass": "fxturn",
+      "steps": 37,
+      "captures": 12,
+      "statesEntered": [
+        "fx_idle",
+        "fx_motes",
+        "fx_sparkles",
+        "mood_00_calm",
+        "neutral",
+        "touch_rest",
+        "unknown"
+      ],
+      "missing": []
+    },
+    {
+      "pass": "fxturn2",
+      "steps": 37,
+      "captures": 12,
+      "statesEntered": [
+        "fx_dust",
+        "fx_idle",
+        "fx_sweat",
+        "mood_00_calm",
+        "neutral",
+        "touch_rest",
+        "unknown"
+      ],
+      "missing": []
+    },
+    {
+      "pass": "effectsoff",
+      "steps": 9,
+      "captures": 8,
+      "statesEntered": [
+        "fx_dust",
+        "fx_idle",
+        "fx_motes",
+        "fx_sparkles",
+        "fx_sweat",
+        "mood_00_calm",
+        "neutral",
+        "touch_rest",
+        "unknown"
+      ],
+      "missing": []
+    },
+    {
+      "pass": "fxreplaceoff",
+      "steps": 20,
+      "captures": 11,
+      "statesEntered": [
+        "blink_single",
+        "eyes_crescent",
+        "fx_dust",
+        "fx_idle",
+        "fx_motes",
+        "fx_sparkles",
+        "fx_sweat",
+        "mood_00_calm",
+        "mood_19_cheeky",
+        "neutral",
+        "react_appreciate",
+        "touch_hover",
+        "touch_press",
+        "touch_rest",
+        "turn_spin_right",
+        "unknown"
+      ],
+      "missing": []
+    },
+    {
+      "pass": "fxturnoff",
+      "steps": 37,
+      "captures": 12,
+      "statesEntered": [
+        "fx_idle",
+        "fx_motes",
+        "fx_sparkles",
+        "mood_00_calm",
+        "neutral",
+        "touch_rest",
+        "unknown"
+      ],
+      "missing": []
+    },
+    {
+      "pass": "fxturn2off",
+      "steps": 37,
+      "captures": 12,
+      "statesEntered": [
+        "fx_dust",
+        "fx_idle",
+        "fx_sweat",
+        "mood_00_calm",
+        "neutral",
+        "touch_rest",
         "unknown"
       ],
       "missing": []

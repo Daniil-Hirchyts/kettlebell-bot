@@ -185,14 +185,45 @@ function starPoints() {
   ];
 }
 
+// Extensions share the existing envelope and rounded terminals. These are
+// eyelids and simple pupils, rather than illustrated symbols.
+const frownPoints = () => arcPoints().map((p) => ({
+  ...p, y: -p.y,
+  ...(p.cubic ? { cubic: { ...p.cubic, rotation: -p.cubic.rotation } } : {}),
+}));
+const crescentPoints = () => [
+  { x: -21, y: 3, radius: 3 },
+  { x: 0, y: -8, cubic: { rotation: 0, inDistance: 13, outDistance: 13 } },
+  { x: 21, y: 3, radius: 3 },
+  { x: 0, y: -1, cubic: { rotation: 180, inDistance: 13, outDistance: 13 } },
+];
+const droopPoints = () => [
+  { x: -13, y: -15, radius: 7 },
+  { x: 13, y: -24, radius: 7 },
+  { x: 13, y: 22, radius: 12 },
+  { x: -13, y: 22, radius: 12 },
+];
+const squintPoints = () => [
+  { x: -20, y: -8, radius: 5 },
+  { x: 19, y: 1, radius: 5 },
+  { x: 17, y: 11, radius: 5 },
+  { x: -20, y: 4, radius: 5 },
+];
+const diamondPoints = () => [
+  { x: 0, y: -28, radius: 9 },
+  { x: 17, y: 0, radius: 9 },
+  { x: 0, y: 28, radius: 9 },
+  { x: -17, y: 0, radius: 9 },
+];
+
 // One dial for how large the eyes read. Every variant is authored at its
-// original size and scaled here, so the seven shapes keep their relationship to
-// each other and a resize is a single number rather than 30 hand-edited
+// original size and scaled here, so all shapes keep their relationship to
+// each other and a resize is a single number rather than many hand-edited
 // coordinates. It is not free: the eyes are decals on the bell, and a taller
 // eye reaches higher up the body where the bell has narrowed, which forces
 // BELL_RADIUS_X down and pulls the eye back from the rim at profile. See the
 // bell cross-section block below, which derives that radius from these shapes.
-export const EYE_SCALE = 1.4;
+export const EYE_SCALE = 1.65;
 
 const scaleVariant = (v) => {
   const s = EYE_SCALE;
@@ -231,6 +262,13 @@ export const EYE_VARIANTS = [
   { key: "arc", kind: "poly", points: arcPoints() },
   { key: "wedge", kind: "poly", points: wedgePoints(), mirrorable: true },
   { key: "star", kind: "poly", points: starPoints() },
+  { key: "soft", kind: "rect", width: 24, height: 40, cornerRadius: 12 },
+  { key: "wide", kind: "ellipse", width: 46, height: 28 },
+  { key: "squint", kind: "poly", points: squintPoints(), mirrorable: true },
+  { key: "crescent", kind: "poly", points: crescentPoints() },
+  { key: "frown", kind: "poly", points: frownPoints() },
+  { key: "droop", kind: "poly", points: droopPoints(), mirrorable: true },
+  { key: "diamond", kind: "poly", points: diamondPoints() },
 ].map(scaleVariant);
 
 /** Half-extent of the largest eye on each axis, after EYE_SCALE. */
@@ -279,8 +317,9 @@ export function eyeShapeSpec(variant, id, parent, side, z) {
 // the bell, so the radius shrinks and the eye sits a little further from the
 // rim at profile. Validator rule 9 holds the floor on that.
 // ---------------------------------------------------------------------------
-export const EYE_Y = -24; // resting eye centre height in character space
-export const BELL_RADIUS_X = bodyHalfWidthAt(EYE_Y - EYE_MAX_HALF.y);
+export const EYE_Y = -10; // resting eye centre height in character space
+// Two units of inset keep enlarged eye corners inside the projected silhouette.
+export const BELL_RADIUS_X = bodyHalfWidthAt(EYE_Y - EYE_MAX_HALF.y) - 2;
 export const BELL_DEPTH_RATIO = 0.95; // depth / width; drives the silhouette squeeze too
 export const BELL_RADIUS_Z = BELL_RADIUS_X * BELL_DEPTH_RATIO;
 
@@ -297,7 +336,7 @@ export const BELL_RADIUS_Z = BELL_RADIUS_X * BELL_DEPTH_RATIO;
 // to keep a gap between the two widest variants, while every extra unit of
 // separation is an extra degree of azimuth, which pulls the eye back from the
 // limb at profile. This is the balance point between those two.
-export const EYE_SEPARATION = 84; // resting distance between eye centres
+export const EYE_SEPARATION = 94; // resting distance between eye centres
 export const EYE_AZIMUTH = (Math.asin(EYE_SEPARATION / 2 / BELL_RADIUS_X) * 180) / Math.PI;
 
 

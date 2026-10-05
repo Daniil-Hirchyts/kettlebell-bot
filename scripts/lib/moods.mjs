@@ -552,6 +552,83 @@ function listening() {
   ]);
 }
 
+// 16–19 use the established seven glyphs; personality comes from acting.
+function determined() {
+  const d = 210;
+  return completeMood("mood_16_determined", d, [
+    ch("Char", "y", [[0, -3], [30, 1, E.anticipate], [54, -7, E.enter], [108, -7, E.hold], [144, -4, E.out], [210, -3, E.loop]]),
+    ch("Char", "rotation", [[0, -1], [30, -2.2, E.anticipate], [54, 2.6, E.enter], [108, 2.6, E.hold], [160, 0.5, E.move], [210, -1, E.loop]]),
+    ch("Char", "scaleY", [[0, 1.015], [30, 0.985, E.anticipate], [54, 1.045, E.enter], [108, 1.04, E.hold], [160, 1.01, E.out], [210, 1.015, E.loop]]),
+    ch("BodyPivot", "rotation", [[0, 0], [54, -1.2, E.enter], [144, -0.4, E.move], [210, 0, E.loop]]),
+    ch("HandlePivot", "rotation", [[0, 1], [34, 3, E.out], [59, -4, E.out], [116, -3.4, E.hold], [168, 1.6, E.out], [210, 1, E.loop]]),
+    ch("HandlePivot", "x", [[0, 0], [34, 2, E.out], [59, -3, E.out], [168, 1, E.out], [210, 0, E.loop]]),
+    ch("HandlePivot", "y", [[0, -1], [34, 1, E.out], [59, -4, E.out], [116, -3, E.hold], [168, 0, E.out], [210, -1, E.loop]]),
+    ch("Face", "x", [[0, 0], [18, 4, E.snap], [106, 4, E.hold], [144, 0, E.move], [210, 0, E.hold]]),
+    ch("Face", "y", [[0, -2], [24, 1, E.anticipate], [46, -4, E.enter], [106, -4, E.hold], [144, -2, E.move], [210, -2, E.hold]]),
+    ch("EyeLSolo", "scaleY", [[0, 0.78], [46, 0.88, E.enter], [128, 0.88, E.hold], [133, 0.08, E.in], [136, 0.08, E.hold], [142, 0.92, E.snap], [151, 0.78, E.out], [210, 0.78, E.hold]]),
+    ch("EyeRSolo", "scaleY", [[0, 0.78], [47, 0.88, E.enter], [129, 0.88, E.hold], [134, 0.08, E.in], [137, 0.08, E.hold], [143, 0.92, E.snap], [152, 0.78, E.out], [210, 0.78, E.hold]]),
+    ch("EyeLSolo", "rotation", [[0, -4], [54, -7, E.enter], [144, -4, E.move], [210, -4, E.hold]]),
+    ch("EyeRSolo", "rotation", [[0, 4], [54, 7, E.enter], [144, 4, E.move], [210, 4, E.hold]]),
+    eyes([[0, "wedge"]]),
+  ]);
+}
+
+function exhausted() {
+  const d = 252;
+  return completeMood("mood_17_exhausted", d, [
+    ch("Char", "y", [[0, 10], [40, 3, E.enter], [53, 3, E.hold], [104, 15, E.in], [142, 11, E.out], [177, 6, E.enter], [224, 14, E.in], [252, 10, E.loop]]),
+    ch("Char", "rotation", [[0, 3], [40, 1.5, E.enter], [104, 5, E.in], [177, 2.5, E.enter], [224, 4, E.in], [252, 3, E.loop]]),
+    ch("Char", "scaleY", [[0, 0.965], [40, 1.018, E.enter], [53, 1.018, E.hold], [104, 0.94, E.in], [177, 0.994, E.enter], [224, 0.951, E.in], [252, 0.965, E.loop]]),
+    ch("BodyPivot", "rotation", [[0, -1.5], [104, -3, E.in], [177, -1, E.enter], [252, -1.5, E.loop]]),
+    ch("HandlePivot", "rotation", [[0, -3], [46, -1, E.out], [112, -7, E.out], [185, -2, E.out], [232, -5, E.out], [252, -3, E.loop]]),
+    ch("HandlePivot", "y", [[0, 5], [46, -1, E.out], [112, 10, E.out], [185, 2, E.out], [232, 8, E.out], [252, 5, E.loop]]),
+    ch("HandlePivot", "x", [[0, 2], [112, 5, E.out], [185, 1, E.out], [252, 2, E.loop]]),
+    ch("Face", "y", [[0, 5], [34, 2, E.enter], [100, 8, E.in], [177, 4, E.enter], [224, 7, E.in], [252, 5, E.loop]]),
+    ch("Face", "rotation", [[0, -2], [100, -4, E.in], [177, -1, E.enter], [252, -2, E.loop]]),
+    ch("EyeLSolo", "scaleY", [[0, 1.45], [40, 1.75, E.enter], [104, 1.1, E.in], [122, 0.22, E.in], [142, 0.22, E.hold], [162, 1.6, E.out], [224, 1.25, E.in], [252, 1.45, E.loop]]),
+    ch("EyeRSolo", "scaleY", [[0, 1.3], [42, 1.6, E.enter], [106, 0.95, E.in], [125, 0.22, E.in], [145, 0.22, E.hold], [165, 1.45, E.out], [226, 1.1, E.in], [252, 1.3, E.loop]]),
+    ch("EyeLSolo", "rotation", [[0, -4], [104, -8, E.in], [177, -3, E.out], [252, -4, E.loop]]),
+    ch("EyeRSolo", "rotation", [[0, 4], [104, 8, E.in], [177, 3, E.out], [252, 4, E.loop]]),
+    eyes([[0, "slit"]]),
+  ]);
+}
+
+function recovering() {
+  const d = 300;
+  return completeMood("mood_18_recovering", d, [
+    ch("Char", "y", [[0, 6], [72, -7, E.enter], [102, -7, E.hold], [204, 8, E.move], [252, 6, E.out], [300, 6, E.hold]]),
+    ch("Char", "rotation", [[0, 1.8], [72, -0.7, E.enter], [102, -0.7, E.hold], [204, 2.2, E.move], [252, 1.8, E.out], [300, 1.8, E.hold]]),
+    ch("Char", "scaleY", [[0, 0.985], [72, 1.045, E.enter], [102, 1.045, E.hold], [204, 0.975, E.move], [252, 0.985, E.out], [300, 0.985, E.hold]]),
+    ch("HandlePivot", "rotation", [[0, -1.5], [78, 1, E.out], [110, 1, E.hold], [212, -2.8, E.move], [264, -1.5, E.out], [300, -1.5, E.hold]]),
+    ch("HandlePivot", "y", [[0, 3], [78, -4, E.out], [110, -4, E.hold], [212, 5, E.move], [264, 3, E.out], [300, 3, E.hold]]),
+    ch("BodyPivot", "scaleY", [[0, 1], [78, 1.009, E.enter], [212, 0.994, E.move], [300, 1, E.loop]]),
+    ch("Face", "y", [[0, 3], [64, -2, E.enter], [102, -2, E.hold], [194, 5, E.move], [252, 3, E.out], [300, 3, E.hold]]),
+    ch("EyeLSolo", "scaleY", [[0, 0.38], [72, 0.48, E.enter], [204, 0.29, E.move], [252, 0.38, E.out], [300, 0.38, E.hold]]),
+    ch("EyeRSolo", "scaleY", [[0, 0.38], [75, 0.48, E.enter], [207, 0.29, E.move], [255, 0.38, E.out], [300, 0.38, E.hold]]),
+    eyes([[0, "slit"]]),
+  ]);
+}
+
+function cheeky() {
+  const d = 210;
+  return completeMood("mood_19_cheeky", d, [
+    ch("Char", "x", [[0, 0], [40, 3, E.enter], [108, 3, E.hold], [146, -2, E.move], [210, 0, E.loop]]),
+    ch("Char", "y", [[0, -1], [40, -5, E.enter], [108, -5, E.hold], [146, 1, E.move], [210, -1, E.loop]]),
+    ch("Char", "rotation", [[0, -1.5], [40, -4, E.enter], [108, -4, E.hold], [146, 2.5, E.back], [210, -1.5, E.loop]]),
+    ch("HandlePivot", "rotation", [[0, 1], [45, 5, E.out], [114, 5, E.hold], [153, -3.5, E.out], [210, 1, E.loop]]),
+    ch("HandlePivot", "x", [[0, 0], [45, 2.5, E.out], [153, -2, E.out], [210, 0, E.loop]]),
+    ch("HandlePivot", "y", [[0, -1], [45, -3, E.out], [153, 2, E.out], [210, -1, E.loop]]),
+    ch("Face", "x", [[0, 0], [20, 12, E.snap], [110, 12, E.hold], [132, -7, E.snap], [178, -7, E.hold], [210, 0, E.move]]),
+    ch("Face", "y", [[0, -1], [20, -3, E.snap], [110, -3, E.hold], [132, 1, E.snap], [210, -1, E.move]]),
+    ch("Face", "rotation", [[0, 0], [20, 2, E.snap], [132, -1.5, E.snap], [210, 0, E.move]]),
+    ch("EyeLSolo", "scaleY", [[0, 0.72], [56, 0.72, E.hold], [64, 0.07, E.in], [82, 0.07, E.hold], [91, 0.84, E.back], [103, 0.72, E.out], [210, 0.72, E.hold]]),
+    ch("EyeRSolo", "scaleY", [[0, 1.04], [66, 1.14, E.out], [84, 1.14, E.hold], [103, 1.04, E.out], [210, 1.04, E.hold]]),
+    ch("EyeLSolo", "rotation", [[0, -5], [132, -1, E.snap], [210, -5, E.move]]),
+    ch("EyeRSolo", "rotation", [[0, 3], [132, 6, E.snap], [210, 3, E.move]]),
+    eyes([[0, "pill"]]),
+  ]);
+}
+
 export const MOODS = [
   { status: 0, key: "calm", build: calm },
   { status: 1, key: "curious", build: curious },
@@ -569,6 +646,10 @@ export const MOODS = [
   { status: 13, key: "nervous", build: nervous },
   { status: 14, key: "playful", build: playful },
   { status: 15, key: "listening", build: listening },
+  { status: 16, key: "determined", build: determined },
+  { status: 17, key: "exhausted", build: exhausted },
+  { status: 18, key: "recovering", build: recovering },
+  { status: 19, key: "cheeky", build: cheeky },
 ];
 
 export function buildMoods() {

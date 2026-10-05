@@ -16,6 +16,7 @@ import {
   DEPTH_SHAPES,
   EYE_VARIANTS,
   EYE_Y,
+  EYE_SEPARATION,
   GRAIN,
   bodyLuma,
   handleLuma,
@@ -32,6 +33,7 @@ import {
   ROOT_X,
   ROOT_Y,
 } from "./lib/geometry.mjs";
+import { FX_KINDS, buildEffectShapes } from "./lib/effects.mjs";
 import { compoundPathData, pathData, round as r, splitColor } from "./lib/svg.mjs";
 import { turnPose } from "./lib/turn.mjs";
 import { bucketSpecks, scatterGrain } from "./lib/grain.mjs";
@@ -133,7 +135,7 @@ const grainMarkup = (specks, indent) =>
 
 const eyeMarkup = (side, sign) => {
   const variant = EYE_VARIANTS[0];
-  return `        <g id="eye-${side}" transform="translate(${sign * 36} 0)">
+  return `        <g id="eye-${side}" transform="translate(${sign * EYE_SEPARATION / 2} 0)">
           <rect x="${-variant.width / 2}" y="${-variant.height / 2}" width="${variant.width}" height="${variant.height}" rx="${variant.cornerRadius}" fill="${COLOR.eye}" />
         </g>`;
 };
@@ -267,6 +269,22 @@ ${eyeMarkup("right", 1)}
 `;
 
 writeFileSync(resolve(projectRoot, "assets/svg/kettlebell-bot.svg"), front);
+
+// Deliver all eye glyphs as editable vector artwork.
+const glyphMarkup = (v, x) => {
+  if (v.kind === "rect") return `<rect x="${x - v.width / 2}" y="${80 - v.height / 2}" width="${v.width}" height="${v.height}" rx="${v.cornerRadius}" fill="${COLOR.eye}" />`;
+  if (v.kind === "ellipse") return `<ellipse cx="${x}" cy="80" rx="${v.width / 2}" ry="${v.height / 2}" fill="${COLOR.eye}" />`;
+  return `<path transform="translate(${x} 80)" d="${pathData(v.points, true)}" fill="${COLOR.eye}" />`;
+};
+writeFileSync(resolve(projectRoot, "assets/svg/kettlebell-bot-expressions.svg"),
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${EYE_VARIANTS.length * 120}" height="150" viewBox="0 0 ${EYE_VARIANTS.length * 120} 150"><title>Kettlebell Bot eye variants</title><rect width="100%" height="100%" fill="${COLOR.bodyBottom}" />${EYE_VARIANTS.map((v, i) => `<g id="eye-variant-${v.key}">${glyphMarkup(v, i * 120 + 60)}<text x="${i * 120 + 60}" y="140" text-anchor="middle" fill="${COLOR.eye}" font-size="12" font-family="sans-serif">${v.key}</text></g>`).join("")}</svg>\n`);
+const fxShapes = buildEffectShapes();
+writeFileSync(resolve(projectRoot, "assets/svg/kettlebell-bot-particles.svg"),
+  `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="150" viewBox="0 0 480 150"><title>Kettlebell Bot monochrome particle glyphs</title><rect width="100%" height="100%" fill="#F4F5F7" />${FX_KINDS.map((kind, i) => {
+    const s = fxShapes.find((s) => s.id === `fx0_${kind}`);
+    const geometry = s.points ? `<path d="${pathData(s.points, true)}" />` : `<rect x="${-s.width / 2}" y="${-s.height / 2}" width="${s.width}" height="${s.height}" rx="${s.cornerRadius}" />`;
+    return `<g id="particle-${kind}" transform="translate(${i * 120 + 60} 70) scale(2)" fill="${s.fill.color}" stroke="${s.stroke.color}" stroke-width="${s.stroke.thickness}" stroke-linejoin="round">${geometry}</g><text x="${i * 120 + 60}" y="135" text-anchor="middle" fill="${COLOR.bodyTop}" font-size="12" font-family="sans-serif">${kind}</text>`;
+  }).join("")}</svg>\n`);
 
 // ---------------------------------------------------------------------------
 // Turnaround sheet — the same projection model, drawn as static vector poses.

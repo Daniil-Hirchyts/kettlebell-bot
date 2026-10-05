@@ -36,6 +36,7 @@ import {
   KEY_LIGHT,
   PLATE_RADIUS,
 } from "./geometry.mjs";
+import { FX_TURN_CHANNELS, fxTurnPose } from "./effects.mjs";
 
 const DEG = Math.PI / 180;
 
@@ -114,6 +115,7 @@ export const TURN_CHANNELS = [
   ["EyeR", "x"],
   ["EyeR", "scaleX"],
   ["EyeR", "opacity"],
+  ...FX_TURN_CHANNELS,
 ];
 
 export const channelKey = (target, property) => `${target}|${property}`;
@@ -264,6 +266,7 @@ export function turnPose(deg, dyn = {}) {
     "EyeR|x": eyeR.x,
     "EyeR|scaleX": eyeR.scaleX,
     "EyeR|opacity": eyeR.opacity,
+    ...fxTurnPose(deg),
   };
   for (const key of Object.keys(pose)) pose[key] = round(pose[key]);
   return pose;

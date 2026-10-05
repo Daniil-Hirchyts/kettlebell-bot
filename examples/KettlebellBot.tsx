@@ -1,7 +1,9 @@
+/* oxlint-disable react/immutability -- Rive inputs are mutable runtime handles. */
+/* oxlint-disable react/only-export-components -- Copyable wrapper includes its typed input vocabulary. */
 /**
  * Kettlebell Bot — React wrapper for rive/kettlebell-bot.riv
  *
- * The .riv exposes one state machine with eight independent layers, so mood,
+ * The .riv exposes one state machine with twelve independent layers, so mood,
  * facing, gaze, intensity, touch and blinks all compose instead of overriding
  * each other. This wrapper mirrors that: props for the persistent inputs, a ref
  * for the one-shots, and an optional drag gesture that turns the bot.
@@ -12,6 +14,7 @@
 import {
   Alignment,
   Fit,
+  Layout,
   useRive,
   useStateMachineInput,
 } from "@rive-app/react-canvas";
@@ -44,9 +47,20 @@ export const MOOD = {
   nervous: 13,
   playful: 14,
   listening: 15,
+  determined: 16,
+  exhausted: 17,
+  recovering: 18,
+  cheeky: 19,
 } as const;
 
 export type KettlebellBotMood = keyof typeof MOOD;
+
+/** 0 lets the mood/reaction choose; other values select an eye-only pose. */
+export const EYES = { auto: 0, pill: 1, tall: 2, round: 3, slit: 4, arc: 5, wedge: 6, star: 7,
+  soft: 8, wide: 9, squint: 10, crescent: 11, frown: 12, droop: 13, diamond: 14 } as const;
+export type KettlebellBotEyes = keyof typeof EYES;
+export const EFFECTS = ["fxSparkles", "fxMotes", "fxSweat", "fxDust"] as const;
+export type KettlebellBotEffect = (typeof EFFECTS)[number];
 
 /** One-shot triggers, grouped by what they are for. */
 export const REACTIONS = [
@@ -60,12 +74,18 @@ export const REACTIONS = [
   "laugh",
   "tapped",
   "recoil",
+  "powerUp",
+  "personalBest",
+  "cheer",
+  "appreciate",
+  "idea",
+  "dizzy",
 ] as const;
 
 export const TURNS = ["spinRight", "spinLeft", "turnaround", "peek"] as const;
 export const BLINKS = ["blink", "blinkDouble", "wink"] as const;
 
-const TRIGGERS = [...REACTIONS, ...TURNS, ...BLINKS] as const;
+const TRIGGERS = [...REACTIONS, ...TURNS, ...BLINKS, ...EFFECTS] as const;
 export type KettlebellBotTrigger = (typeof TRIGGERS)[number];
 
 export type KettlebellBotHandle = Record<KettlebellBotTrigger, () => void> & {
@@ -73,11 +93,16 @@ export type KettlebellBotHandle = Record<KettlebellBotTrigger, () => void> & {
   lookAt(x: number, y: number): void;
   /** Set the facing angle directly, in degrees (0 = front, 180 = back). */
   faceTowards(degrees: number): void;
+  /** Select a shape, or yield back to the underlying mood/reaction. */
+  setEyes(eyes: KettlebellBotEyes): void;
 };
 
 export interface KettlebellBotProps {
   /** Persistent emotional state. */
   mood?: KettlebellBotMood;
+  eyes?: KettlebellBotEyes;
+  /** Particle visibility, 0..1. Effects only play when explicitly triggered. */
+  effectsIntensity?: number;
   /** 0 = looking at you, 90 = right profile, 180 = away, 270 = left profile. */
   facing?: number;
   /** Eye direction, -1..1. gazeY is positive downward. */
@@ -101,6 +126,8 @@ export const KettlebellBot = forwardRef<KettlebellBotHandle, KettlebellBotProps>
   function KettlebellBot(
     {
       mood = "calm",
+      eyes = "auto",
+      effectsIntensity = 1,
       facing = 0,
       gaze,
       intensity = 0.5,
@@ -117,7 +144,7 @@ export const KettlebellBot = forwardRef<KettlebellBotHandle, KettlebellBotProps>
       artboard: ARTBOARD,
       stateMachines: MACHINE,
       autoplay: true,
-      layout: { fit: Fit.Contain, alignment: Alignment.Center },
+      layout: new Layout({ fit: Fit.Contain, alignment: Alignment.Center }),
     });
 
     const status = useStateMachineInput(rive, MACHINE, "status");
@@ -127,6 +154,8 @@ export const KettlebellBot = forwardRef<KettlebellBotHandle, KettlebellBotProps>
     const intensityInput = useStateMachineInput(rive, MACHINE, "intensity");
     const hover = useStateMachineInput(rive, MACHINE, "hover");
     const pressed = useStateMachineInput(rive, MACHINE, "pressed");
+    const eyesInput = useStateMachineInput(rive, MACHINE, "eyes");
+    const effectsIntensityInput = useStateMachineInput(rive, MACHINE, "effectsIntensity");
 
     // Written out one call at a time on purpose: hooks in a loop would trip
     // react-hooks/rules-of-hooks in whatever project pastes this file.
@@ -148,9 +177,22 @@ export const KettlebellBot = forwardRef<KettlebellBotHandle, KettlebellBotProps>
     const blinkDouble = useStateMachineInput(rive, MACHINE, "blinkDouble");
     const wink = useStateMachineInput(rive, MACHINE, "wink");
 
+    const powerUp = useStateMachineInput(rive, MACHINE, "powerUp");
+    const personalBest = useStateMachineInput(rive, MACHINE, "personalBest");
+    const cheer = useStateMachineInput(rive, MACHINE, "cheer");
+    const appreciate = useStateMachineInput(rive, MACHINE, "appreciate");
+    const idea = useStateMachineInput(rive, MACHINE, "idea");
+    const dizzy = useStateMachineInput(rive, MACHINE, "dizzy");
+    const fxSparkles = useStateMachineInput(rive, MACHINE, "fxSparkles");
+    const fxMotes = useStateMachineInput(rive, MACHINE, "fxMotes");
+    const fxSweat = useStateMachineInput(rive, MACHINE, "fxSweat");
+    const fxDust = useStateMachineInput(rive, MACHINE, "fxDust");
+
     useEffect(() => {
       if (status) status.value = MOOD[mood];
     }, [mood, status]);
+    useEffect(() => { if (eyesInput) eyesInput.value = EYES[eyes]; }, [eyes, eyesInput]);
+    useEffect(() => { if (effectsIntensityInput) effectsIntensityInput.value = clamp(effectsIntensity, 0, 1); }, [effectsIntensity, effectsIntensityInput]);
 
     useEffect(() => {
       if (facingInput) facingInput.value = wrap360(facing);
@@ -178,6 +220,17 @@ export const KettlebellBot = forwardRef<KettlebellBotHandle, KettlebellBotProps>
         laugh: () => laugh?.fire(),
         tapped: () => tapped?.fire(),
         recoil: () => recoil?.fire(),
+        powerUp: () => powerUp?.fire(),
+        personalBest: () => personalBest?.fire(),
+        cheer: () => cheer?.fire(),
+        appreciate: () => appreciate?.fire(),
+        idea: () => idea?.fire(),
+        dizzy: () => dizzy?.fire(),
+        fxSparkles: () => fxSparkles?.fire(),
+        fxMotes: () => fxMotes?.fire(),
+        fxSweat: () => fxSweat?.fire(),
+        fxDust: () => fxDust?.fire(),
+        setEyes(value: KettlebellBotEyes) { if (eyesInput) eyesInput.value = EYES[value]; },
         spinRight: () => spinRight?.fire(),
         spinLeft: () => spinLeft?.fire(),
         turnaround: () => turnaround?.fire(),
@@ -197,6 +250,8 @@ export const KettlebellBot = forwardRef<KettlebellBotHandle, KettlebellBotProps>
         acknowledge, blink, blinkDouble, celebrate, facingInput, frustrated,
         gazeX, gazeY, gearUp, laugh, peek, recoil, relieved, spinLeft,
         spinRight, surprise, tapped, turnaround, wink, wobble,
+        powerUp, personalBest, cheer, appreciate, idea, dizzy,
+        eyesInput, fxSparkles, fxMotes, fxSweat, fxDust,
       ],
     );
 
@@ -210,7 +265,7 @@ export const KettlebellBot = forwardRef<KettlebellBotHandle, KettlebellBotProps>
         drag.current = {
           id: event.pointerId,
           x: event.clientX,
-          from: facingInput?.value ?? 0,
+          from: Number(facingInput?.value ?? 0),
           moved: 0,
         };
         if (pressed) pressed.value = true;
@@ -297,7 +352,12 @@ export const KettlebellBot = forwardRef<KettlebellBotHandle, KettlebellBotProps>
  * bot.current?.acknowledge();      // received the user's request
  * bot.current?.turnaround();       // full 360, both profiles and the back
  *
- * Every trigger is fire-and-forget: the Reaction, Turn and Blink layers each
+ * bot.current?.personalBest();
+ * bot.current?.setEyes("crescent");
+ * bot.current?.fxMotes();          // independent, no body reaction
+ * bot.current?.setEyes("auto");   // return to mood/reaction eyes
+ *
+ * Every trigger is fire-and-forget: Reaction, Turn, Blink and Effects each
  * return to the mood underneath on their own, so no cleanup or state reset is
  * needed. Debounce a trigger by ~100 ms after changing `mood`.
  * ------------------------------------------------------------------------- */

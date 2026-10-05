@@ -14,7 +14,7 @@
 // riv_play_state_machine accepts at most 50 steps per call, so the coverage is
 // split into named passes that each start from a fresh machine.
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { Client, StdioClientTransport } from "./rive-mcp-sdk.mjs";
 import { buildScene } from "./lib/scene.mjs";
@@ -44,7 +44,9 @@ const passes = {
     step("reaction-base", { advance: 0.2 }),
     ...meta.reactions.flatMap((r, i) => [
       step(`mood-under-${i}`, { input: "status", value: [0, 3, 8, 5, 6, 12, 7, 14, 1, 9][i] ?? 0, advance: 0.25 }),
-      step(`trigger-${r.trigger}`, { input: r.trigger, advance: 0.28, capture: true }),
+      step(`trigger-${r.trigger}`, { input: r.trigger,
+        advance: ({ powerUp: 0.7, personalBest: 0.65, cheer: 0.35, appreciate: 0.65, idea: 0.42, dizzy: 0.75 })[r.trigger] ?? 0.28,
+        capture: true }),
       step(`settle-${r.trigger}`, { advance: (r.anim.duration / 60) + 0.3 }),
     ]),
   ],
@@ -109,18 +111,99 @@ const passes = {
     step("peek-at-back", { advance: 0.85, capture: true }),
     step("peek-finish", { advance: 1.2 }),
   ],
+  composition: [
+    step("determined-base", { input: "status", value: 16, advance: 0.4 }),
+    step("quarter-turn", { input: "facing", value: 45, advance: 0.3 }),
+    step("gaze", { input: "gazeX", value: 0.65, advance: 0.1 }),
+    step("hover", { input: "hover", value: true, advance: 0.2 }),
+    step("press", { input: "pressed", value: true, advance: 0.2 }),
+    step("power", { input: "powerUp", advance: 0.65, capture: true }),
+    step("blink", { input: "blink", advance: 0.06, capture: true }),
+    step("release", { input: "pressed", value: false, advance: 0.25 }),
+    step("reaction-replaced", { input: "appreciate", advance: 0.4, capture: true }),
+    step("turn-with-reaction", { input: "spinRight", advance: 0.4, capture: true }),
+    step("returns-to-determined", { advance: 2.2, capture: true }),
+    step("exhausted", { input: "status", value: 17, advance: 0.65, capture: true }),
+    step("recovering", { input: "status", value: 18, advance: 0.65, capture: true }),
+    step("cheeky", { input: "status", value: 19, advance: 1.2, capture: true }),
+  ],
+  geometry: [
+    ...[16, 17, 18, 19].flatMap((mood) => [
+      step(`geometry-mood-${mood}`, { input: "status", value: mood, advance: 0.4 }),
+      ...[0, 45, 90, 180, 270, 315].map((facing) => step(`mood-${mood}-facing-${facing}`, { input: "facing", value: facing, advance: 0.3, capture: true })),
+    ]),
+  ],
+  eyes: [
+    step("eyes-under-happy", { input: "status", value: 9, advance: 0.4 }),
+    ...meta.eyeExpressions.map((e) => step(e.key, { input: "eyes", value: e.value, advance: 0.2, capture: true })),
+    step("eyes-with-reaction", { input: "idea", advance: 0.25, capture: true }),
+    step("eyes-with-blink", { input: "blink", advance: 0.065, capture: true }),
+    step("eyes-settle", { advance: 1.1 }),
+    step("eyes-return-to-mood", { input: "eyes", value: 0, advance: 0.3, capture: true }),
+  ],
+  eyeturn: meta.eyeExpressions.slice(7).flatMap((e) => [
+    step(`select-${e.key}`, { input: "eyes", value: e.value, advance: 0.2 }),
+    ...[0, 45, 90, 180, 270, 315].map((value) => step(`${e.key}-facing-${value}`, { input: "facing", value, advance: 0.2, capture: true })),
+  ]),
+  effects: [
+    step("effects-intensity", { input: "effectsIntensity", value: 1, advance: 0.25 }),
+    ...meta.effects.flatMap((e) => [
+      step(`${e.key}-live`, { input: e.trigger, advance: 0.35, capture: true }),
+      step(`${e.key}-idle`, { advance: e.anim.duration / 60 + 0.15, capture: true }),
+    ]),
+  ],
+  fxreplace: [
+    step("effects-intensity", { input: "effectsIntensity", value: 1, advance: 0.25 }),
+    step("motes", { input: "fxMotes", advance: 0.45, capture: true }),
+    step("replaced-with-sweat", { input: "fxSweat", advance: 0.2, capture: true }),
+    step("replaced-with-dust", { input: "fxDust", advance: 0.16, capture: true }),
+    step("restart-dust", { input: "fxDust", advance: 0.15, capture: true }),
+    step("replacement-idle", { advance: 1, capture: true }),
+    step("mute", { input: "effectsIntensity", value: 0, advance: 0.1 }),
+    step("muted-sparkles", { input: "fxSparkles", advance: 0.3, capture: true }),
+    step("show", { input: "effectsIntensity", value: 1, advance: 0.1, capture: true }),
+    step("show-idle", { advance: 1.4, capture: true }),
+    step("quarter-turn", { input: "facing", value: 45, advance: 0.2 }),
+    step("mood", { input: "status", value: 19, advance: 0.3 }),
+    step("eyes", { input: "eyes", value: 11, advance: 0.2 }),
+    step("hover", { input: "hover", value: true, advance: 0.2 }),
+    step("press", { input: "pressed", value: true, advance: 0.15 }),
+    step("blink", { input: "blink", advance: 0.05 }),
+    step("sparkles-with-reaction", { input: "fxSparkles", advance: 0.2 }),
+    step("reaction", { input: "appreciate", advance: 0.4, capture: true }),
+    step("turn", { input: "spinRight", advance: 0.3, capture: true }),
+    step("composed-idle", { advance: 2.2, capture: true }),
+  ],
 };
+for (const [name, effects] of [["fxturn", meta.effects.slice(0, 2)], ["fxturn2", meta.effects.slice(2)]]) {
+  passes[name] = effects.flatMap((e) => [0, 45, 90, 180, 270, 315].flatMap((value) => [
+    step(`${e.key}-set-facing-${value}`, { input: "facing", value, advance: 0.2 }),
+    step(`${e.key}-facing-${value}`, { input: e.trigger, advance: 0.35, capture: true }),
+    step(`${e.key}-settled-${value}`, { advance: e.anim.duration / 60 + 0.15 }),
+  ]));
+}
+// An identical timeline with particles muted is a pixel baseline for effect
+// visibility, clean exits and back-face occlusion, including live turns.
+for (const name of ["effects", "fxreplace", "fxturn", "fxturn2"]) {
+  passes[`${name}off`] = passes[name].map((s) => ({ ...s, ...(s.input === "effectsIntensity" ? { value: 0 } : {}) }));
+  if (!passes[name].some((s) => s.input === "effectsIntensity")) {
+    passes[name].unshift(step("effects-intensity", { input: "effectsIntensity", value: 1, advance: 0.1 }));
+    passes[`${name}off`].unshift(step("effects-intensity", { input: "effectsIntensity", value: 0, advance: 0.1 }));
+  }
+}
 
 // Count the character's eye pixels. The eyes are #F8FAFC and the body never
 // exceeds ~25% luminance, so on the black background this pass renders against
 // they are the only bright thing in the frame and a threshold isolates them
 // exactly. (The default light background is nearly the same colour as the eyes,
 // which is why this pass overrides it.)
-function eyePixels(png) {
+function eyePixels(png, accepts = () => true) {
   const img = decodePng(png);
   let count = 0;
   for (let i = 0; i < img.data.length; i += 4) {
     if (img.data[i + 3] < 128) continue;
+    const pixel = i / 4;
+    if (!accepts(pixel % img.width, Math.floor(pixel / img.width), img.width)) continue;
     const luma = (0.2126 * img.data[i] + 0.7152 * img.data[i + 1] + 0.0722 * img.data[i + 2]) / 255;
     if (luma > 0.8) count += 1;
   }
@@ -145,11 +228,17 @@ const expected = {
   turn: [...meta.turnShots.map((t) => t.anim.name), ...meta.yawLoops.map((y) => y.anim.name)],
   interaction: [...meta.blinks.map((b) => b.anim.name), "touch_hover", "touch_press", "touch_rest"],
   shots: meta.turnShots.map((t) => t.anim.name),
+  composition: ["react_powerup", "react_appreciate", "turn_spin_right", "mood_16_determined", "mood_17_exhausted", "mood_18_recovering", "mood_19_cheeky"],
+  geometry: meta.moods.slice(16).map((m) => m.anim.name),
+  eyes: meta.eyeExpressions.map((e) => e.anim.name),
+  eyeturn: meta.eyeExpressions.slice(7).map((e) => e.anim.name),
+  effects: meta.effects.map((e) => e.anim.name),
+  fxreplace: ["fx_motes", "fx_sweat", "fx_dust", "fx_sparkles", "react_appreciate", "turn_spin_right"],
 };
 
 // The shots pass needs the eyes to be the only bright pixels; every other pass
 // is rendered on the light surface the character normally sits on.
-const backgrounds = { shots: "#000000" };
+const backgrounds = { shots: "#000000", geometry: "#000000", eyeturn: "#000000" };
 
 const requested = process.argv.slice(2);
 const names = requested.length ? requested : Object.keys(passes);
@@ -158,6 +247,7 @@ const client = new Client({ name: "kettlebell-bot-state-test", version: "2.0.0" 
 await client.connect(new StdioClientTransport({ command: "rive-mcp", args: [] }));
 
 const summary = [];
+const passFrames = new Map();
 let failed = false;
 
 try {
@@ -185,6 +275,11 @@ try {
 
     const captured = pass.filter((s) => s.capture).map((s) => s.label);
     const frames = new Map();
+    // A rebuilt pack can change capture labels/counts; discard stale captures
+    // from this pass rather than silently including them in the contact sheets.
+    if (!result.isError) for (const file of readdirSync(captureDir)) {
+      if (file.startsWith(`${name}-`) && file.endsWith(".png")) rmSync(resolve(captureDir, file));
+    }
     let index = 0;
     for (const item of result.content ?? []) {
       if (item.type !== "image") continue;
@@ -197,10 +292,15 @@ try {
 
     // A state that was entered but never got to play is still a broken shot.
     const still = [];
+    if (name === "geometry" || name === "eyeturn") {
+      for (const [label, png] of frames) {
+        if (label.endsWith("facing-180") && eyePixels(png) > 5) still.push(`${label}: eyes did not wrap behind the body`);
+      }
+    }
     if (name === "shots") {
       const base = frames.get("front-baseline");
       const front = base ? eyePixels(base) : 0;
-      if (front < 100) still.push(`front-baseline shows only ${front} eye px — the check itself is broken`);
+      if (front < 1150) still.push(`front-baseline shows only ${front} eye px — the check itself is broken`);
       const readings = [`front ${front}`];
       for (const label of FACING_AWAY) {
         const shot = frames.get(label);
@@ -213,11 +313,28 @@ try {
     }
 
     const missing = [...(expected[name] ?? []).filter((a) => !seen.has(a)), ...still];
+    passFrames.set(name, frames);
+    if (name === "effects" && [...seen].some((a) => a.startsWith("react_"))) missing.push("particle-only playback started a body reaction");
     summary.push({ pass: name, steps: pass.length, captures: index, statesEntered: [...seen].sort(), missing });
     const status = missing.length ? `MISSING ${missing.join(", ")}` : "ok";
     console.log(`${name.padEnd(12)} steps=${String(pass.length).padStart(2)} captures=${String(index).padStart(2)} states=${String(seen.size).padStart(2)} ${status}`);
     if (missing.length) failed = true;
     if (result.isError) failed = true;
+  }
+  for (const name of ["effects", "fxreplace", "fxturn", "fxturn2"]) {
+    const on = passFrames.get(name), off = passFrames.get(`${name}off`);
+    if (!on || !off) continue;
+    for (const [label, png] of on) {
+      const other = off.get(label);
+      const a = decodePng(png), b = other && decodePng(other);
+      const equal = b && a.data.equals(b.data);
+      const shouldHide = /idle$|muted-|facing-180$/.test(label);
+      if ((shouldHide && !equal) || (!shouldHide && /live$/.test(label) && equal)) {
+        const error = `${name}/${label}: particles ${shouldHide ? "remain visible" : "never appeared"}`;
+        console.error(error); failed = true;
+        summary.find((s) => s.pass === name).missing.push(error);
+      }
+    }
   }
 } finally {
   await client.close();

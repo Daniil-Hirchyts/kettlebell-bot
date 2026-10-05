@@ -1,10 +1,12 @@
 {
   "name": "kettlebell-bot",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
-  "description": "Vector Rive avatar for mobile apps: 360-degree turnaround, 16 emotional states, 10 one-shot reactions and a layered state machine.",
+  "description": "Vector Rive avatar: 360-degree turnaround, 20 moods, 16 reactions, 14 monochrome eye shapes and four surface-projected particle effects.",
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "node scripts/build-svg.mjs && node scripts/build-rive.mjs",
     "build:svg": "node scripts/build-svg.mjs",
@@ -14,7 +16,8 @@
     "verify": "node scripts/verify-asset.mjs",
     "previews": "node scripts/render-previews.mjs",
     "sheets": "node scripts/build-sheets.mjs",
-    "test": "node scripts/test-state-machine.mjs",
+    "review": "node scripts/render-expansion-review.mjs",
+    "test": "node scripts/test-scene.mjs && node scripts/test-state-machine.mjs",
     "critique": "node scripts/critique-motion.mjs",
     "lint:riv": "node scripts/rive-mcp-client.mjs call riv_lint '{\"path\":\"rive/kettlebell-bot.riv\"}'",
     "inspect:riv": "node scripts/rive-mcp-client.mjs call riv_inspect '{\"path\":\"rive/kettlebell-bot.riv\"}'",

@@ -9,7 +9,7 @@
     "prebuild": "npm run sync:asset",
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "oxlint",
+    "lint": "cd .. && playground/node_modules/.bin/oxlint --config playground/.oxlintrc.json playground/src examples/KettlebellBot.tsx",
     "preview": "vite preview"
   },
   "dependencies": {

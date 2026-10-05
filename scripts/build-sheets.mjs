@@ -94,7 +94,7 @@ try {
   const moodCells = loadCaptures("moods").map((c) => ({ ...c, label: c.label.replace(/^status-\d+-/, "").replace("boot-", "") }));
   writeFileSync(
     resolve(sheetDir, "emotions.png"),
-    encodePng(grid(moodCells, { columns: 6, cell: 240, title: "Emotional states - status 0 to 15" })),
+    encodePng(grid(moodCells, { columns: 6, cell: 240, title: "Emotional states - status 0 to 19" })),
   );
 
   // 3 · reactions
@@ -113,21 +113,22 @@ try {
 
   // 5 · eye shapes — the solo variants that carry the emotional range
   const eyeCells = [];
-  for (const [key, animation, time] of [
-    ["pill", "mood_00_calm", 0],
-    ["tall", "mood_08_excited", 0.02],
-    ["round", "mood_01_curious", 0.02],
-    ["slit", "mood_04_bored", 0.02],
-    ["arc", "mood_09_happy", 0.02],
-    ["wedge", "mood_07_focused", 0.02],
-    ["star", "react_celebrate", 0.55],
-  ]) {
-    eyeCells.push({ label: key, image: await renderAnimationFrame(animation, time, 200) });
+  for (const e of meta.eyeExpressions) {
+    eyeCells.push({ label: e.key, image: await renderAnimationFrame(e.anim.name, 0, 200) });
   }
   writeFileSync(
     resolve(sheetDir, "eye-shapes.png"),
     encodePng(grid(eyeCells, { columns: 7, cell: 200, title: "Eye shape variants (solo swap)" })),
   );
+  const compositionCells = loadCaptures("composition");
+  writeFileSync(resolve(sheetDir, "composition.png"), encodePng(grid(compositionCells, { columns: 4, cell: 240, title: "Expressions, gaze and turns" })));
+  const geometryCells = loadCaptures("geometry");
+  writeFileSync(resolve(sheetDir, "geometry.png"), encodePng(grid(geometryCells, { columns: 6, cell: 240, title: "New expressions across the turn" })));
+  for (const [prefix, title, columns] of [["effects", "Small monochrome particle effects", 4], ["fxturn", "Sparkles and motes through the turn", 6], ["fxturn2", "Sweat and dust through the turn", 6], ["eyes", "Independent eye shapes", 7], ["eyeturn", "Additional eye shapes through the turn", 6]]) {
+    const cells = loadCaptures(prefix);
+    if (cells.length) writeFileSync(resolve(sheetDir, `${prefix}.png`), encodePng(grid(cells, { columns, cell: 240, title })));
+  }
+
 } finally {
   await client.close();
   rmSync(resolve(sheetDir, ".tmp-frame.png"), { force: true });

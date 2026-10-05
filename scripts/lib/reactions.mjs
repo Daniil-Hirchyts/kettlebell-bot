@@ -6,6 +6,7 @@
 // makes the blend in and out invisible.
 
 import { ch, E, eyes, eyesSplit, oneShot } from "./motion.mjs";
+import { MOOD_CHANNELS } from "./moods.mjs";
 
 // --- acknowledge: a weighted "got it" nod --------------------------------
 const acknowledge = () =>
@@ -196,6 +197,89 @@ const recoil = () =>
     eyes([[0, "pill"], [6, "round"], [34, "wedge"], [50, "pill"]]),
   ]);
 
+const powerUp = () => oneShot("react_powerup", 90, [
+  ch("Char", "y", [[0, 0], [15, 12, E.anticipate], [24, 12, E.hold], [39, -20, E.back], [60, -17, E.hold], [76, 3, E.in], [90, 0, E.out]]),
+  ch("Char", "scaleY", [[0, 1], [15, 0.9, E.anticipate], [24, 0.9, E.hold], [39, 1.09, E.back], [60, 1.07, E.hold], [76, 0.98, E.in], [90, 1, E.out]]),
+  ch("Char", "scaleX", [[0, 1], [15, 1.1, E.anticipate], [24, 1.1, E.hold], [39, 0.94, E.back], [60, 0.95, E.hold], [90, 1, E.out]]),
+  ch("HandlePivot", "y", [[0, 0], [18, 7, E.out], [42, -8, E.out], [64, -6, E.hold], [80, 2, E.in], [90, 0, E.out]]),
+  ch("HandlePivot", "rotation", [[0, 0], [18, 5, E.out], [43, -6, E.out], [64, -4, E.hold], [80, 1.5, E.in], [90, 0, E.out]]),
+  ch("Face", "y", [[0, 0], [15, 4, E.in], [36, -6, E.out], [66, -6, E.hold], [90, 0, E.out]]),
+  ch("Char", "rotation", [[0, 0], [15, -2.5, E.anticipate], [39, 2, E.out], [60, 1.5, E.hold], [76, -0.8, E.in], [90, 0, E.out]]),
+  ch("HandlePivot", "x", [[0, 0], [18, 3, E.out], [43, -3, E.out], [80, 1, E.out], [90, 0, E.out]]),
+  ch("EyeLSolo", "scaleY", [[0, 1], [15, 0.65, E.in], [39, 0.92, E.out], [60, 0.92, E.hold], [90, 1, E.out]]),
+  ch("EyeRSolo", "scaleY", [[0, 1], [16, 0.65, E.in], [40, 0.92, E.out], [61, 0.92, E.hold], [90, 1, E.out]]),
+  eyes([[0, "pill"], [12, "wedge"], [78, "pill"]]),
+]);
+
+const personalBest = () => oneShot("react_personalbest", 105, [
+  ch("Char", "y", [[0, 0], [12, 10, E.anticipate], [18, 10, E.hold], [33, -38, E.out], [48, -34, E.loop], [63, 6, E.in], [75, -9, E.out], [87, 2, E.in], [105, 0, E.out]]),
+  ch("Char", "rotation", [[0, 0], [12, -3, E.in], [33, 6, E.out], [63, -3, E.in], [87, 1, E.out], [105, 0, E.out]]),
+  ch("Char", "scaleY", [[0, 1], [12, 0.88, E.in], [30, 1.13, E.out], [48, 1.07, E.hold], [65, 0.88, E.in], [77, 1.04, E.out], [105, 1, E.out]]),
+  ch("Char", "scaleX", [[0, 1], [12, 1.12, E.in], [30, 0.91, E.out], [48, 0.95, E.hold], [65, 1.13, E.in], [77, 0.97, E.out], [105, 1, E.out]]),
+  ch("HandlePivot", "rotation", [[0, 0], [15, 5, E.out], [37, -9, E.out], [68, 6, E.in], [81, -3, E.out], [105, 0, E.out]]),
+  ch("HandlePivot", "y", [[0, 0], [15, 5, E.out], [37, -6, E.out], [68, 6, E.in], [81, -2, E.out], [105, 0, E.out]]),
+  ch("EyeLSolo", "rotation", [[0, 0], [36, -12, E.out], [60, 6, E.loop], [105, 0, E.out]]),
+  ch("EyeRSolo", "rotation", [[0, 0], [36, 12, E.out], [60, -6, E.loop], [105, 0, E.out]]),
+  ch("Face", "y", [[0, 0], [12, 4, E.in], [29, -5, E.out], [48, -4, E.hold], [65, 4, E.in], [77, -2, E.out], [105, 0, E.out]]),
+  ch("BodyPivot", "scaleY", [[0, 1], [65, 0.95, E.in], [77, 1.025, E.out], [105, 1, E.out]]),
+  eyes([[0, "pill"], [11, "arc"], [29, "star"], [78, "arc"], [98, "pill"]]),
+]);
+
+const cheer = () => oneShot("react_cheer", 75, [
+  ch("Char", "y", [[0, 0], [6, 5, E.in], [18, -17, E.out], [29, 3, E.in], [40, -12, E.out], [52, 2, E.in], [75, 0, E.out]]),
+  ch("Char", "scaleY", [[0, 1], [6, 0.94, E.in], [18, 1.075, E.out], [29, 0.955, E.in], [40, 1.06, E.out], [52, 0.98, E.in], [75, 1, E.out]]),
+  ch("HandlePivot", "rotation", [[0, 0], [9, 3, E.out], [22, -6, E.out], [44, 5, E.out], [61, -2, E.out], [75, 0, E.out]]),
+  ch("HandlePivot", "y", [[0, 0], [9, 3, E.out], [22, -4, E.out], [44, 3, E.out], [75, 0, E.out]]),
+  ch("Face", "y", [[0, 0], [18, -4, E.out], [40, -3, E.out], [75, 0, E.out]]),
+  ch("Char", "rotation", [[0, 0], [6, -1.5, E.anticipate], [18, 3, E.out], [29, -1, E.in], [40, -2.5, E.out], [52, 1, E.in], [75, 0, E.out]]),
+  ch("Char", "x", [[0, 0], [18, 3, E.out], [29, 0, E.in], [40, -3, E.out], [52, 0, E.in], [75, 0, E.hold]]),
+  ch("EyeLSolo", "scaleY", [[0, 1], [18, 1.1, E.out], [29, 0.88, E.in], [40, 1.06, E.out], [75, 1, E.out]]),
+  ch("EyeRSolo", "scaleY", [[0, 1], [19, 1.1, E.out], [30, 0.88, E.in], [41, 1.06, E.out], [75, 1, E.out]]),
+  eyes([[0, "pill"], [10, "arc"], [66, "pill"]]),
+]);
+
+const appreciate = () => oneShot("react_appreciate", 90, [
+  ch("Char", "y", [[0, 0], [9, 2, E.anticipate], [27, -6, E.enter], [45, -6, E.hold], [57, 3, E.in], [68, -2, E.out], [90, 0, E.out]]),
+  ch("Char", "rotation", [[0, 0], [27, -3, E.enter], [45, -3, E.hold], [62, 1, E.out], [90, 0, E.out]]),
+  ch("Char", "scaleY", [[0, 1], [27, 1.035, E.enter], [57, 0.975, E.in], [90, 1, E.out]]),
+  ch("HandlePivot", "rotation", [[0, 0], [31, 3.5, E.out], [62, -1.8, E.out], [90, 0, E.out]]),
+  ch("HandlePivot", "y", [[0, 0], [31, -3, E.out], [61, 2, E.in], [90, 0, E.out]]),
+  ch("Face", "y", [[0, 0], [27, -3, E.enter], [57, 3, E.in], [90, 0, E.out]]),
+  ch("EyeLSolo", "scaleX", [[0, 1], [27, 1.1, E.back], [48, 1.06, E.hold], [90, 1, E.out]]),
+  ch("EyeRSolo", "scaleX", [[0, 1], [29, 1.1, E.back], [50, 1.06, E.hold], [90, 1, E.out]]),
+  ch("Face", "rotation", [[0, 0], [27, 2, E.enter], [57, -2.5, E.in], [68, 0.8, E.out], [90, 0, E.out]]),
+  ch("EyeLSolo", "scaleY", [[0, 1], [9, 0.8, E.anticipate], [27, 1.15, E.out], [57, 0.7, E.in], [68, 1.06, E.out], [90, 1, E.out]]),
+  ch("EyeRSolo", "scaleY", [[0, 1], [10, 0.8, E.anticipate], [29, 1.15, E.out], [59, 0.7, E.in], [70, 1.06, E.out], [90, 1, E.out]]),
+  eyes([[0, "pill"], [18, "arc"], [76, "pill"]]),
+]);
+
+const idea = () => oneShot("react_idea", 60, [
+  ch("Char", "y", [[0, 0], [9, 3, E.anticipate], [21, -13, E.back], [36, -9, E.hold], [48, 2, E.in], [60, 0, E.out]]),
+  ch("Char", "rotation", [[0, 0], [9, -2.5, E.anticipate], [21, 3, E.out], [48, -1, E.in], [60, 0, E.out]]),
+  ch("Char", "scaleY", [[0, 1], [9, 0.97, E.in], [21, 1.055, E.back], [48, 0.985, E.in], [60, 1, E.out]]),
+  ch("HandlePivot", "y", [[0, 0], [12, 2, E.out], [25, -5, E.out], [51, 1, E.in], [60, 0, E.out]]),
+  ch("HandlePivot", "rotation", [[0, 0], [12, 2, E.out], [25, -4, E.out], [51, 1, E.in], [60, 0, E.out]]),
+  ch("Face", "y", [[0, 0], [9, 2, E.in], [18, -5, E.snap], [39, -5, E.hold], [60, 0, E.out]]),
+  ch("EyeLSolo", "scaleY", [[0, 1], [9, 0.6, E.anticipate], [18, 1.2, E.back], [36, 1.13, E.hold], [48, 0.96, E.in], [60, 1, E.out]]),
+  ch("EyeRSolo", "scaleY", [[0, 1], [10, 0.6, E.anticipate], [19, 1.2, E.back], [37, 1.13, E.hold], [49, 0.96, E.in], [60, 1, E.out]]),
+  eyes([[0, "pill"], [8, "slit"], [18, "round"], [54, "pill"]]),
+]);
+
+const dizzy = () => oneShot("react_dizzy", 120, [
+  ch("Char", "rotation", [[0, 0], [9, -2, E.anticipate], [24, 9, E.out], [42, -7, E.loop], [60, 5, E.loop], [78, -3, E.loop], [96, 1.4, E.loop], [120, 0, E.out]]),
+  ch("Char", "x", [[0, 0], [24, 5, E.out], [42, -4, E.loop], [60, 3, E.loop], [78, -2, E.loop], [120, 0, E.out]]),
+  ch("Char", "y", [[0, 0], [24, 3, E.out], [60, 1, E.loop], [120, 0, E.out]]),
+  ch("HandlePivot", "rotation", [[0, 0], [12, 2, E.out], [28, -9, E.out], [46, 7, E.loop], [64, -5, E.loop], [82, 3, E.loop], [101, -1.4, E.loop], [120, 0, E.out]]),
+  ch("HandlePivot", "x", [[0, 0], [28, -4, E.out], [46, 3, E.loop], [64, -2, E.loop], [120, 0, E.out]]),
+  ch("EyeLSolo", "rotation", [[0, 0], [30, 10, E.out], [60, -7, E.loop], [90, 3, E.loop], [120, 0, E.out]]),
+  ch("EyeRSolo", "rotation", [[0, 0], [32, -10, E.out], [62, 7, E.loop], [92, -3, E.loop], [120, 0, E.out]]),
+  ch("Face", "x", [[0, 0], [20, -6, E.out], [38, 5, E.loop], [58, -3, E.loop], [78, 2, E.loop], [105, 0, E.out], [120, 0, E.hold]]),
+  ch("Face", "y", [[0, 0], [20, -3, E.out], [38, 4, E.loop], [58, -2, E.loop], [78, 1, E.loop], [120, 0, E.out]]),
+  ch("EyeLSolo", "scaleY", [[0, 1], [20, 1.1, E.back], [38, 0.65, E.loop], [58, 1.02, E.loop], [78, 0.75, E.loop], [96, 0.08, E.in], [100, 0.08, E.hold], [108, 1.04, E.out], [120, 1, E.out]]),
+  ch("EyeRSolo", "scaleY", [[0, 1], [22, 0.72, E.out], [40, 1.08, E.back], [60, 0.7, E.loop], [80, 1, E.loop], [97, 0.08, E.in], [101, 0.08, E.hold], [109, 1.04, E.out], [120, 1, E.out]]),
+  eyes([[0, "pill"], [16, "round"], [106, "pill"]]),
+]);
+
 export const REACTIONS = [
   { key: "acknowledge", trigger: "acknowledge", build: acknowledge },
   { key: "surprise", trigger: "surprise", build: surprise },
@@ -207,11 +291,25 @@ export const REACTIONS = [
   { key: "laugh", trigger: "laugh", build: laugh },
   { key: "tapped", trigger: "tapped", build: tapped },
   { key: "recoil", trigger: "recoil", build: recoil },
+  { key: "powerup", trigger: "powerUp", build: powerUp },
+  { key: "personalbest", trigger: "personalBest", build: personalBest },
+  { key: "cheer", trigger: "cheer", build: cheer },
+  { key: "appreciate", trigger: "appreciate", build: appreciate },
+  { key: "idea", trigger: "idea", build: idea },
+  { key: "dizzy", trigger: "dizzy", build: dizzy },
 ];
 
 export function buildReactions() {
   return REACTIONS.map((r) => {
     const anim = r.build();
+    if (REACTIONS.indexOf(r) >= 10) {
+      const keyed = new Set(anim.tracks.map((t) => `${t.target}|${t.property}`));
+      for (const [target, property, rest] of MOOD_CHANNELS) {
+        if (!keyed.has(`${target}|${property}`)) {
+          anim.tracks.push(ch(target, property, [[0, rest], [anim.duration, rest, E.hold]]));
+        }
+      }
+    }
     return { ...r, animation: anim.name, anim };
   });
 }

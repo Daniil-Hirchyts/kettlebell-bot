@@ -2,14 +2,15 @@
 //
 // The rig depends on a rule about who may key what: a state-machine layer keys
 // only the (object, property) channels it owns. Most layers own their channels
-// outright. Two pairs share on purpose — reactions override moods, turn shots
-// override the held facing — and there the LATER layer wins, which is only safe
+// outright. Reactions override moods, turn shots override the held facing, and
+// optional eye poses override glyph selection. The LATER layer wins, only safe
 // if it can also get out of the way. Rule 8 enforces that half of the bargain.
 // Both halves are checked here because a broken composition is very hard to see
 // in a filmstrip.
 
 import { TURN_CHANNELS, turnPose } from "./turn.mjs";
 import { EYE_VARIANTS, EYE_Y, bodyHalfWidthAt } from "./geometry.mjs";
+import { FX_CHANNELS } from "./effects.mjs";
 
 const MOOD_TARGETS = ["Char", "BodyPivot", "HandlePivot", "Face", "EyeLSolo", "EyeRSolo"];
 
@@ -30,6 +31,10 @@ export function ownershipFor(meta) {
   add("Energy", meta.energy.map((e) => e.anim), (t) => t.target === "Energy");
   add("Touch", [meta.touch.rest, meta.touch.hover, meta.touch.press], (t) => t.target === "Touch");
   add("Blink", meta.blinks.map((b) => b.anim), (t) => t.target === "EyeLBlink" || t.target === "EyeRBlink");
+  add("Eyes", meta.eyeExpressions.map((e) => e.anim), (t) => ["EyeLSolo", "EyeRSolo"].includes(t.target) && t.property === "soloActive");
+  const fxOwned = new Set(FX_CHANNELS.map(([t, p]) => `${t}|${p}`));
+  add("Effects", [...meta.effects.map((e) => e.anim), meta.effectIdle], (t) => fxOwned.has(`${t.target}|${t.property}`));
+  add("Effects Intensity", meta.effectIntensity.map((e) => e.anim), (t) => t.target === "FxIntensity" && t.property === "opacity");
   return rules;
 }
 
@@ -61,7 +66,7 @@ export function validateScene(scene, meta) {
       if (track.property === "soloActive") continue;
       const first = track.keyframes[0];
       const last = track.keyframes.at(-1);
-      if (Math.abs(first.value - last.value) > 1e-6) {
+      if (track.property === "fillColor" ? first.color !== last.color : Math.abs(first.value - last.value) > 1e-6) {
         errors.push(`${anim.name}: ${track.target}.${track.property} loops from ${first.value} to ${last.value}`);
       }
       if (last.frame > anim.duration) {
@@ -70,11 +75,20 @@ export function validateScene(scene, meta) {
     }
   }
 
-  // 3 · keyframes must be strictly ordered, and one-shots must fit the duration
+  // 3 · unique channels, strictly ordered keys and bounded one-shot duration
   for (const anim of scene.animations) {
+    const channels = new Set();
     for (const track of anim.tracks) {
+      const channel = `${track.target}|${track.property}`;
+      if (channels.has(channel)) errors.push(`${anim.name}: duplicate channel ${track.target}.${track.property}`);
+      channels.add(channel);
       let previous = -1;
       for (const kf of track.keyframes) {
+        if (track.property === "fillColor" && !/^#[\da-f]{6}([\da-f]{2})?$/i.test(kf.color ?? "")) {
+          errors.push(`${anim.name}: ${track.target} has invalid color ${kf.color}`);
+        } else if (track.property !== "fillColor" && track.property !== "soloActive" && !Number.isFinite(kf.value)) {
+          errors.push(`${anim.name}: ${track.target}.${track.property} needs a finite value`);
+        }
         if (kf.frame <= previous) {
           errors.push(`${anim.name}: ${track.target}.${track.property} has non-increasing frame ${kf.frame}`);
         }
@@ -89,6 +103,7 @@ export function validateScene(scene, meta) {
   // 4 · solo references and track targets must exist
   const shapeIds = new Set(scene.shapes.map((s) => s.id));
   const groupIds = new Set(scene.groups.map((g) => g.id));
+  const shapesById = new Map(scene.shapes.map((s) => [s.id, s]));
   for (const anim of scene.animations) {
     for (const track of anim.tracks) {
       if (track.property === "soloActive") {
@@ -101,6 +116,9 @@ export function validateScene(scene, meta) {
         continue;
       }
       const base = track.target.split("#")[0];
+      if (track.property === "fillColor" && !shapesById.get(base)?.fill?.color) {
+        errors.push(`${anim.name}: ${track.target} has no solid fill to recolor`);
+      }
       if (!shapeIds.has(base) && !groupIds.has(base)) {
         errors.push(`${anim.name}: track target ${track.target} missing`);
       }
@@ -114,7 +132,7 @@ export function validateScene(scene, meta) {
   // delta-authored layers may only translate nodes parked at (0, 0), and the
   // neutral facing pose must reproduce the rig's own static values.
   const groupById = new Map(scene.groups.map((g) => [g.id, g]));
-  const deltaLayers = new Set(["Mood", "Reaction", "Gaze X", "Gaze Y", "Energy", "Touch", "Blink"]);
+  const deltaLayers = new Set(["Mood", "Reaction", "Gaze X", "Gaze Y", "Energy", "Touch", "Blink", "Effects"]);
   for (const rule of ownershipFor(meta)) {
     if (!deltaLayers.has(rule.layer)) continue;
     for (const name of rule.anims) {
@@ -269,5 +287,18 @@ export function validateScene(scene, meta) {
     );
   }
 
+  // 10 · each particle shot replaces the entire pool and resets it at exit.
+  for (const { anim } of meta.effects) {
+    const keyed = new Map(anim.tracks.map((t) => [`${t.target}|${t.property}`, t]));
+    for (const [target, property, rest] of FX_CHANNELS) {
+      const track = keyed.get(`${target}|${property}`);
+      if (!track) { errors.push(`${anim.name}: incomplete particle reset for ${target}.${property}`); continue; }
+      const first = track.keyframes[0], last = track.keyframes.at(-1);
+      if (first.frame !== 0 || last.frame !== anim.duration || (property === "soloActive" ? last.ref !== rest : last.value !== rest)) {
+        errors.push(`${anim.name}: incomplete particle reset for ${target}.${property}`);
+      }
+      if (property === "opacity" && first.value !== 0) errors.push(`${anim.name}: particle starts visible at ${target}`);
+    }
+  }
   return { errors, warnings };
 }

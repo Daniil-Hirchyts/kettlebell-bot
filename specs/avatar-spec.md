@@ -28,9 +28,9 @@ it happens to be in.
   exactly — eight vertex position and handle-length tracks, never a rotation —
   instead of a twenty-track approximation. This is what lets the opening close
   correctly, to a point, as the bot turns to profile.
-- Eyes: 33.6 x 86.8 rounded pills, centres 84 px apart at rest, 24 px above the
+- Eyes: 39.6 x 102.3 rounded pills, centres 94 px apart at rest, 10 px above the
   body centre. Every variant is authored at a base size and multiplied by
-  `EYE_SCALE` (currently 1.4), so eye size is one dial rather than 30
+  `EYE_SCALE` (currently 1.65), so eye size is one dial rather than 30
   coordinates — see specs/animation-spec.md for what it trades against
 
 ### Depth layers
@@ -208,8 +208,8 @@ Root                        (256, 302, scale 0.92)
                     └── Face
                         └── GazeX
                             └── GazeY
-                                ├── EyeL → EyeLBlink → EyeLSolo → 7 eye shapes
-                                └── EyeR → EyeRBlink → EyeRSolo → 7 eye shapes
+                                ├── EyeL → EyeLBlink → EyeLSolo → 14 eye shapes
+                                └── EyeR → EyeRBlink → EyeRSolo → 14 eye shapes
 ```
 
 Each eye is three nested transforms plus a Solo group, so the turn system, the
@@ -219,7 +219,7 @@ blink layer and the mood layer can all act on the same eye without fighting:
 ## Eye shape variants
 
 The eyes are the main expressive feature, so they are not one shape that scales.
-Each eye is a Rive `Solo` group holding seven variants; a mood or reaction swaps
+Each eye is a Rive `Solo` group holding fourteen variants; a mood or reaction swaps
 the active child instantly, then acts on it with scale, rotation and offset.
 
 | Variant | Geometry | Used by |
@@ -230,7 +230,19 @@ the active child instantly, then acts on it with scale, rotation and offset.
 | `slit` | 34 x 12 rounded bar x `EYE_SCALE` | bored, sleepy, skeptical |
 | `arc` | Upward crescent | happy, proud, playful, relieved, laugh |
 | `wedge` | Angled-top pill, mirrored per side | focused, blocked, frustrated, gear-up |
-| `star` | Four-point sparkle | celebrate |
+| `star` | Four-point sparkle | celebrate, personal best |
+| `soft` | Short 24 × 40 pill | optional eye selection |
+| `wide` | Horizontal 46 × 28 oval | optional eye selection |
+| `squint` | Short angled bar with rounded ends, mirrored | optional eye selection |
+| `crescent` | Thin smile with rounded tips | optional eye selection |
+| `frown` | Reflected original arc | optional eye selection |
+| `droop` | Short angled-top pill with soft corners, mirrored | optional eye selection |
+| `diamond` | Rounded four-anchor pupil | optional eye selection |
+
+All dimensions use the same `EYE_SCALE`. The additions remain inside the existing
+46 × 76 base envelope. Automatic selection preserves the accepted mood/reaction
+glyph choices. Particles use a separate six-slot pool beneath `BodyPivot`, with
+four grayscale glyphs: rounded sparkle, capsule, drop and short dust bar.
 
 Asymmetric pairs are allowed and used deliberately: `confused` runs `round` +
 `slit` and swaps them mid-loop; `skeptical` holds `slit` + `pill`.
@@ -273,3 +285,17 @@ elevated container rather than adding a permanent outline.
 - Small-size legibility was explicitly deprioritised per the brief. The asset is
   tuned for 96–256 px mobile avatar use; below ~48 px the depth layers stop
   contributing and the silhouette carries the read on its own.
+
+## Expression refinement
+
+The four appended moods and six reactions use the same seven eye shapes as
+moods 0–15. Their acting is built from posture, gaze, asymmetric lids, held
+beats and handle follow-through. Seven optional glyphs extend this vocabulary
+without changing that acting. Eyes remain off-white and there are no palette
+controls. The four small particle effects follow the bell's yaw and local motion;
+their emitters hide behind the body and dust uses the smaller base radius.
+
+Eye scale increases from 1.4 to 1.65, giving every glyph approximately 18% more
+width/height and 39% more area. The eye centres move down 14 units and apart by
+10 units; the turn projection follows the enlarged envelope with two units of
+inset. The silhouette-overhang and profile-reach guards remain enabled.

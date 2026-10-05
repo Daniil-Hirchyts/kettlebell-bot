@@ -1,7 +1,7 @@
 # Animation specification
 
-Everything runs at 60 fps. The system has 91 animations, 2667 tracks and 21000
-keyframes, driven by one state machine with nine layers.
+Everything runs at 60 fps. The system has 122 animations, 4403 tracks and 34692
+keyframes, driven by one state machine with twelve layers.
 
 ## The idea
 
@@ -35,7 +35,7 @@ One angle drives everything:
    where a sliver's lit edge otherwise reads as a stray bright nick.
 2. **The eyes are decals on the bell itself.** Seen from above the bell is an
    ellipse `BELL_RADIUS_X` across by `BELL_RADIUS_X * 0.95` deep, and the eyes
-   sit on it at ±16.35 degrees, so they wrap around the real form, foreshorten,
+   sit on it at the azimuth derived from eye spacing, so they wrap around the real form, foreshorten,
    stall at the limb and pass out of sight. The silhouette squeeze is the exact
    projection of that same ellipse, `hypot(cos a, 0.95 * sin a)`, which is what
    keeps an eye pinned to the rim at every angle rather than only at 0 and 90.
@@ -48,12 +48,12 @@ One angle drives everything:
    rather than fading while it still has width — a half-transparent eye read
    as a grey ghost beside the white one.
 
-   `BELL_RADIUS_X` is 149.2, which is *not* the body's half-width at eye height
-   (165.4). An eye is a rigid shape, up to 106 tall at `EYE_SCALE` 1.4, and the
+   `BELL_RADIUS_X` is approximately 149.5, which is *not* the body's half-width at eye height
+   (approximately 167). An eye is a rigid shape, up to 125.4 tall at `EYE_SCALE` 1.65, and the
    bell keeps narrowing above eye height, so an eye riding the eye-height circle
    swings clear off the outline between about 45 and 75 degrees while its centre
    is still well inside. An eye can only ride the smallest circle it spans, so
-   the radius is `bodyHalfWidthAt(EYE_Y - EYE_MAX_HALF.y)` — derived by the
+   the radius is `bodyHalfWidthAt(EYE_Y - EYE_MAX_HALF.y) - 2` — derived by the
    module from the eye shapes themselves, not hand-measured, so resizing the
    eyes cannot silently invalidate it. `FaceRoot` is additionally clipped to
    `body-mask`, which absorbs the last ~4 px of corner overhang on the tallest
@@ -93,19 +93,23 @@ overriding one another, and it is checked at build time by
 |---|---|---|
 | Energy | `Energy.*` | `intensity` (1D blend) |
 | Touch | `Touch.*` | `hover`, `pressed` |
-| Turn | `Yaw.*`, `BodyPlate.scaleX`, `HandleFace` `x` `scaleX`, `HandleFaceDetail.opacity`, `WallFar` and `WallFarEdge` `x` `scaleX`, `HandleBridge.scaleX`, the six handle light tints' `opacity`, the eight window vertex tracks, `TurnFront.*`, `TurnBack.*`, `EyeL/R` `x` `scaleX` `opacity` | `facing` (1D blend), `status` |
+| Turn | `Yaw.*`, `BodyPlate.scaleX`, `HandleFace` `x` `scaleX`, `HandleFaceDetail.opacity`, `WallFar` and `WallFarEdge` `x` `scaleX`, `HandleBridge.scaleX`, the six handle light tints' `opacity`, the eight window vertex tracks, `TurnFront.*`, `TurnBack.*`, `EyeL/R` `x` `scaleX` `opacity`, `FxProjection*` `x` `scaleX` `opacity`, `FxGlyph*.scaleX` | `facing` (1D blend), `status` |
 | Turn Shot | the Turn channels, temporarily | `spinRight`, `spinLeft`, `turnaround`, `peek` |
 | Mood | `Char.*`, `BodyPivot.*`, `HandlePivot.*`, `Face.*`, `EyeL/RSolo.*` | `status` |
 | Reaction | the Mood channels, temporarily | reaction triggers |
+| Eyes | `EyeL/RSolo.soloActive`, optionally overriding mood/reaction | `eyes` (0 = automatic) |
+| Effects Intensity | `FxIntensity.opacity` | `effectsIntensity` (1D blend) |
+| Effects | `FxEmitter*.scaleX`, `FxParticle*` transforms/opacity and `FxGlyph*.soloActive` | four `fx*` triggers |
 | Gaze X | `GazeX.*` | `gazeX` (1D blend) |
 | Gaze Y | `GazeY.*` | `gazeY` (1D blend) |
 | Blink | `EyeL/RBlink.*` | `blink`, `blinkDouble`, `wink` |
 
-### The two override pairs
+### Override layers
 
 Two layers deliberately share channels with the layer below: Reaction over Mood,
-and Turn Shot over Turn. The later layer wins while it is playing and then hands
-the channels back.
+and Turn Shot over Turn. Eyes also overrides the shape channels when explicitly
+selected, yielding to both Mood and Reaction in automatic mode. The later layer
+wins while active and then hands the channels back.
 
 **A one-shot cannot share a layer with a level-triggered condition.** That is the
 rule these pairs exist to satisfy, and it is not obvious until it bites. The Turn
@@ -162,6 +166,10 @@ enforces this on every layer that shares channels with an earlier one.
 | `mood_13_nervous` | 1.80 s | loop | A fast repeating tremor — a fixed four-frame pattern, never random noise — under a shallow, quick breath. |
 | `mood_14_playful` | 1.60 s | loop | A skipping rhythm with a hitch in it: two big lateral hops, a wink on the beat between them. |
 | `mood_15_listening` | 3.00 s | loop | Leans in, tracks side to side, gives small acknowledging nods and blinks on the beat. |
+| `mood_16_determined` | 3.50 s | loop | Wedge eyes, deliberate bracing, a held forward lean, one focused blink. |
+| `mood_17_exhausted` | 4.20 s | loop | Rounded slit eyes, two unequal effortful breaths, prolonged blink, slumped handle. |
+| `mood_18_recovering` | 5.00 s | loop | Closed slit eyes, slow inhale and exhale with a held breath, gradually straightens. |
+| `mood_19_cheeky` | 3.50 s | loop | Uneven pill lids; eyes glance before the lean, a held wink, opposite glance. |
 
 ### Reaction layer — one-shots
 
@@ -177,6 +185,12 @@ enforces this on every layer that shares channels with an earlier one.
 | `react_laugh` | 1.10 s | one-shot | Four decaying giggle bounces with the rotation alternating and arc eyes squeezing on each beat. |
 | `react_tapped` | 0.50 s | one-shot | Direct touch feedback: immediate squash, snap back with overshoot, one small wobble. |
 | `react_recoil` | 0.90 s | one-shot | Shoved sideways with rotation, gathers itself, eyes go `round` then `wedge` before recovering. |
+| `react_powerup` | 1.50 s | one-shot | Compress, hold anticipation, rise into a strong stance, settle. |
+| `react_personalbest` | 1.75 s | one-shot | Victory hop, star eyes, weighty landing and one rebound. |
+| `react_cheer` | 1.25 s | one-shot | Two unequal encouraging bounces with arc eyes. |
+| `react_appreciate` | 1.50 s | one-shot | Happy arc eyes, gentle lean, weighted nod and staggered lid response. |
+| `react_idea` | 1.00 s | one-shot | Brief squint, sudden round eyes, attentive lift. |
+| `react_dizzy` | 2.00 s | one-shot | Uneven round-eye lids, drifting gaze and a decaying wobble. |
 
 ### Turn layer — scripted head turns and spins
 
@@ -206,7 +220,7 @@ enforces this on every layer that shares channels with an earlier one.
 | `energy_mid` | 2.80 s | loop | Ambient loop at 1x amplitude. |
 | `energy_high` | 2.80 s | loop | Ambient loop at 2.1x amplitude, with y, rotation and scale peaks deliberately out of phase. |
 | `showcase_turnaround` | 5.60 s | loop | Preview-only: the turnaround with the body kept breathing underneath. |
-| `showcase_emotions` | 10.93 s | loop | Preview-only: every mood's signature pose, sampled from the real loops, with a head turn per beat. |
+| `showcase_emotions` | 13.67 s | loop | Preview-only: every mood's signature pose, sampled from the real loops, with a head turn per beat. |
 
 ## Build-time guards
 
@@ -223,3 +237,44 @@ enforces this on every layer that shares channels with an earlier one.
 
 An eighth check warns (does not fail) when a transform track has no easing.
 `npm run verify` separately confirms the committed `.riv` still matches the source.
+
+## Expression refinement
+
+All moods and reactions use the original seven Solo glyphs. The common eye scale
+is 1.65 (previously 1.4); the resting centres move to y = -10 and 94 units apart.
+The projection radius is derived from the tallest eye with a two-unit inset.
+Validator rule 9 still checks the entire 360-degree path; the tolerance and
+minimum profile reach are unchanged.
+
+New reactions fill the complete body/expression channel contract before volume
+compensation so interruption cannot inherit a previous shot's transforms.
+Colored-eye palettes and the earlier particle implementation remain removed.
+Color-track syntax validation remains available as a general scene guard.
+
+## Optional eyes and small particle effects
+
+Fourteen `eyes_<shape>` poses select the Solo glyphs. All seven additions fit
+inside the established maximum eye bounds, so the accepted projection, scale,
+spacing and mood/reaction tracks do not change.
+
+| Particle animation | Duration | Visible particles |
+|---|---:|---:|
+| `fx_sparkles` | 66 frames / 1.10 s | 4 |
+| `fx_motes` | 108 frames / 1.80 s | 6 |
+| `fx_sweat` | 78 frames / 1.30 s | 1 |
+| `fx_dust` | 48 frames / 0.80 s | 5 |
+
+The hierarchy is `BodyPivot → FxIntensity → FxEmitter → FxProjection →
+FxParticle → FxGlyph`. Turn/Turn Shot own each projection's x, scaleX and
+opacity plus each glyph's inverse tangent-width compensation. A front emitter at azimuth p projects to
+`160 sin(p) cos(a) - 152 cos(p) sin(a)`. Tangent-plane motion foreshortens by
+`cos(p-a) / cos(p)`, and the emitter hides as its normal turns away. Glyph width is compensated so
+a drop or sparkle keeps its shape while its flight follows the plane. Dust uses
+0.58 of that radius to follow the narrower base; glyph width is compensated.
+
+Effects own only emitter radius, particle-local transforms, opacity and glyph.
+They stagger emissions, pop into view, drift in short arcs and fade away. Every
+animation keys the entire six-slot pool at frame zero and restores every channel
+at the last frame; idle also restores the complete pool. Intensity owns a parent
+opacity and never competes with the particle fades. Validation rejects partial
+resets, visible endpoints, duplicate tracks and layer ownership violations.

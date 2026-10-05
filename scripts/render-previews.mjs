@@ -40,6 +40,7 @@ const clips = [
   meta.energy[2].anim,
   meta.showcaseTurn,
   meta.showcaseEmotions,
+  ...meta.effects.map((e) => e.anim),
 ]
   .map((anim) => {
     const seconds = anim.duration / 60;

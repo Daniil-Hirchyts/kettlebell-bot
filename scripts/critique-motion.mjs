@@ -40,6 +40,20 @@ const DEFAULT_TARGETS = [
   "react_frustrated",
   "react_recoil",
   "showcase_emotions",
+  "mood_16_determined",
+  "mood_17_exhausted",
+  "mood_18_recovering",
+  "mood_19_cheeky",
+  "react_powerup",
+  "react_personalbest",
+  "react_cheer",
+  "react_appreciate",
+  "react_idea",
+  "react_dizzy",
+  "fx_sparkles",
+  "fx_motes",
+  "fx_sweat",
+  "fx_dust",
 ];
 
 const targets = explicit.length ? explicit : DEFAULT_TARGETS;

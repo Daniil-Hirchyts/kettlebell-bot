@@ -42,6 +42,8 @@ import {
 import { buildEmotionShowcase, buildTurnShowcase } from "./showcase.mjs";
 import { turnPose } from "./turn.mjs";
 import { bucketSpecks, scatterGrain } from "./grain.mjs";
+import { buildEyeExpressions } from "./expressions.mjs";
+import { buildEffectGroups, buildEffectShapes, buildEffects, buildEffectIdle, buildEffectIntensity } from "./effects.mjs";
 
 const REST = turnPose(0);
 
@@ -110,6 +112,7 @@ export function buildGroups() {
     { id: "GazeY", parent: "GazeX", x: 0, y: 0 },
     ...eyeChain("L"),
     ...eyeChain("R"),
+    ...buildEffectGroups(),
   ];
 }
 
@@ -462,7 +465,7 @@ export function buildShapes() {
       );
     });
   }
-  return shapes;
+  return [...shapes, ...buildEffectShapes()];
 }
 
 // ---------------------------------------------------------------------------
@@ -488,6 +491,10 @@ const SHOWCASE_BEATS = [
   ["mood_03_working", 23, 16],
   ["mood_15_listening", 80, -18],
   ["mood_00_calm", 0, 0],
+  ["mood_16_determined", 40, 0],
+  ["mood_17_exhausted", 65, 15],
+  ["mood_18_recovering", 85, 0],
+  ["mood_19_cheeky", 80, -15],
 ];
 
 export function buildScene() {
@@ -501,6 +508,10 @@ export function buildScene() {
   const gaze = buildGazePoses();
   const energy = buildEnergyPoses();
   const touch = buildTouchAnims();
+  const eyeExpressions = buildEyeExpressions();
+  const effects = buildEffects();
+  const effectIdle = buildEffectIdle();
+  const effectIntensity = buildEffectIntensity();
 
   const byName = new Map(moods.map((m) => [m.anim.name, m.anim]));
   const showcaseEmotions = buildEmotionShowcase(
@@ -524,6 +535,10 @@ export function buildScene() {
     touch.press,
     showcaseTurn,
     showcaseEmotions,
+    ...eyeExpressions.map((e) => e.anim),
+    ...effects.map((e) => e.anim),
+    effectIdle,
+    ...effectIntensity.map((e) => e.anim),
   ];
 
   const yawStatuses = new Set(yawLoops.map((y) => y.status));
@@ -539,9 +554,12 @@ export function buildScene() {
       { name: "intensity", type: "number", initial: 0.5 },
       { name: "hover", type: "bool", initial: false },
       { name: "pressed", type: "bool", initial: false },
+      { name: "eyes", type: "number", initial: 0 },
+      { name: "effectsIntensity", type: "number", initial: 1 },
       ...reactions.map((r) => ({ name: r.trigger, type: "trigger" })),
       ...turnShots.map((t) => ({ name: t.trigger, type: "trigger" })),
       ...blinks.map((b) => ({ name: b.trigger, type: "trigger" })),
+      ...effects.map((e) => ({ name: e.trigger, type: "trigger" })),
     ],
     layers: [
       {
@@ -667,6 +685,36 @@ export function buildScene() {
         ],
       },
       {
+        name: "Eyes",
+        states: [
+          { name: "EyesAuto", animation: NEUTRAL.name },
+          ...eyeExpressions.map((e) => ({ name: `Eyes_${e.key}`, animation: e.anim.name })),
+        ],
+        transitions: [
+          { from: "entry", to: "EyesAuto", durationMs: 0 },
+          { from: "any", to: "EyesAuto", durationMs: 90, condition: { input: "eyes", op: "==", value: 0 } },
+          ...eyeExpressions.map((e) => ({ from: "any", to: `Eyes_${e.key}`, durationMs: 90,
+            condition: { input: "eyes", op: "==", value: e.value } })),
+        ],
+      },
+      {
+        name: "Effects Intensity",
+        states: [{ name: "EffectsIntensityBlend", blend1d: { input: "effectsIntensity",
+          animations: effectIntensity.map((e) => ({ animation: e.anim.name, value: e.value })) } }],
+        transitions: [{ from: "entry", to: "EffectsIntensityBlend", durationMs: 0 }],
+      },
+      {
+        name: "Effects",
+        states: [{ name: "EffectsIdle", animation: effectIdle.name },
+          ...effects.map((e) => ({ name: `Effect_${e.key}`, animation: e.anim.name }))],
+        transitions: [
+          { from: "entry", to: "EffectsIdle", durationMs: 0 },
+          ...effects.map((e) => ({ from: "any", to: `Effect_${e.key}`, durationMs: 0, condition: { input: e.trigger } })),
+          ...effects.map((e) => ({ from: `Effect_${e.key}`, to: "EffectsIdle", durationMs: 0,
+            exitTimeMs: Math.round(e.anim.duration / 60 * 1000) })),
+        ],
+      },
+      {
         name: "Gaze X",
         states: [
           {
@@ -703,6 +751,7 @@ export function buildScene() {
           })),
         ],
       },
+
     ],
   };
 
@@ -714,6 +763,7 @@ export function buildScene() {
       animations,
       stateMachine,
     },
-    meta: { moods, reactions, blinks, facingPoses, yawLoops, turnShots, gaze, energy, touch, showcaseTurn, showcaseEmotions },
+    meta: { moods, reactions, blinks, facingPoses, yawLoops, turnShots, gaze, energy, touch, showcaseTurn, showcaseEmotions,
+      eyeExpressions, effects, effectIdle, effectIntensity },
   };
 }

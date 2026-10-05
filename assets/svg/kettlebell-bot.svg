@@ -298,12 +298,12 @@
       </g>
     </g>
 
-    <g id="face" transform="translate(0 -24)">
-        <g id="eye-left" transform="translate(-36 0)">
-          <rect x="-16.799999999999997" y="-43.4" width="33.599999999999994" height="86.8" rx="16.799999999999997" fill="#F8FAFC" />
+    <g id="face" transform="translate(0 -10)">
+        <g id="eye-left" transform="translate(-47 0)">
+          <rect x="-19.799999999999997" y="-51.15" width="39.599999999999994" height="102.3" rx="19.799999999999997" fill="#F8FAFC" />
         </g>
-        <g id="eye-right" transform="translate(36 0)">
-          <rect x="-16.799999999999997" y="-43.4" width="33.599999999999994" height="86.8" rx="16.799999999999997" fill="#F8FAFC" />
+        <g id="eye-right" transform="translate(47 0)">
+          <rect x="-19.799999999999997" y="-51.15" width="39.599999999999994" height="102.3" rx="19.799999999999997" fill="#F8FAFC" />
         </g>
     </g>
   </g>

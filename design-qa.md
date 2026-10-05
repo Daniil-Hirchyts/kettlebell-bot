@@ -1,4 +1,91 @@
-# Design QA — motion system rebuild
+# Design QA — Kettlebell Bot
+
+## Additional eyes and restrained particles — 2026-10-05
+
+The accepted monochrome character is the baseline for this addition. Seven
+optional glyphs extend its pill/oval/rounded-lid vocabulary: soft, wide, squint,
+crescent, frown, droop and diamond. All fit inside the existing eye envelope;
+the accepted geometry and twenty mood/sixteen reaction animations are retained.
+Automatic eye mode yields to the original acting. The override continues to
+compose with lids, gaze and the full turn.
+
+The particle pack contains four explicitly triggered, grayscale accents:
+four rounded sparkles, six drifting capsules, one sweat drop, and five short
+dust marks. Their projection is sampled by the same Turn and Turn Shot system
+as the bell. Front emitters disappear behind the body; dust projects from 0.58
+of the shoulder radius so it follows the tapered base. Particle-local playback,
+emitter radius, turn projection and intensity have separate channel ownership.
+
+Critique pass `accents1` exposed particles that were too small and faint at
+160 px. Pass `accents2` enlarges the marks, raises capsule/dust contrast, and
+keeps the visible count low. The final dust pass also tightens its origin to the
+base. Glyph width compensation keeps the drop and sparkles from stretching
+sideways in three-quarter views. Both passes include all four filmstrips, onion skins and displacement
+reports in `previews/critique/accents{1,2}-*`. Particle motion rises, drifts or
+falls in short local arcs; reset endpoints have zero net displacement. The
+report's remaining touch-press displacement points down as intended.
+
+| Review axis (1–5) | Pass 1 | Pass 2 | Evidence |
+|---|---:|---:|---|
+| Silhouette and composition | 4 | 4 | Original artwork retained; sparse marks avoid the eyes |
+| Color | 3 | 4 | Larger grayscale marks and charcoal edge contrast on light/dark surfaces |
+| Depth and polish | 4 | 4 | Emitters follow the bell's projection and front/back visibility |
+| Motion physicality | 4 | 4 | Staggered emission, pop, local arcs, settling fade; dust uses the base radius |
+| Timing | 4 | 4 | Four distinct 0.8–1.8 s shots; no automatic emission |
+| Shape quality | 3 | 4 | Original rounded eye language; larger sparkles, capsules and drop |
+| Spatial and directional coherence | 4 | 4 | Four effects at six facings; zero back-facing particle contribution |
+
+`previews/sheets/eye-shapes.png` reviews fourteen glyphs. `fxturn.png` and
+`fxturn2.png` review all four effects at six facings, while
+`accents-{light,dark}-{44,64,160,512}.png` reviews new eyes and representative
+effect combinations. Thin crescents and motes are deliberately subtle at badge
+sizes; the main face remains readable. No clipping appeared in these samples.
+Runtime tests pair the same timeline at intensity 0/1 to confirm visible effects,
+exactly clean exits, hidden back views and independent body playback.
+
+## Expression refinement — 2026-10-05
+
+This revision follows user feedback: remove colored eyes and particles, match
+the new emotions to the original character, and enlarge the eyes throughout.
+All expressions now use the original seven off-white glyphs. Body lighting,
+grain and handle geometry are preserved.
+
+The first critique (`previews/critique/refinement1-*`) showed that squashed pill
+eyes read as small squares in exhausted. The second pass uses the original
+rounded slit for exhausted and recovering. Determined braces before its held
+stance; cheeky's glance leads the body and its wink stays readable. Appreciate
+uses smiling arc eyes and a weighted nod; dizzy staggers the lids and gaze while
+its body and handle lose wobble amplitude.
+
+Eye scale is 1.65 versus 1.4: about 18% wider/taller and 39% more area. Moving the
+centres from -24 to -10 and spacing from 84 to 94 keeps the enlarged eyes clear.
+A two-unit surface inset gives the turn model room at the corners. The existing
+full-turn silhouette and profile-reach guards retain their original thresholds.
+
+Both critique passes cover all four new moods and six new reactions, using
+filmstrips, onion skins and the displacement reports in
+`previews/critique/refinement{1,2}-*`. The loops and reactions return to their
+starting position; the reported touch press displacement remains downward.
+The acting uses vertical breath, local leans and settling rather than travel.
+
+| Review axis (1–5) | Pass 1 | Pass 2 | Evidence |
+|---|---:|---:|---|
+| Silhouette and composition | 4 | 4 | Original body and handle; enlarged eyes stay within the turn guards |
+| Color | 4 | 4 | Original off-white eyes and charcoal shading on both surfaces |
+| Depth and polish | 4 | 4 | Existing grain, lighting and handle projection retained |
+| Motion physicality | 4 | 4 | Preparation, compensated squash, weighted landings and delayed handle response |
+| Timing | 4 | 4 | Held poses, uneven breaths, staggered lids and decaying wobble |
+| Shape quality | 3 | 4 | Replaced flattened pill eyes in exhausted/recovering with the original rounded slit |
+| Spatial and directional coherence | 4 | 4 | Four new moods at six facings; gaze and turn remain independent |
+
+Reviewed twelve examples at 44, 64, 160 and 512 px on light and dark surfaces
+(`previews/sheets/expansion-*`). No clipping appeared in those samples. Closed
+recovering eyes remain deliberately subtle at 44–64 px; breath and nod timing
+are easier to distinguish at larger sizes. `previews/sheets/geometry.png`
+records the four new moods through front, diagonal, profile and back views.
+
+The earlier sections below record the original rig's design history; their
+historical dimensions and counts describe the versions reviewed at that time.
 
 ## What was compared
 

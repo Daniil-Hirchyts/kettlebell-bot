@@ -1,7 +1,7 @@
 # Kettlebell Bot
 
 A vector Rive avatar for mobile apps. It is a charcoal kettlebell that turns a
-full 360 degrees, holds sixteen distinct emotional states, and reacts, blinks,
+full 360 degrees, holds twenty distinct emotional states, and reacts, blinks,
 looks around and responds to touch — all composable, all driven by one state
 machine.
 
@@ -10,19 +10,21 @@ machine.
 | | |
 |---|---|
 | Turnaround, every 30 degrees | ![](previews/sheets/turnaround.png) |
-| All 16 emotional states | ![](previews/sheets/emotions.png) |
+| All 20 emotional states | ![](previews/sheets/emotions.png) |
 
 Animated: [`previews/animations/showcase_turnaround.gif`](previews/animations/showcase_turnaround.gif) ·
 [`previews/animations/showcase_emotions.gif`](previews/animations/showcase_emotions.gif)
 
 ## What is in the box
 
-- `rive/kettlebell-bot.riv` — the runtime asset. Rive format 7.0, 1,063 KB,
+- `rive/kettlebell-bot.riv` — the runtime asset. Rive format 7.0, 1,277 KB,
   transparent, no embedded images.
 - `rive/kettlebell-bot.scene.json` — the full reproducible scene the `.riv` is
   built from.
 - `assets/svg/kettlebell-bot.svg` — the editable vector source, layered and named
   to match the Rive rig.
+- `assets/svg/kettlebell-bot-expressions.svg` — all 14 editable eye glyphs.
+- `assets/svg/kettlebell-bot-particles.svg` — four small monochrome particle glyphs.
 - `assets/svg/kettlebell-bot-turnaround.svg` — seven facings drawn by the same
   projection model the `.riv` animates.
 - `assets/icon/` — app-icon artwork: the bot in a held three-quarter pose,
@@ -73,14 +75,15 @@ projection model rather than a set of drawn poses. One angle drives everything:
 The held facings, the scripted head turns and the full spins are the same maths
 sampled differently, so they can never disagree.
 
-The state machine has nine layers: Energy, Touch, Turn, Turn Shot, Mood,
-Reaction, Gaze X, Gaze Y and Blink. That is what lets a mood, a facing, a gaze
+The state machine has twelve layers: Energy, Touch, Turn, Turn Shot, Mood,
+Reaction, Eyes, Effects Intensity, Effects, Gaze X, Gaze Y and Blink. That is what lets a mood, a facing, a gaze
 direction, a blink and a press all play at once instead of overriding one
 another — and it is checked at build time, so a violation fails the build rather
 than producing a subtly wrong file.
 
-Most layers own their channels outright. Two pairs share deliberately — Reaction
-over Mood, Turn Shot over Turn — because a one-shot cannot live on the same layer
+Most layers own their channels outright. Reaction overrides Mood, Turn Shot
+overrides Turn, and Eyes can temporarily select a glyph over Mood/Reaction.
+A one-shot cannot live on the same layer
 as a level-triggered condition like `status == 0`, which is true on every frame
 and will drag the machine straight back out of the one-shot. An overriding layer
 must idle on a track-free animation so it can hand the channels back; that is
@@ -98,11 +101,46 @@ const bot = useRef<KettlebellBotHandle>(null);
 bot.current?.celebrate();   // finished
 bot.current?.turnaround();  // full 360
 bot.current?.lookAt(-0.6, 0.2);
+bot.current?.setEyes("crescent");
+bot.current?.fxMotes();      // independent particle-only shot
+bot.current?.setEyes("auto"); // return to mood/reaction eye choices
 ```
 
-Inputs: `status` (0–15), `facing` (0–360), `gazeX`/`gazeY` (-1–1),
-`intensity` (0–1), `hover`, `pressed`, and 17 triggers. Full table in
+Inputs: `status` (0–19), `facing` (0–360), `gazeX`/`gazeY` (-1–1),
+`intensity` (0–1), `hover`, `pressed`, `eyes` (0–14),
+`effectsIntensity` (0–1), and 27 triggers. Full table in
 [`specs/integration-contract.md`](specs/integration-contract.md).
+
+## More personality, the original visual language
+
+Four new moods — **determined**, **exhausted**, **recovering**, **cheeky** — join
+six new reactions: `powerUp`, `personalBest`, `cheer`, `appreciate`, `idea`, `dizzy`.
+They use the original seven eye shapes, with personality carried by posture,
+gaze, lid timing and delayed handle movement. Appreciate smiles and nods;
+dizzy uses uneven lids and a wobble that gradually settles.
+
+All eyes are off-white. The eyes are about 18% wider/taller than the previous
+1.4-scale rig (39% more area), and the turn projection is recalibrated for their
+size and spacing. Seven optional eye shapes extend the same rounded vocabulary:
+**soft**, **wide**, **squint**, **crescent**, **frown**, **droop**, **diamond**.
+Choose a shape independently or keep Automatic to preserve the current mood
+and reaction acting. Eyes remain off-white.
+
+Four restrained particle shots — `fxSparkles`, `fxMotes`, `fxSweat`, `fxDust` —
+use grayscale capsules, rounded sparkles and a small drop. There are at most six
+particles. Their emitters follow the bell's yaw projection, hide behind the
+back, and use the narrower base radius for dust. They never start automatically;
+a new effect replaces the previous one and resets the whole pool.
+
+```tsx
+<KettlebellBot ref={bot} mood="determined" intensity={0.7} />;
+bot.current?.powerUp();
+bot.current?.fxSparkles();
+```
+
+The playground includes every expression, turn, gaze and blink control, all four
+preview sizes (44/64/160/512 px), and light/dark surfaces. Review sheets live in
+`previews/sheets/expansion-{light,dark}-{44,64,160,512}.png`.
 
 ## Building
 
@@ -115,6 +153,7 @@ npm run check      # validate and write the scene JSON only, no MCP round trip
 npm run verify     # is the committed .riv still what the source produces?
 npm run test       # drive every state-machine input and transition
 npm run previews   # one animated preview per animation, plus static renders
+npm run review     # expression samples at 44/64/160/512 on light/dark
 npm run sheets     # contact sheets for turnaround, emotions, reactions, touch
 npm run critique   # filmstrips, onion skins and contact sheets; tag it: npm run critique -- pass3
 npm run lint:riv   # riv_lint
@@ -148,8 +187,10 @@ Source layout:
 scripts/lib/geometry.mjs    artwork: paths, eye variants, palette, depth layers
 scripts/lib/turn.mjs        the yaw projection model and its track generator
 scripts/lib/motion.mjs      channel helpers, easing tokens, volume compensation
-scripts/lib/moods.mjs       the 16 persistent mood loops
-scripts/lib/reactions.mjs   the 10 one-shots and the 3 blinks
+scripts/lib/moods.mjs       the 20 persistent mood loops
+scripts/lib/reactions.mjs   the 16 one-shots and the 3 blinks
+scripts/lib/expressions.mjs optional eye-only poses
+scripts/lib/effects.mjs     grayscale particles, surface projection and resets
 scripts/lib/turnanims.mjs   facing poses, head turns, spins, gaze, energy, touch
 scripts/lib/showcase.mjs    preview-only reels, sampled from the real animations
 scripts/lib/scene.mjs       rig, artwork and state-machine assembly
