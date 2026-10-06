@@ -5,7 +5,7 @@
 // facing pose, a curious head-turn and a full 360 spin are all the same geometry
 // sampled differently — they can never disagree with each other.
 
-import { ch, E, FPS, loopAnim, oneShot, pose } from "./motion.mjs";
+import { ch, E, FPS, loopAnim, oneShot, pose, spline } from "./motion.mjs";
 import { sampleFacing, turnPoseTracks, turnTracks } from "./turn.mjs";
 
 // Fine enough that blending two neighbours never averages away what a pose is
@@ -212,11 +212,14 @@ export function buildEnergyPoses() {
   const d = 168;
   const level = (name, k) =>
     loopAnim(name, d, [
-      ch("Energy", "y", [[0, 0], [42, -3.6 * k, E.loop], [84, 0, E.loop], [126, 2.2 * k, E.loop], [168, 0, E.loop]]),
-      ch("Energy", "x", [[0, 0], [56, 1.8 * k, E.loop], [112, -1.8 * k, E.loop], [168, 0, E.loop]]),
-      ch("Energy", "rotation", [[0, 0], [50, 0.9 * k, E.loop], [118, -0.9 * k, E.loop], [168, 0, E.loop]]),
-      ch("Energy", "scaleY", [[0, 1], [60, 1 + 0.014 * k, E.loop], [140, 1 - 0.008 * k, E.loop], [168, 1, E.loop]]),
-      ch("Energy", "scaleX", [[0, 1], [60, 1 - 0.014 * k, E.loop], [140, 1 + 0.008 * k, E.loop], [168, 1, E.loop]]),
+      // One breath that never stops: rising first, the sway and the lean a
+      // little behind it, the squash later still. Eased key to key, the body
+      // came to rest every 0.7 s, at the very moments it should move fastest.
+      spline("Energy", "y", d, [[0, 0], [42, -3.6 * k], [84, 0], [126, 2.2 * k]], { step: 4 }),
+      spline("Energy", "x", d, [[0, 0], [56, 1.8 * k], [112, -1.8 * k]], { step: 4 }),
+      spline("Energy", "rotation", d, [[0, 0], [50, 0.9 * k], [118, -0.9 * k]], { step: 4 }),
+      spline("Energy", "scaleY", d, [[0, 1], [60, 1 + 0.014 * k], [140, 1 - 0.008 * k]], { step: 4 }),
+      spline("Energy", "scaleX", d, [[0, 1], [60, 1 - 0.014 * k], [140, 1 + 0.008 * k]], { step: 4 }),
     ]);
   return [
     { value: 0, anim: level("energy_low", 0.35) },

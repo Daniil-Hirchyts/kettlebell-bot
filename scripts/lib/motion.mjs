@@ -4,6 +4,12 @@
 //   tap 6f · exit 15f · enter 27f · emphasis 30f · ambient 3.5s
 //   enter = emphasized-decel · exit = emphasized-accel · move = smooth
 //   loop = ease-in-out · spring = elastic-out · never linear on transforms.
+//
+// The one exception is a curve sampled densely (`wave`, `spline`): there the
+// keys sit a few frames apart along a smooth curve and are joined straight,
+// which is what keeps the motion going. Easing each short segment instead
+// brings the body to a stop at every key — a breath that halts eight times a
+// cycle reads as separate little moves, not one living motion.
 
 export const FPS = 60;
 
@@ -43,8 +49,11 @@ export function ch(target, property, keys) {
 /**
  * Seamless cyclic channel. `phase` is in cycles (0..1) and exists so no two
  * ambient tracks on the same object ever peak on the same frame.
+ *
+ * Sampled densely and joined straight, so the motion never stops: it slows
+ * at the crests the way a sine does and keeps moving through them.
  */
-export function wave(target, property, { duration, base = 0, amp = 1, phase = 0, cycles = 1, steps = 8, easing = E.loop }) {
+export function wave(target, property, { duration, base = 0, amp = 1, phase = 0, cycles = 1, steps = 24, easing = "linear" }) {
   const keys = [];
   const total = steps * cycles;
   for (let i = 0; i <= total; i += 1) {
@@ -170,3 +179,37 @@ export function withVolume(anim, targets, gain = 0.45) {
 }
 
 export const VOLUME_TARGETS = ["Char", "BodyPivot", "HandlePivot", "EyeLSolo", "EyeRSolo"];
+
+/**
+ * A loop through key poses that never comes to rest: a periodic Catmull-Rom
+ * curve through `points` (`[frame, value]` over one loop, starting at frame 0;
+ * the loop closes back onto the first at `duration`), sampled every `step`
+ * frames and joined straight. The motion slows where the curve turns, snaps
+ * where the poses are close in time, and carries straight on through the
+ * seam into the next cycle — wind-up, strike and follow-through as one swing.
+ */
+export function spline(target, property, duration, points, { step = 2 } = {}) {
+  const n = points.length;
+  const at = (i) => {
+    const k = ((i % n) + n) % n;
+    const wraps = Math.floor(i / n);
+    return [points[k][0] + wraps * duration, points[k][1]];
+  };
+  const value = (frame) => {
+    let i = 0;
+    for (let j = 0; j < n; j += 1) if (points[j][0] <= frame) i = j;
+    const [p0, p1, p2, p3] = [at(i - 1), at(i), at(i + 1), at(i + 2)];
+    const m1 = (p2[1] - p0[1]) / (p2[0] - p0[0]);
+    const m2 = (p3[1] - p1[1]) / (p3[0] - p1[0]);
+    const h = p2[0] - p1[0];
+    const t = (frame - p1[0]) / h;
+    const t2 = t * t;
+    const t3 = t2 * t;
+    return (2 * t3 - 3 * t2 + 1) * p1[1] + (t3 - 2 * t2 + t) * h * m1
+      + (-2 * t3 + 3 * t2) * p2[1] + (t3 - t2) * h * m2;
+  };
+  const keys = [];
+  for (let frame = 0; frame < duration; frame += step) keys.push([frame, value(frame), "linear"]);
+  keys.push([duration, keys[0][1], "linear"]);
+  return ch(target, property, keys);
+}

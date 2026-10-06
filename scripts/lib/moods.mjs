@@ -7,7 +7,7 @@
 // Every mood keys the complete channel contract (see MOOD_CHANNELS) so that
 // switching moods can never leave a stale transform behind.
 
-import { ch, E, eyes, eyesSplit, loopAnim, mergeTracks, moodBlink, wave } from "./motion.mjs";
+import { ch, E, eyes, eyesSplit, loopAnim, mergeTracks, moodBlink, spline, wave } from "./motion.mjs";
 
 // Wave phase that places the positive peak at time `t` of the cycle.
 const pk = (t) => 0.25 - t;
@@ -149,33 +149,41 @@ function thinking() {
 }
 
 // ---------------------------------------------------------------------------
-// 3 · working — a hammering action motif: wind up, strike, absorb, reset
+// 3 · working — a hammering action motif: wind up, strike, absorb, and
+//     straight on into the next wind-up. One swing, never a stop: the strike
+//     is fast, the recovery drifts back into the wind-up instead of settling,
+//     so a loader running for seconds reads as RAUTA at work, not as a clip
+//     restarting every 1.4 s.
 // ---------------------------------------------------------------------------
 function working() {
   const d = 84;
+  const swing = (target, property, points) => spline(target, property, d, points);
   return completeMood("mood_03_working", d, [
-    ch("Char", "rotation", [[0, 0], [14, -11, E.anticipate], [22, 14.5, E.in], [28, -4.4, E.out], [40, 2, E.out], [58, -0.6, E.move], [84, 0, E.move]]),
-    ch("Char", "y", [[0, 0], [14, -9, E.anticipate], [22, 12, E.in], [27, 5.5, E.out], [38, -6, E.out], [58, 1, E.move], [84, 0, E.move]]),
-    ch("Char", "x", [[0, 0], [14, -5, E.anticipate], [22, 6, E.in], [40, -2, E.out], [84, 0, E.move]]),
-    // Impact squash lands one frame after the strike and releases fast.
-    ch("Char", "scaleY", [[0, 1], [14, 1.035, E.anticipate], [23, 0.87, E.in], [30, 1.06, E.out], [42, 0.985, E.out], [84, 1, E.move]]),
-    ch("Char", "scaleX", [[0, 1], [14, 0.97, E.anticipate], [23, 1.13, E.in], [30, 0.948, E.out], [42, 1.012, E.out], [84, 1, E.move]]),
+    // After the strike it does not settle: it leans back into the next
+    // wind-up for the rest of the cycle, so there is always a move under way.
+    swing("Char", "rotation", [[0, -6], [14, -11], [22, 14.5], [28, -4.4], [40, 2], [60, -2]]),
+    swing("Char", "y", [[0, -4], [14, -9], [22, 12], [27, 5.5], [38, -3], [62, -2]]),
+    swing("Char", "x", [[0, -3], [14, -5], [22, 6], [40, -1], [62, -2]]),
+    // Impact squash lands one frame after the strike and releases fast; the
+    // body stretches as it gathers for the next one.
+    swing("Char", "scaleY", [[0, 1.02], [14, 1.035], [23, 0.87], [30, 1.06], [42, 0.99], [62, 1.01]]),
+    swing("Char", "scaleX", [[0, 0.985], [14, 0.97], [23, 1.13], [30, 0.948], [42, 1.008], [62, 0.993]]),
     // Handle whips through the strike and keeps swinging after the body stops.
-    ch("HandlePivot", "rotation", [[0, 0], [16, 9.5, E.out], [26, -13, E.in], [34, 7, E.out], [46, -3.2, E.out], [62, 1, E.move], [84, 0, E.move]]),
-    ch("HandlePivot", "x", [[0, 0], [16, 5, E.out], [26, -6.5, E.in], [36, 3, E.out], [50, -1.2, E.move], [84, 0, E.move]]),
-    ch("HandlePivot", "y", [[0, 0], [16, -3, E.out], [26, 5, E.in], [36, -2, E.out], [84, 0, E.move]]),
-    ch("HandlePivot", "scaleY", [[0, 1], [16, 1.03, E.out], [26, 0.94, E.in], [36, 1.02, E.out], [84, 1, E.move]]),
-    ch("BodyPivot", "rotation", [[0, 0], [14, 2.4, E.anticipate], [24, -3, E.in], [40, 1, E.out], [84, 0, E.move]]),
-    ch("BodyPivot", "scaleY", [[0, 1], [24, 0.968, E.in], [32, 1.022, E.out], [84, 1, E.move]]),
-    ch("BodyPivot", "scaleX", [[0, 1], [24, 1.03, E.in], [32, 0.982, E.out], [84, 1, E.move]]),
+    swing("HandlePivot", "rotation", [[0, 6], [16, 9.5], [26, -13], [34, 7], [46, -3.2], [64, 2]]),
+    swing("HandlePivot", "x", [[0, 3], [16, 5], [26, -6.5], [36, 3], [50, -1.2], [68, 1.5]]),
+    swing("HandlePivot", "y", [[0, -2], [16, -3], [26, 5], [36, -2], [60, -1]]),
+    swing("HandlePivot", "scaleY", [[0, 1.02], [16, 1.03], [26, 0.94], [36, 1.02], [60, 1.01]]),
+    swing("BodyPivot", "rotation", [[0, 1.6], [14, 2.4], [24, -3], [40, 1], [62, 1]]),
+    swing("BodyPivot", "scaleY", [[0, 1.004], [24, 0.968], [32, 1.022], [52, 1]]),
+    swing("BodyPivot", "scaleX", [[0, 0.996], [24, 1.03], [32, 0.982], [52, 1]]),
     // The gaze locks on the impact point through the whole swing.
-    ch("Face", "x", [[0, 0], [14, -4, E.anticipate], [22, 7, E.in], [34, 2, E.out], [84, 0, E.move]]),
-    ch("Face", "y", [[0, 0], [14, -3, E.anticipate], [23, 6, E.in], [34, -1, E.out], [84, 0, E.move]]),
-    ch("Face", "rotation", [[0, 0], [14, -2.6, E.anticipate], [22, 3.4, E.in], [84, 0, E.move]]),
-    ch("EyeLSolo", "scaleY", [[0, 1], [14, 1.06, E.anticipate], [23, 0.5, E.in], [32, 1.08, E.out], [46, 1, E.out], [84, 1, E.move]]),
-    ch("EyeRSolo", "scaleY", [[0, 1], [14, 1.06, E.anticipate], [23, 0.5, E.in], [32, 1.08, E.out], [46, 1, E.out], [84, 1, E.move]]),
-    ch("EyeLSolo", "scaleX", [[0, 1], [23, 1.2, E.in], [34, 0.96, E.out], [84, 1, E.move]]),
-    ch("EyeRSolo", "scaleX", [[0, 1], [23, 1.2, E.in], [34, 0.96, E.out], [84, 1, E.move]]),
+    swing("Face", "x", [[0, -3], [14, -4], [22, 7], [34, 2], [60, -1.5]]),
+    swing("Face", "y", [[0, -2], [14, -3], [23, 6], [34, -1], [60, -1]]),
+    swing("Face", "rotation", [[0, -2], [14, -2.6], [22, 3.4], [44, 0.6], [66, -1]]),
+    swing("EyeLSolo", "scaleY", [[0, 1.04], [14, 1.06], [23, 0.5], [32, 1.08], [46, 1], [66, 1.02]]),
+    swing("EyeRSolo", "scaleY", [[0, 1.04], [14, 1.06], [23, 0.5], [32, 1.08], [46, 1], [66, 1.02]]),
+    swing("EyeLSolo", "scaleX", [[0, 1.01], [14, 1.02], [23, 1.2], [34, 0.96], [52, 1]]),
+    swing("EyeRSolo", "scaleX", [[0, 1.01], [14, 1.02], [23, 1.2], [34, 0.96], [52, 1]]),
     eyes([[0, "tall"]]),
   ]);
 }

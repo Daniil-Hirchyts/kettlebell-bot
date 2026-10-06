@@ -186,6 +186,8 @@ export function validateScene(scene, meta) {
     if (anim.duration <= 1) continue;
     for (const track of anim.tracks) {
       if (track.property === "soloActive") continue;
+      // A densely sampled curve is joined straight on purpose (see motion.mjs).
+      if (track.keyframes.length >= 12) continue;
       const eased = track.keyframes.slice(1).filter((k) => k.easing && k.easing !== "linear");
       if (track.keyframes.length > 1 && eased.length === 0) {
         warnings.push(`${anim.name}: ${track.target}.${track.property} has no easing (reads robotic)`);
