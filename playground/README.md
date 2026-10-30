@@ -5,6 +5,7 @@ A local Vite + React control surface for the Kettlebell Bot Rive avatar.
 Run from this directory:
 
 ```sh
+npm ci
 npm run dev
 ```
 

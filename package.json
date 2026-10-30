@@ -2,10 +2,10 @@
   "name": "kettlebell-bot",
   "version": "2.1.0",
   "private": true,
-  "description": "Vector Rive avatar: 360-degree turnaround, 20 moods, 16 reactions, 14 monochrome eye shapes and four surface-projected particle effects.",
+  "description": "An expressive Rive character for a bot, with moods, reactions, gaze and a 360-degree turn.",
   "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": ">=20.11.0"
   },
   "scripts": {
     "build": "node scripts/build-svg.mjs && node scripts/build-rive.mjs",

@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Copied from the root Rive asset by sync:asset
+/public/kettlebell-bot.riv
