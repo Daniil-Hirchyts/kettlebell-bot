@@ -8,7 +8,19 @@ Kettlebell Bot is an expressive animated character for a bot or digital assistan
 
 The character has 20 persistent moods, 16 reactions, 14 selectable eye shapes, four particle effects, and a full 360-degree turn. Its state machine composes mood, facing, gaze, blinking and touch so they can play together.
 
-![Kettlebell Bot on a light surface](previews/static/kettlebell-bot-on-light.png)
+## Meet the bot
+
+The bot's mood can reflect what it is doing, from thinking and working to celebrating or recovering. Its eyes can also be selected independently.
+
+![The twenty moods of Kettlebell Bot](previews/sheets/emotions.png)
+
+![Fourteen selectable eye shapes](previews/sheets/eye-shapes.png)
+
+Reactions add one-shot gestures on top of a mood, while the turnaround exposes the character from every side.
+
+![Kettlebell Bot reactions](previews/sheets/reactions.png)
+
+![Kettlebell Bot turnaround poses](previews/sheets/turnaround.png)
 
 ## Try the playground
 
@@ -53,7 +65,7 @@ The wrapper also exposes actions such as `turnaround()`, `lookAt(x, y)`, `setEye
 - [`examples/`](examples/) — React integration example.
 - [`playground/`](playground/) — interactive control surface.
 - [`previews/`](previews/) — animation previews, contact sheets and validation captures.
-- [`specs/`](specs/) — artwork, animation, integration and validation details.
+- [`specs/`](specs/) — artwork, animation and integration details.
 - [`scripts/`](scripts/) — geometry, motion, scene generation and verification tools.
 
 ## Building and testing
@@ -79,14 +91,16 @@ npm run build:icon  # regenerate the icon SVGs
 npm run playground:build
 ```
 
-`npm run check` writes the scene JSON. The Rive-backed commands also generate or update preview files. If an editor saves changes to the asset, run `npm run verify` to check for drift from the generated source. See the [validation report](specs/validation-report.md) for runtime and editor notes.
+`npm run check` writes the scene JSON. The Rive-backed commands also generate or update preview files. If an editor saves changes to the asset, run `npm run verify` to check for drift from the generated source. The build is byte-deterministic, making it possible to detect changes introduced by an editor round-trip.
 
 ## How it works
 
 The turn uses a projection model rather than a flat rotation: the handle reveals its thickness, the eyes wrap around the bell and disappear at its edge, and lighting follows the projected form. The surface grain is made from vector specks. Moods, reactions, turns, gaze, touch and effects are coordinated by twelve state-machine layers; build-time validation checks their channel ownership. The [avatar specification](specs/avatar-spec.md) and [animation specification](specs/animation-spec.md) describe the rig and motion in more detail.
 
-## Credits and usage
+## License and attribution
 
-The artwork is original. The silhouette was developed from the reference in [`assets/reference/`](assets/reference/), which is not embedded in the Rive asset. Motion principles were informed by xAI's published Grok Bot design process; no vectors, poses, timing or visual design were taken from it.
+Copyright © Daniil Hirchyts. The original artwork and code in this repository are licensed under [Creative Commons Attribution-NonCommercial 4.0 International](LICENSE) (CC BY-NC 4.0). You may share and adapt them for noncommercial purposes with appropriate credit, a link to the license, and an indication of changes. For commercial use, contact the author for permission. Third-party dependencies remain subject to their own licenses.
 
-No license has been specified for this repository. Contact the repository owner for permission before reusing the artwork or code.
+Suggested credit: **Kettlebell Bot by Daniil Hirchyts**, licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
+
+Motion principles were informed by xAI's published Grok Bot design process; no vectors, poses, timing or visual design were taken from it.

@@ -3,8 +3,8 @@
 ## Identity
 
 Kettlebell Bot is a charcoal kettlebell that behaves like a small, opinionated
-creature. Its silhouette comes straight from the supplied reference — an arched
-handle over a broad, rounded bell — and everything expressive is layered on top
+creature. Its silhouette has an arched handle over a broad, rounded bell, and
+everything expressive is layered on top
 of that shape rather than beside it. The eyes carry the acting; the body carries
 the weight.
 
@@ -17,8 +17,7 @@ it happens to be in.
 - Artboard and SVG viewBox: 512 x 512, `KettlebellBot`
 - Character origin: artboard (256, 302), uniformly scaled 0.92 to leave head room
   for jumps, spins and overshoot
-- Body: seven-anchor Bézier blob, half-width 157, top -137.5, bottom +137.5,
-  taken verbatim from the reference artwork
+- Body: seven-anchor Bézier blob, half-width 157, top -137.5, bottom +137.5
 - Handle: compound path — a five-anchor outer arch plus a real negative-space
   opening, centred 169.5 above the body centre. Drawn as the plate's exact
   projection — near face, far face and the band between their tops — which is
@@ -249,7 +248,7 @@ Asymmetric pairs are allowed and used deliberately: `confused` runs `round` +
 
 ## Colour
 
-Brand colours are locked to the reference. The supporting depth values are
+The palette uses a charcoal body and off-white eyes. The supporting depth values are
 tint/shade steps around the same charcoal, and the rim light uses `palette.primary`
 from `riv_design_tokens` (seed `#1B1D22`, mood `tech`, scheme `dark`).
 

@@ -18,8 +18,8 @@ export const ROOT_SCALE = 0.92;
 // ---------------------------------------------------------------------------
 // Palette
 //
-// Brand colours are locked to the supplied reference (charcoal body, off-white
-// eyes). Every supporting depth value is a tint/shade step around that brand
+// Brand colours use a charcoal body and off-white
+// eyes. Every supporting depth value is a tint/shade step around that brand
 // charcoal, and the rim light uses `palette.primary` from riv_design_tokens
 // (seed #1B1D22, mood "tech", scheme "dark"). See specs/avatar-spec.md.
 // ---------------------------------------------------------------------------
@@ -41,7 +41,7 @@ export const COLOR = {
 };
 
 // ---------------------------------------------------------------------------
-// Body silhouette — seven-anchor Bézier blob taken from the reference artwork.
+// Body silhouette — seven-anchor Bézier blob.
 // ---------------------------------------------------------------------------
 export const BODY_POINTS = [
   { x: 0, y: -137.5, cubic: { rotation: 0, inRotation: 180, inDistance: 87, outDistance: 87 } },

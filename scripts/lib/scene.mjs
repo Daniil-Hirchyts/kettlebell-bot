@@ -183,7 +183,7 @@ export function buildShapes() {
   ];
 
   const shapes = [
-    // The handle sits behind the bell, exactly as in the reference silhouette,
+    // The handle sits behind the bell, following the character silhouette,
     // and is drawn as the plate it is: its near face, its far face and the band
     // between their tops, with the see-through window cut from all of them by
     // one clip. At rest the face covers the rest exactly; turned, a band of
