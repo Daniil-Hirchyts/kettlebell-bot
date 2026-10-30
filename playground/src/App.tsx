@@ -22,7 +22,7 @@ export default function App() {
   const [gazeX, setGazeX] = useState(0)
   const [gazeY, setGazeY] = useState(0)
   const [intensity, setIntensity] = useState(.62)
-  const [previewSize, setPreviewSize] = useState(512)
+  const [previewSize, setPreviewSize] = useState(256)
   const [surface, setSurface] = useState('dark')
   const [hoverLock, setHoverLock] = useState(false)
   const [pressLock, setPressLock] = useState(false)
@@ -169,7 +169,7 @@ export default function App() {
           <div className="field"><div className="field-title"><span>Facing</span><output>{Math.round(facing)}°</output></div><input type="range" min="0" max="360" value={facing} onChange={(event) => setFacing(Number(event.target.value))} /><div className="facing-buttons">{[[0, 'Front'], [90, 'Right'], [180, 'Back'], [270, 'Left']].map(([angle, label]) => <button key={String(angle)} type="button" onClick={() => setFacing(Number(angle))}>{label}</button>)}</div></div>
           <div className="field"><div className="field-title"><span>Gaze</span><output>{gazeX.toFixed(1)}, {gazeY.toFixed(1)}</output></div><div className="gaze-controls"><label>Horizontal<input type="range" min="-1" max="1" step=".05" value={gazeX} onChange={(event) => setGazeX(Number(event.target.value))} /></label><label>Vertical<input type="range" min="-1" max="1" step=".05" value={gazeY} onChange={(event) => setGazeY(Number(event.target.value))} /></label></div></div>
           <div className="field"><div className="field-title"><span>Energy</span><output>{Math.round(intensity * 100)}%</output></div><input type="range" min="0" max="1" step=".01" value={intensity} onChange={(event) => setIntensity(Number(event.target.value))} /></div>
-          <div className="preview-controls"><label className="field"><span>Preview size</span><select value={previewSize} onChange={(event) => setPreviewSize(Number(event.target.value))}>{[44, 64, 160, 512].map((size) => <option key={size} value={size}>{size} px</option>)}</select></label><label className="field"><span>Surface</span><select value={surface} onChange={(event) => setSurface(event.target.value)}><option value="dark">Dark</option><option value="light">Light</option></select></label></div>
+          <div className="preview-controls"><label className="field"><span>Preview size</span><select value={previewSize} onChange={(event) => setPreviewSize(Number(event.target.value))}>{[44, 64, 160, 256, 512].map((size) => <option key={size} value={size}>{size} px</option>)}</select></label><label className="field"><span>Surface</span><select value={surface} onChange={(event) => setSurface(event.target.value)}><option value="dark">Dark</option><option value="light">Light</option></select></label></div>
           <div className="toggle-row"><label><input type="checkbox" checked={hoverLock} onChange={(event) => setHoverLock(event.target.checked)} /> Lock hover</label><label><input type="checkbox" checked={pressLock} onChange={(event) => setPressLock(event.target.checked)} /> Lock press</label></div>
         </section>
       </section>
