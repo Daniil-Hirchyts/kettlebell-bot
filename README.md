@@ -97,6 +97,10 @@ npm run playground:build
 
 The turn uses a projection model rather than a flat rotation: the handle reveals its thickness, the eyes wrap around the bell and disappear at its edge, and lighting follows the projected form. The surface grain is made from vector specks. Moods, reactions, turns, gaze, touch and effects are coordinated by twelve state-machine layers; build-time validation checks their channel ownership. The [avatar specification](specs/avatar-spec.md) and [animation specification](specs/animation-spec.md) describe the rig and motion in more detail.
 
+## Used in
+
+[RAUTA](https://github.com/Daniil-Hirchyts/RAUTA), a strength-training app for iPhone and Apple Watch, uses Kettlebell Bot as its on-device training assistant. The app plays the Rive file directly, and its watch app and Lock Screen Live Activity use sprite frames and timer fonts generated from the same rig.
+
 ## License and attribution
 
 Copyright © Daniil Hirchyts. The original artwork and code in this repository are licensed under [Creative Commons Attribution-NonCommercial 4.0 International](LICENSE) (CC BY-NC 4.0). You may share and adapt them for noncommercial purposes with appropriate credit, a link to the license, and an indication of changes. For commercial use, contact the author for permission. Third-party dependencies remain subject to their own licenses.
